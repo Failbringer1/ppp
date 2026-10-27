@@ -19,7 +19,21 @@
     11, 14, 6, 17, 29, 30, 78, 39, 26, 28, 76, 35, 24, 65, 70, 79, 4, 27, 73, 33, 23, 10, 38, 87, 47, 37, 86, 20,
     89, 53];
 
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  // Timers of a hidden tab are throttled to about one per minute after 5 minutes; a worker's are not.
+  let timer = null;
+  try {
+    timer = new Worker(URL.createObjectURL(new Blob(
+      ['onmessage = e => setTimeout(() => postMessage(e.data.id), e.data.ms)'], {type: 'text/javascript'})));
+  } catch (e) { /* no workers: plain timers */ }
+  const waiting = new Map();
+  let seq = 0;
+  if (timer) timer.onmessage = e => { const done = waiting.get(e.data); waiting.delete(e.data); if (done) done(); };
+  const sleep = ms => new Promise(r => {
+    if (!timer) return setTimeout(r, ms);
+    const id = ++seq;
+    waiting.set(id, r);
+    timer.postMessage({id, ms});
+  });
   const pause = () => sleep(DELAY[0] + Math.random() * (DELAY[1] - DELAY[0]));
 
   let dbp = null;
