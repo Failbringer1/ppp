@@ -108,6 +108,7 @@ class Channel(Base):
     honest_reach: Mapped[float | None] = mapped_column(Float)
     monitor_account_id: Mapped[int | None] = mapped_column(ForeignKey("accounts.id"))
     joined: Mapped[bool] = mapped_column(Boolean, default=False)
+    joined_at: Mapped[datetime | None] = mapped_column(DateTime)
     last_msg_id: Mapped[int | None] = mapped_column(Integer)
     collected_at: Mapped[datetime | None] = mapped_column(DateTime)
     checked_at: Mapped[datetime | None] = mapped_column(DateTime)

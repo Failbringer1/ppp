@@ -262,3 +262,39 @@ async def test_full_flow():
         item = await s.get(ContentItem, item_id)
         assert item.status == "published", item.error
     pool.clients.pop(acc_id, None)
+
+
+async def test_join_read_contacts_leave_cycle():
+    """Catalog channel -> join (biggest first) -> description/contacts right away -> overdue check -> leave."""
+    await init_db()
+    fake = FakeClient()
+    fake.add_channel(2001, "small_uz", "Small", 5_000)
+    fake.add_channel(2002, "big_uz", "Big", 900_000, about="Yangiliklar\nReklama: @big_reklama")
+    for i in range(6):
+        fake.add_msg(2002, 10 + i, f"Xabar {i}", timedelta(hours=30 + i), 90_000)
+    async with session() as s:
+        acc = Account(phone="+998001", status="active", roles="monitor")
+        s.add(acc)
+        s.add_all([Channel(username="small_uz", subscribers=5_000, status="monitoring"),
+                   Channel(username="big_uz", subscribers=900_000, status="monitoring")])
+        await s.commit()
+        acc_id = acc.id
+    pool.clients[acc_id] = fake
+    try:
+        await monitor._join_next()
+        assert fake.joined == {2002}                       # the biggest one first
+        async with session() as s:
+            big = (await s.scalars(select(Channel).where(Channel.username == "big_uz"))).one()
+            assert big.joined and big.joined_at and big.status == "monitoring"
+            assert big.about.startswith("Yangiliklar") and big.avg_views   # read right after the join
+            linked = (await s.scalars(select(Contact.value))).all()
+            assert "big_reklama" in linked
+            big.joined_at = utcnow() - timedelta(days=5)    # a rare poster: the check must not hold the slot
+            await s.commit()
+        await monitor._join_next()                          # finishes the overdue check, leaves, joins the next
+        async with session() as s:
+            big = (await s.scalars(select(Channel).where(Channel.username == "big_uz"))).one()
+            assert big.status == "checked" and not big.joined
+        assert 2001 in fake.joined
+    finally:
+        pool.clients.pop(acc_id, None)

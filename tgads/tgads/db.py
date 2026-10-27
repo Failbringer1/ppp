@@ -23,6 +23,8 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "min_posts_for_verdict": 3,
     "posts_to_track_per_channel": 5,
     "auto_leave_after_check": True,
+    "max_monitor_days": 4,        # a channel is checked with what it has after this many days in it
+    "max_joined_per_account": 480,  # Telegram allows 500 channels per account
     # account limits
     "joins_per_day": 30,
     "dms_per_day": 15,

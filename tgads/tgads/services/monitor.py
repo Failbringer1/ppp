@@ -24,7 +24,8 @@ from ..db import get_setting, get_settings, session, set_setting
 from ..models import Account, Channel, Post, ViewSample, utcnow
 from ..tg.parse import is_content_message
 from ..tg.pool import FloodWait, NoAccount, bump, call, counter, pool
-from .research import resolve_entity, upsert_post
+from . import contacts
+from .research import collect_channel, resolve_entity, upsert_post
 
 log = logging.getLogger(__name__)
 
@@ -276,14 +277,18 @@ async def join_loop() -> None:
 
 
 async def _join_next() -> int:
+    """One step of the cycle: join the biggest waiting channel, read its description, pinned post and
+    history (contacts come from them), track new posts; channels done with the check are left."""
     async with session() as s:
         settings = await get_settings(s)
+        await _finish_overdue(s, settings)
+        await s.commit()
+        await _leave_checked(s, settings)
+        await s.commit()
         # the biggest channels first: join slots are scarce (daily limit, 500 channels per account)
         ch = (await s.scalars(select(Channel).where(Channel.status == "monitoring", Channel.joined.is_(False))
                               .order_by(Channel.subscribers.desc().nullslast(), Channel.id).limit(1))).first()
         if ch is None:
-            await _leave_checked(s, settings)
-            await s.commit()
             return 60
         limit = int(settings.get("joins_per_day") or 30)
         try:
@@ -293,6 +298,10 @@ async def _join_next() -> int:
         acc = await s.get(Account, acc_id)
         if counter(acc, "joins") >= limit:
             return 600
+        joined_now = await s.scalar(select(func.count(Channel.id)).where(Channel.joined.is_(True),
+                                                                         Channel.monitor_account_id == acc_id))
+        if joined_now >= int(settings.get("max_joined_per_account") or 480):
+            return 600  # wait until checked channels are left
         try:
             if ch.invite_hash and not ch.username and not ch.tg_id:
                 entity = await _join_by_invite(client, ch.invite_hash)
@@ -313,18 +322,46 @@ async def _join_next() -> int:
             await _archive_and_mute(client, entity)
             last = await client.get_messages(entity, limit=1)
             ch.last_msg_id = last[0].id if last else 0
-            ch.joined, ch.monitor_account_id, ch.error = True, acc_id, None
+            ch.joined, ch.joined_at, ch.monitor_account_id, ch.error = True, utcnow(), acc_id, None
             bump(acc, "joins")
             log.info("joined %s with account %s", ch.ref, acc_id)
+            joined_id = ch.id
         except FloodWait as e:
             await pool.set_cooldown(acc_id, e.seconds)
             return min(e.seconds, 900)
         except Exception as e:
             ch.error = f"Не удалось вступить: {e}"[:500]
             ch.status = "error"
+            joined_id = None
         await s.commit()
     await monitor.refresh_watch()
+    if joined_id:
+        await _read_channel(joined_id, acc_id)
     return random.randint(40, 120)
+
+
+async def _read_channel(channel_id: int, account_id: int) -> None:
+    """Description, pinned post and last posts of a freshly joined channel, then its admin contacts."""
+    try:
+        await collect_channel(channel_id, account_id=account_id)
+        await contacts.extract_for_channels([channel_id])
+    except FloodWait:
+        pass  # the collector loop will not retry a monitoring channel; the check itself goes on
+    except Exception:
+        log.exception("reading joined channel %s", channel_id)
+
+
+async def _finish_overdue(s: AsyncSession, settings: dict) -> None:
+    """A channel that posts rarely must not hold a join slot for weeks: give it a verdict by what it has."""
+    days = float(settings.get("max_monitor_days") or 4)
+    rows = (await s.scalars(select(Channel).where(Channel.status == "monitoring", Channel.joined.is_(True),
+                                                  Channel.joined_at < utcnow() - timedelta(days=days))
+                            .limit(20))).all()
+    for ch in rows:
+        await analyze_channel(s, ch)
+        ch.status = "checked"
+        if ch.verdict == "unknown":
+            ch.reasons = (ch.reasons or []) + [f"За {days:g} дн. мало постов для вердикта"]
 
 
 async def _join_by_invite(client: TelegramClient, invite_hash: str):
