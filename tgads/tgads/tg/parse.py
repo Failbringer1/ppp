@@ -27,8 +27,10 @@ def message_urls(msg: types.Message) -> list[str]:
     markup = getattr(msg, "reply_markup", None)
     for row in getattr(markup, "rows", None) or []:
         for b in row.buttons:
-            if isinstance(b, types.KeyboardButtonUrl):
-                urls.append(b.url)
+            # Telethon 1.45 (newer layers) merged KeyboardButtonUrl into KeyboardButton: read the field
+            url = getattr(b, "url", None)
+            if isinstance(url, str) and url:
+                urls.append(url)
     return urls
 
 

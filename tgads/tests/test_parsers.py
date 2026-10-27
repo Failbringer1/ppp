@@ -112,3 +112,12 @@ def test_niche_table_ranks():
     assert rows[0].score == 100.0
     kino = next(r for r in rows if r.topic == "кино/сериалы")
     assert kino.channels == 5 and kino.incoming_ads == 50
+
+
+def test_message_urls_reads_button_links_of_any_telethon_layer():
+    from types import SimpleNamespace as NS
+    from tgads.tg.parse import message_urls
+    msg = NS(get_entities_text=lambda: [],
+             reply_markup=NS(rows=[NS(buttons=[NS(text="Obuna", url="https://t.me/+AbCdEf123"),
+                                              NS(text="callback", data=b"x")])]))
+    assert message_urls(msg) == ["https://t.me/+AbCdEf123"]
