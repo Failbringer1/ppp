@@ -7,7 +7,7 @@ from ...analysis.views import CHECKPOINTS, Curve, is_night
 from ...db import get_settings, session
 from ...models import Channel, ChannelContact, Contact, Conversation, MyChannel, Post, ViewSample
 from ...services import contacts as contacts_svc
-from ...services import content, monitor, outreach, research, tasks, tgstat
+from ...services import catalog, content, monitor, outreach, research, tasks, tgstat
 from ..app import back, render
 
 router = APIRouter()
@@ -25,9 +25,16 @@ STATUSES = ["new", "queued", "collected", "monitoring", "checked", "approved", "
 
 @router.get("/channels")
 async def channels(request: Request, status: str = "", topic: str = "", verdict: str = "", source: str = "",
-                   q: str = "", min_subs: int = 0, sort: str = "subs", page: int = 1):
+                   q: str = "", min_subs: int = 0, country: str = "", language: int = -1, sort: str = "subs",
+                   page: int = 1):
     async with session() as s:
         stmt = select(Channel)
+        if country:
+            stmt = stmt.where(Channel.country == country)
+        if language == 0:
+            stmt = stmt.where(Channel.language_id.is_(None))
+        elif language > 0:
+            stmt = stmt.where(Channel.language_id == language)
         if status:
             stmt = stmt.where(Channel.status == status)
         if topic:
@@ -45,12 +52,18 @@ async def channels(request: Request, status: str = "", topic: str = "", verdict:
         rows = (await s.scalars(stmt.order_by(SORTS.get(sort, SORTS["subs"])).offset((page - 1) * PAGE)
                                 .limit(PAGE))).all()
         topics = [t for t in (await s.scalars(select(Channel.topic).distinct())).all() if t]
+        countries = [c for c in (await s.scalars(select(Channel.country).distinct())).all() if c]
+        lang_ids = [i for i in (await s.scalars(select(Channel.language_id).distinct())).all() if i is not None]
         my_channels = (await s.scalars(select(MyChannel))).all()
         settings = await get_settings(s)
-    params = dict(status=status, topic=topic, verdict=verdict, source=source, q=q, min_subs=min_subs, sort=sort)
+    params = dict(status=status, topic=topic, verdict=verdict, source=source, q=q, min_subs=min_subs,
+                  country=country, language=language, sort=sort)
     return render(request, "channels.html", rows=rows, total=total, page=page, pages=(total + PAGE - 1) // PAGE,
                   params=params, topics=sorted(topics), statuses=STATUSES, my_channels=my_channels,
-                  target_cpm=settings["target_cpm_uzs"])
+                  target_cpm=settings["target_cpm_uzs"],
+                  countries=[(c, catalog.country_name(c)) for c in sorted(countries)],
+                  languages=sorted(((i, catalog.language_name(i)) for i in lang_ids), key=lambda x: x[1]),
+                  country_name=catalog.country_name, language_name=catalog.language_name)
 
 
 @router.post("/channels/bulk")

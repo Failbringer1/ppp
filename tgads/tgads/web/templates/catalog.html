@@ -2,7 +2,7 @@
 {% block title %}Каталог TGStat{% endblock %}
 {% block content %}
 {% set qs = request.url.query %}
-<h1>Каталог TGStat <span class="muted small">Узбекистан · {{ grand_total|num }} каналов</span></h1>
+<h1>Каталог TGStat <span class="muted small">{{ grand_total|num }} каналов</span></h1>
 
 {% if stats.last %}
 <p class="small muted">Последняя загрузка: {{ stats.last.at|replace('T', ' ') }} UTC, строк {{ stats.last.rows|num }}, новых {{ stats.last.added|num }}.
@@ -26,6 +26,8 @@
   <label>Язык<select name="language"><option value="-1">все</option>
     {% for id, name in languages %}<option value="{{ id }}" {{ 'selected' if params.language == id }}>{{ name }}</option>{% endfor %}
     <option value="0" {{ 'selected' if params.language == 0 }}>не определён</option></select></label>
+  <label>Страна<select name="country"><option value="">все</option>
+    {% for code, name in countries %}<option value="{{ code }}" {{ 'selected' if params.country == code }}>{{ name }}</option>{% endfor %}</select></label>
   <label>Тип<select name="kind"><option value="">все</option>
     <option value="public" {{ 'selected' if params.kind == 'public' }}>публичные (@username)</option>
     <option value="private" {{ 'selected' if params.kind == 'private' }}>закрытые</option></select></label>
@@ -68,7 +70,7 @@
 </div>
 
 <form method="post" action="/catalog/top" class="actions">
-  {% for k in ('category', 'language', 'kind', 'q', 'min_subs', 'max_subs') %}<input type="hidden" name="{{ k }}" value="{{ params[k] }}">{% endfor %}
+  {% for k in ('category', 'language', 'kind', 'q', 'min_subs', 'max_subs', 'country') %}<input type="hidden" name="{{ k }}" value="{{ params[k] }}">{% endfor %}
   <input type="number" name="n" value="100" min="1" max="2000" style="width: 6rem" title="Сколько каналов">
   <button type="submit">Топ по подписчикам этого фильтра — вступить и проверить</button>
 </form>
@@ -84,7 +86,7 @@
 </div>
 <div class="table-wrap">
 <table>
-  <thead><tr><th><input type="checkbox" data-check-all></th><th>#</th><th>Канал</th><th>Категория</th><th>Язык</th>
+  <thead><tr><th><input type="checkbox" data-check-all></th><th>#</th><th>Канал</th><th>Категория</th><th>Страна / язык</th>
     <th>Подписчики</th><th>Охват поста</th><th>ERR</th><th>ИЦ</th></tr></thead>
   <tbody>
   {% for c in rows %}
@@ -95,7 +97,7 @@
       <span class="small muted">{% if c.is_public %}<a href="{{ c.link }}" target="_blank" rel="noopener">{{ c.ref }}</a>{% else %}закрытый{% endif %}
         · <a href="https://uz.tgstat.com/channel/{{ c.ref }}/stat" target="_blank" rel="noopener">TGStat</a></span></td>
     <td class="small">{{ category_name(c.category_id) }}</td>
-    <td class="small">{{ language_name(c.language_id) }}</td>
+    <td class="small">{{ country_name(c.country) }}<br>{{ language_name(c.language_id) }}</td>
     <td>{{ c.subscribers|num }}</td><td>{{ c.avg_reach|num }}</td><td>{{ c.err|pct }}</td><td>{{ c.ci|num(1) }}</td>
   </tr>
   {% else %}

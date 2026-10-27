@@ -254,7 +254,8 @@ CATALOG_LANGUAGES: dict[int, str] = {
     33: "Финский", 23: "Французский", 10: "Хауса", 38: "Хорватский", 87: "Чеченский", 47: "Чешский",
     37: "Шведский", 86: "Эсперанто", 20: "Эстонский", 89: "Якутский", 53: "Японский",
 }
-CATALOG_COUNTRIES = {"uz": 4}
+CATALOG_COUNTRIES = {"uz": 4}           # site code -> country id of the search form
+COUNTRY_NAMES = {"uz": "Узбекистан"}
 
 _PRIVATE_ID_RE = re.compile(r"[A-Za-z0-9_-]{6,64}")
 

@@ -87,3 +87,26 @@ async def test_top_goes_to_monitoring_biggest_first():
         rows = (await s.scalars(select(Channel).order_by(Channel.subscribers.desc().nullslast(), Channel.id))).all()
     # the two biggest public news channels, both waiting for a join
     assert [(ch.username, ch.status) for ch in rows] == [("kun_uz", "monitoring"), ("daryo", "monitoring")]
+
+
+async def test_geo_and_language_reach_work_channels():
+    await init_db()
+    # rating rows come without language; the channel is taken to work before the full catalog arrives
+    await catalog.ingest({"items": [["@pressauz", "Пресса.uz", "300 000"]]})
+    async with session() as s:
+        cid = (await s.scalars(select(CatalogChannel.id))).first()
+    await catalog.to_work([cid], monitor=True)
+    async with session() as s:
+        ch = (await s.scalars(select(Channel))).first()
+        assert (ch.country, ch.language_id) == ("uz", None)
+    await catalog.ingest({"items": [["@pressauz", "Пресса.uz", "300 000", "40k", "900", 2, 3, ""]]})
+    async with session() as s:
+        ch = (await s.scalars(select(Channel))).first()
+        assert (ch.country, ch.language_id) == ("uz", 3)
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app()), base_url="http://test") as c:
+        r = await c.get("/channels?country=uz&language=3")
+        assert r.status_code == 200 and "Пресса.uz" in r.text and "Русский" in r.text
+        r = await c.get("/channels?language=13")
+        assert "Пресса.uz" not in r.text
+        r = await c.get("/catalog?country=uz&language=3")
+        assert r.status_code == 200 and "Узбекистан" in r.text

@@ -93,6 +93,8 @@ class Channel(Base):
     ad_share: Mapped[float | None] = mapped_column(Float)
     last_post_at: Mapped[datetime | None] = mapped_column(DateTime)
     topic: Mapped[str] = mapped_column(String(64), default="")
+    country: Mapped[str | None] = mapped_column(String(8))      # TGStat geo: "uz", ...
+    language_id: Mapped[int | None] = mapped_column(Integer)    # TGStat language id (analysis.tgstat.CATALOG_LANGUAGES)
     source: Mapped[str] = mapped_column(String(32), default="manual")  # search | import | snowball | tgstat | manual
     source_detail: Mapped[str] = mapped_column(String(256), default="")
     # new -> collected; candidate checks: monitoring -> checked; approved / rejected by the user

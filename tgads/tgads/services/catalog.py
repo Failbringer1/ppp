@@ -12,9 +12,9 @@ from pathlib import Path
 
 from sqlalchemy import case, func, select
 
-from ..analysis.tgstat import CATALOG_CATEGORIES, CATALOG_LANGUAGES, catalog_rows
+from ..analysis.tgstat import CATALOG_CATEGORIES, CATALOG_LANGUAGES, COUNTRY_NAMES, catalog_rows
 from ..db import get_setting, session, set_setting
-from ..models import CatalogChannel, utcnow
+from ..models import CatalogChannel, Channel, utcnow
 from .research import add_channel_ref
 
 COLLECTOR_JS = Path(__file__).with_name("catalog_collector.js")
@@ -83,10 +83,24 @@ async def ingest(data: dict) -> tuple[int, int]:
                         setattr(c, field, v)
                 c.avatar = r.avatar or c.avatar
                 c.seen_at = now
+            # channels already taken to work get the fresh geo and language too
+            by_name = {r.ref[1:]: existing[r.ref] for r in chunk if r.ref.startswith("@")}
+            for ch in (await s.scalars(select(Channel).where(Channel.username.in_(list(by_name))))).all():
+                _copy_geo(ch, by_name[ch.username])
         await set_setting(s, "catalog_last_ingest", {"at": now.isoformat(timespec="minutes"), "rows": len(rows),
                                                      "added": added, "note": str(data.get("note") or "")[:200]})
         await s.commit()
     return added, updated
+
+
+def _copy_geo(ch: Channel, c: CatalogChannel) -> None:
+    ch.country = c.country or ch.country
+    if c.language_id is not None:
+        ch.language_id = c.language_id
+
+
+def country_name(code: str | None) -> str:
+    return COUNTRY_NAMES.get(code or "", code or "—")
 
 
 def category_name(cat_id: int | None) -> str:
@@ -100,9 +114,11 @@ def language_name(lang_id: int | None) -> str:
 
 
 def filtered(category: int = 0, language: int = -1, kind: str = "", q: str = "", min_subs: int = 0,
-             max_subs: int = 0):
+             max_subs: int = 0, country: str = ""):
     """Select of catalog rows by the page filters. language: -1 any, 0 not detected."""
     stmt = select(CatalogChannel)
+    if country:
+        stmt = stmt.where(CatalogChannel.country == country)
     if category:
         stmt = stmt.where(CatalogChannel.category_id == category)
     if language == 0:
@@ -181,6 +197,7 @@ async def to_work(ids: list[int], monitor: bool = False) -> int:
                 ch.status = "monitoring"
             ch.title = ch.title or c.title
             ch.subscribers = c.subscribers or ch.subscribers
+            _copy_geo(ch, c)
             data = dict(ch.tgstat or {})
             data.update({k: v for k, v in (("subscribers", c.subscribers), ("avg_reach", c.avg_reach), ("ci", c.ci),
                                            ("category", category_name(c.category_id))) if v not in (None, "—")})
