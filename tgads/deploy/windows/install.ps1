@@ -102,6 +102,58 @@ $Claude = Join-Path $Dir 'tools\claude.exe'
 $Browsers = Join-Path $Dir 'browsers'
 New-Item -ItemType Directory -Force -Path $Dir, "$Dir\data", "$Dir\logs", "$Dir\tools" | Out-Null
 
+# ---------------------------------------------------------------- runner for Claude (first: if anything below fails,
+# Claude can still reach the server and finish the job)
+$runnerOk = $false
+if ($RunnerRepo) {
+    try {
+        Step "Доступ для Claude: раннер GitHub Actions ($RunnerRepo, метка $RunnerLabel)"
+        $RunnerDir = 'C:\actions-runner-claude'
+        $existing = Get-Service -Name 'actions.runner.*' -ErrorAction SilentlyContinue |
+            Where-Object { (Test-Path (Join-Path $RunnerDir '.runner')) }
+        if ($existing) {
+            Write-Host "    раннер уже установлен: $($existing.Name -join ', ') ($($existing.Status -join ', '))"
+            $runnerOk = $true
+        } else {
+            if (-not $RunnerToken) {
+                $gh = (Get-Command gh -ErrorAction SilentlyContinue | Select-Object -First 1).Source
+                if (-not $gh) {
+                    $gh = @('C:\Apps\SpreadEdge\tools\gh\bin\gh.exe', 'C:\Program Files\GitHub CLI\gh.exe') |
+                        Where-Object { Test-Path $_ } | Select-Object -First 1
+                }
+                if ($gh) {
+                    $RunnerToken = Get-NativeOutput $gh @('api', '-X', 'POST', "repos/$RunnerRepo/actions/runners/registration-token", '--jq', '.token')
+                }
+            }
+            if (-not $RunnerToken -and -not $Unattended) {
+                Write-Host "    Откройте https://github.com/$RunnerRepo/settings/actions/runners/new и скопируйте значение после --token в команде config"
+                $RunnerToken = (Read-Host 'Токен раннера').Trim()
+            }
+            if (-not $RunnerToken) {
+                Write-Warning 'Нет токена регистрации раннера — доступ для Claude не настроен.'
+            } else {
+                $rel = Invoke-RestMethod -Uri 'https://api.github.com/repos/actions/runner/releases/latest' -Headers @{ 'User-Agent' = 'tgads-installer' }
+                $ver = $rel.tag_name.TrimStart('v')
+                $zip = Join-Path $env:TEMP 'actions-runner.zip'
+                Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v$ver/actions-runner-win-x64-$ver.zip" -OutFile $zip
+                New-Item -ItemType Directory -Force -Path $RunnerDir | Out-Null
+                Expand-Archive -Path $zip -DestinationPath $RunnerDir -Force
+                Remove-Item -Force $zip
+                Push-Location $RunnerDir
+                try {
+                    $code = Invoke-Native (Join-Path $RunnerDir 'config.cmd') @('--unattended', '--url', "https://github.com/$RunnerRepo",
+                        '--token', $RunnerToken, '--name', "$env:COMPUTERNAME-claude", '--labels', $RunnerLabel,
+                        '--runasservice', '--windowslogonaccount', 'NT AUTHORITY\SYSTEM', '--replace')
+                } finally { Pop-Location }
+                if ($code -eq 0) { $runnerOk = $true; Write-Host "    раннер $ver установлен как служба" }
+                else { Write-Warning "Регистрация раннера не удалась (код $code)" }
+            }
+        }
+    } catch {
+        Write-Warning "Раннер не настроен: $($_.Exception.Message). Продолжаю установку TGAds."
+    }
+}
+
 # ---------------------------------------------------------------- stop old copy
 $task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 if ($task) {
@@ -295,53 +347,6 @@ if (-not $NoCaddy) {
         Write-Host '    жду HTTPS-сертификат (до 2 минут)'
         $code = Wait-Status $publicUrl @(200, 401) 150
         if (@(200, 401) -notcontains $code) { Write-Warning "$publicUrl пока не отвечает (код $code). Подождите пару минут, Caddy получает сертификат." }
-    }
-}
-
-# ---------------------------------------------------------------- runner for Claude
-$runnerOk = $false
-if ($RunnerRepo) {
-    Step "Доступ для Claude: раннер GitHub Actions ($RunnerRepo, метка $RunnerLabel)"
-    $RunnerDir = 'C:\actions-runner-claude'
-    $existing = Get-Service -Name 'actions.runner.*' -ErrorAction SilentlyContinue |
-        Where-Object { (Test-Path (Join-Path $RunnerDir '.runner')) }
-    if ($existing) {
-        Write-Host "    раннер уже установлен: $($existing.Name -join ', ') ($($existing.Status -join ', '))"
-        $runnerOk = $true
-    } else {
-        if (-not $RunnerToken) {
-            $gh = (Get-Command gh -ErrorAction SilentlyContinue | Select-Object -First 1).Source
-            if (-not $gh) {
-                $gh = @('C:\Apps\SpreadEdge\tools\gh\bin\gh.exe', 'C:\Program Files\GitHub CLI\gh.exe') |
-                    Where-Object { Test-Path $_ } | Select-Object -First 1
-            }
-            if ($gh) {
-                $RunnerToken = Get-NativeOutput $gh @('api', '-X', 'POST', "repos/$RunnerRepo/actions/runners/registration-token", '--jq', '.token')
-            }
-        }
-        if (-not $RunnerToken -and -not $Unattended) {
-            Write-Host "    Откройте https://github.com/$RunnerRepo/settings/actions/runners/new и скопируйте значение после --token в команде config"
-            $RunnerToken = (Read-Host 'Токен раннера').Trim()
-        }
-        if (-not $RunnerToken) {
-            Write-Warning 'Нет токена регистрации раннера — доступ для Claude не настроен.'
-        } else {
-            $rel = Invoke-RestMethod -Uri 'https://api.github.com/repos/actions/runner/releases/latest' -Headers @{ 'User-Agent' = 'tgads-installer' }
-            $ver = $rel.tag_name.TrimStart('v')
-            $zip = Join-Path $env:TEMP 'actions-runner.zip'
-            Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v$ver/actions-runner-win-x64-$ver.zip" -OutFile $zip
-            New-Item -ItemType Directory -Force -Path $RunnerDir | Out-Null
-            Expand-Archive -Path $zip -DestinationPath $RunnerDir -Force
-            Remove-Item -Force $zip
-            Push-Location $RunnerDir
-            try {
-                $code = Invoke-Native (Join-Path $RunnerDir 'config.cmd') @('--unattended', '--url', "https://github.com/$RunnerRepo",
-                    '--token', $RunnerToken, '--name', "$env:COMPUTERNAME-claude", '--labels', $RunnerLabel,
-                    '--runasservice', '--windowslogonaccount', 'NT AUTHORITY\SYSTEM', '--replace')
-            } finally { Pop-Location }
-            if ($code -eq 0) { $runnerOk = $true; Write-Host "    раннер $ver установлен как служба" }
-            else { Write-Warning "Регистрация раннера не удалась (код $code)" }
-        }
     }
 }
 
