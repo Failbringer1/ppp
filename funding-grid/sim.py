@@ -27,6 +27,7 @@
     платить могут обе стороны). FAIR - справедливый годовой перенос для лонга (разница ставок, только
     для валют; NaN - правило не применяется). fair_k > 0 - валютное правило: входим, только если
     получаемый своп >= fair_k * разница ставок.
+  * SPR (T, N) - половина спреда по активу и бару, добавляется к комиссии каждой сделки (форма (1, 1) - нет).
   * bph - баров в часе (1 для 1h, 4 для 15m, 12 для 5m); интервалы в параметрах - в барах.
   * dir_mode: 0 - по фандингу, 1/-1 - всегда лонг/шорт, 2 - против фандинга (контроль),
               3 - рыночно-нейтральный кросс-секционный вариант: лонг rank_n монет с самым
@@ -48,7 +49,7 @@ def _lvl(anchor, step, k, d):
 
 
 @njit(cache=True)
-def simulate(O, H, L, C, FR, FS, FI, FAIR, U, month_idx, force_close, start_t,
+def simulate(O, H, L, C, FR, FS, FI, FAIR, SPR, U, month_idx, force_close, start_t,
              lot_pct, max_lots, step_fix, step_k, step_min, step_max,
              thr, alpha, exit_mode, unwind_h, sl_eq, cooldown_h, gross_cap,
              trail, side_mask, maker, taker, slip, mmr, vol_win, dir_mode, rank_n, path_mode,
@@ -160,6 +161,8 @@ def simulate(O, H, L, C, FR, FS, FI, FAIR, U, month_idx, force_close, start_t,
                 continue
             h = H[t, j]; l = L[t, j]; c = C[t, j]
             lastp[j] = c
+            # издержка на сделку сверх комиссии (половина спреда), доля номинала; SPR формы (1, 1) - нет
+            cs = SPR[t, j] if SPR.shape[0] > 1 else 0.0
             fav = 0
             if sig_ok[j]:
                 # сторона, которой платят: что получает лонг (-sig) и что получает шорт (-sigS)
@@ -191,7 +194,7 @@ def simulate(O, H, L, C, FR, FS, FI, FAIR, U, month_idx, force_close, start_t,
                         blocked = True
             # валюты: своп, который мы получаем, должен быть не меньше fair_k от разницы ставок (FAIR - годовой
             # справедливый перенос для лонга: ставка базовой валюты минус ставка котируемой)
-            if fair_k > 0 and fav != 0 and t < FAIR.shape[0] and np.isfinite(FAIR[t, j]):
+            if fair_k > 0 and fav != 0 and FAIR.shape[0] > 1 and np.isfinite(FAIR[t, j]):
                 fair_recv = fav * FAIR[t, j]
                 if fair_recv > 0:
                     recv = ((-sig[j]) if fav > 0 else (-sigS[j])) * 1095.0 if sig_ok[j] else 0.0
@@ -207,7 +210,7 @@ def simulate(O, H, L, C, FR, FS, FI, FAIR, U, month_idx, force_close, start_t,
                     if exit_mode == 0:
                         # закрыть всё по рынку
                         px = o * (1 - d[j] * slip)
-                        pr = d[j] * (Q[j] * px - QP[j]); fe = Q[j] * px * taker
+                        pr = d[j] * (Q[j] * px - QP[j]); fe = Q[j] * px * (taker + cs)
                         cash += pr - fe; real[side] += pr; fee[side] += fe; pnl_asset[j] += pr - fe
                         gross -= Q[j] * o
                         nl[j] = 0; Q[j] = 0; QP[j] = 0; unw[j] = False
@@ -218,7 +221,7 @@ def simulate(O, H, L, C, FR, FS, FI, FAIR, U, month_idx, force_close, start_t,
                     unw[j] = False
                 if nl[j] > 0 and unw[j] and t - unw_t[j] >= unwind_h:
                     px = o * (1 - d[j] * slip)
-                    pr = d[j] * (Q[j] * px - QP[j]); fe = Q[j] * px * taker
+                    pr = d[j] * (Q[j] * px - QP[j]); fe = Q[j] * px * (taker + cs)
                     cash += pr - fe; real[side] += pr; fee[side] += fe; pnl_asset[j] += pr - fe
                     gross -= Q[j] * o
                     nl[j] = 0; Q[j] = 0; QP[j] = 0; unw[j] = False
@@ -238,7 +241,7 @@ def simulate(O, H, L, C, FR, FS, FI, FAIR, U, month_idx, force_close, start_t,
                     d[j] = fav
                     px = o * (1 + fav * slip)
                     q = ln / px
-                    fe = ln * taker
+                    fe = ln * (taker + cs)
                     side = 0 if fav > 0 else 1
                     cash -= fe; fee[side] += fe; pnl_asset[j] -= fe
                     lp[j, 0] = px; lq[j, 0] = q; lf[j, 0] = 0.0; Q[j] = q; QP[j] = q * px
@@ -280,7 +283,7 @@ def simulate(O, H, L, C, FR, FS, FI, FAIR, U, month_idx, force_close, start_t,
                         if hit_sp and (not hit_add or dj * (sp - nxt) >= 0):
                             px = sp if dj * (cur - sp) > 0 else cur
                             px = px * (1 - dj * slip)
-                            pr = dj * (Q[j] * px - QP[j]); fe = Q[j] * px * taker
+                            pr = dj * (Q[j] * px - QP[j]); fe = Q[j] * px * (taker + cs)
                             cash += pr - fe; real[side] += pr; fee[side] += fe; pnl_asset[j] += pr - fe
                             gross -= Q[j] * px
                             nl[j] = 0; Q[j] = 0; QP[j] = 0; unw[j] = False
@@ -292,7 +295,7 @@ def simulate(O, H, L, C, FR, FS, FI, FAIR, U, month_idx, force_close, start_t,
                             late = dj * (cur - nxt) < 0
                             px = cur if late else nxt
                             q = lotn[j] / px
-                            fe = lotn[j] * (taker if late else maker)
+                            fe = lotn[j] * ((taker if late else maker) + cs)
                             cash -= fe; fee[side] += fe; pnl_asset[j] -= fe
                             k = nl[j]
                             lp[j, k] = px; lq[j, k] = q; lf[j, k] = 0.0
@@ -315,7 +318,7 @@ def simulate(O, H, L, C, FR, FS, FI, FAIR, U, month_idx, force_close, start_t,
                             tp -= dj * lf[j, k] / lq[j, k]
                         if dj * (b - tp) >= 0:
                             px = tp if dj * (tp - cur) >= 0 else cur
-                            pr = dj * lq[j, k] * (px - lp[j, k]); fe = lq[j, k] * px * maker
+                            pr = dj * lq[j, k] * (px - lp[j, k]); fe = lq[j, k] * px * (maker + cs)
                             cash += pr - fe; real[side] += pr; fee[side] += fe; pnl_asset[j] += pr - fe
                             gross -= lq[j, k] * px
                             Q[j] -= lq[j, k]; QP[j] -= lq[j, k] * lp[j, k]
@@ -331,7 +334,7 @@ def simulate(O, H, L, C, FR, FS, FI, FAIR, U, month_idx, force_close, start_t,
                                 tp -= dj * lf[j, 0] / lq[j, 0]
                             if dj * (b - tp) >= 0:
                                 px = tp if dj * (tp - cur) >= 0 else cur
-                                pr = dj * Q[j] * (px - QP[j] / Q[j]); fe = Q[j] * px * maker
+                                pr = dj * Q[j] * (px - QP[j] / Q[j]); fe = Q[j] * px * (maker + cs)
                                 cash += pr - fe; real[side] += pr; fee[side] += fe; pnl_asset[j] += pr - fe
                                 gross -= Q[j] * px
                                 nl[j] = 0; Q[j] = 0; QP[j] = 0; unw[j] = False
@@ -345,7 +348,7 @@ def simulate(O, H, L, C, FR, FS, FI, FAIR, U, month_idx, force_close, start_t,
             # ---------- делистинг / разрыв данных ----------
             if nl[j] > 0 and force_close[t, j]:
                 px = c * (1 - dj * slip)
-                pr = dj * (Q[j] * px - QP[j]); fe = Q[j] * px * taker
+                pr = dj * (Q[j] * px - QP[j]); fe = Q[j] * px * (taker + cs)
                 cash += pr - fe; real[side] += pr; fee[side] += fe; pnl_asset[j] += pr - fe
                 nl[j] = 0; Q[j] = 0; QP[j] = 0; unw[j] = False
                 cnt[5] += 1

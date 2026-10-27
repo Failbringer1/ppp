@@ -15,13 +15,14 @@ def mk(prices, fr_val, n=1):
     return O, H, L, C, FR, FS, FI, U, mi, FC
 
 NOFAIR = np.full((1, 1), np.nan, np.float32)
+NOSPR = np.zeros((1, 1), np.float32)
 
-def go(prices, fr, fs_override=None, fair=None, **kw):
+def go(prices, fr, fs_override=None, fair=None, spr=None, **kw):
     cfg = dict(BASE); cfg.update(kw); cfg["vol_win"] = 24
     O, H, L, C, FR, FS, FI, U, mi, FC = mk(prices, fr)
     if fs_override is not None:
         FS = np.where(np.isfinite(FR), np.float32(fs_override), np.nan).astype(np.float32)
-    r = simulate(O, H, L, C, FR, FS, FI, NOFAIR if fair is None else fair, U, mi, FC, 0, *[cfg[k] for k in ORDER])
+    r = simulate(O, H, L, C, FR, FS, FI, NOFAIR if fair is None else fair, NOSPR if spr is None else spr, U, mi, FC, 0, *[cfg[k] for k in ORDER])
     eq, eqw, gross, lng, sht, npos, nfull, fund, real, fee, unreal, cnt, pa, blown, dbg = r
     ident = 1 + fund.sum() + real.sum() - fee.sum() + unreal.sum()
     last = eq[np.isfinite(eq)][-1]
@@ -45,7 +46,7 @@ O, H, L, C, FR, FS, FI, U, mi, FC = mk(p, -0.0001)
 FR[24*30::8, 0] = 0.0001
 FS = -FR
 cfg = dict(BASE); cfg["vol_win"] = 24; cfg["exit_mode"] = 0
-r = simulate(O, H, L, C, FR, FS, FI, NOFAIR, U, mi, FC, 0, *[cfg[k] for k in ORDER])
+r = simulate(O, H, L, C, FR, FS, FI, NOFAIR, NOSPR, U, mi, FC, 0, *[cfg[k] for k in ORDER])
 print("   cnt", r[11], "fund", r[7], "eq", r[0][-1])
 
 print("6) фандинг в тейке: лонгам платят 0.5% за 8ч, тейки должны срабатывать не реже")
@@ -66,3 +67,8 @@ r = go(100 + 10 * np.sin(t / 24), -0.0002, fs_override=0.0002, fair=np.full((T_,
 assert r[11][0] == 0, "разница ставок 40%, своп 22% < 30% - вход должен быть запрещён"
 r = go(100 + 10 * np.sin(t / 24), -0.0002, fs_override=0.0002, fair=np.full((T_, 1), 0.25, np.float32), fair_k=0.75)
 assert r[11][0] > 0, "разница ставок 25%, своп 22% >= 18.75% - вход должен быть разрешён"
+print("10) спред по активу: бухгалтерия сходится, результат хуже ровно на издержки")
+p = 100 + 10 * np.sin(t / 24)
+a = go(p, -0.0001)
+b = go(p, -0.0001, spr=np.full((len(t), 1), 0.0005, np.float32))
+assert b[9].sum() > a[9].sum() and b[0][-1] < a[0][-1], "спред не учтён в комиссиях"

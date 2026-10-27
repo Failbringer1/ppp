@@ -20,7 +20,7 @@ ORDER = ["lot_pct", "max_lots", "step_fix", "step_k", "step_min", "step_max", "t
 _P = {}
 # имя панели -> (файл, баров в часе)
 PANELS = {"1h": ("data/panel.npz", 1), "15m": ("data/panel15m.npz", 4), "5m": ("data/panel5m.npz", 12),
-          "tradfi": ("data/panel_tradfi.npz", 1)}
+          "tradfi": ("data/panel_tradfi.npz", 1), "fx": ("data/panel_fx.npz", 1)}
 BPH = {k: v[1] for k, v in PANELS.items()}
 
 
@@ -34,10 +34,12 @@ def panel(res="1h"):
         else:
             p["hours"] = np.datetime64("2020-12-01T00:00") + np.arange(p["O"].shape[0]) * step
         p["bph"] = BPH[res]
-        if "FS" not in p:
+        if "FS" not in p and "FR" in p:          # у panel_fx своп задаёт площадка (exp_fx.set_venue)
             p["FS"] = -p["FR"]                       # перпетуалы: шорт получает то, что платит лонг
         if "FAIR" not in p:
             p["FAIR"] = np.full((1, 1), np.nan, np.float32)
+        if "SPR" not in p:
+            p["SPR"] = np.zeros((1, 1), np.float32)
         _P[res] = p
     return _P[res]
 
@@ -56,7 +58,7 @@ def run(start="2021-01-01", end=None, dbg_j=-1, res="1h", **kw):
         O, H, L, C, FR, FS, FI, FC = O[:en], H[:en], L[:en], C[:en], FR[:en], FS[:en], FI[:en], FC[:en].copy()
         FC[en - 1] = True
     args = [cfg[k] for k in ORDER]
-    r = simulate(O, H, L, C, FR, FS, FI, P["FAIR"], P["U"], P["month_idx"], FC, st, *args, bph, dbg_j)
+    r = simulate(O, H, L, C, FR, FS, FI, P["FAIR"], P["SPR"], P["U"], P["month_idx"], FC, st, *args, bph, dbg_j)
     eq, eqw, gross, lng, sht, npos, nfull, fund, real, fee, unreal, cnt, pnl_asset, blown, dbg = r
     return dict(cfg=cfg, st=st, bph=bph, res=res, hours=hours[:len(eq)], eq=eq, eqw=eqw, gross=gross, lng=lng, sht=sht,
                 npos=npos, nfull=nfull, fund=fund, real=real, fee=fee, unreal=unreal, cnt=cnt,
