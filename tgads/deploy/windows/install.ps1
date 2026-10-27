@@ -23,7 +23,7 @@ param(
     [string]$ApiId = '',
     [string]$ApiHash = '',
     [string]$Dir = 'C:\Apps\TGAds',
-    [string]$Repo = 'https://github.com/Failbringer1/ppp.git',
+    [string]$Repo = 'Failbringer1/ppp',
     [string]$Branch = 'claude/telegram-channel-ads-platform-8qn7b8',
     [string]$HostName = '',
     [int]$Port = 8790,
@@ -89,9 +89,6 @@ function Wait-Status([string]$Url, [int[]]$Ok, [int]$Seconds) {
 $me = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if (-not $me.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     throw 'Запустите PowerShell от имени администратора'
-}
-if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    throw 'Не найден git. Установите Git for Windows (https://git-scm.com) и запустите установку ещё раз.'
 }
 
 $Src = Join-Path $Dir 'src'
@@ -164,16 +161,27 @@ if ($task) {
 }
 
 # ---------------------------------------------------------------- code
+# Downloaded as a zip from GitHub: no git needed on the server.
 Step 'Код'
-$safe = 'safe.directory=' + ($Src -replace '\\', '/')
-if ((Invoke-Native git @('ls-remote', '--exit-code', '--heads', $Repo, $Branch) -Quiet) -ne 0) { $Branch = 'main' }
-if (Test-Path (Join-Path $Src '.git')) {
-    if ((Invoke-Native git @('-c', $safe, '-C', $Src, 'fetch', '-q', '--depth', '1', 'origin', $Branch)) -ne 0) { throw 'git fetch не удался' }
-    if ((Invoke-Native git @('-c', $safe, '-C', $Src, 'checkout', '-q', '-f', '-B', $Branch, 'FETCH_HEAD')) -ne 0) { throw 'git checkout не удался' }
-} else {
-    if ((Invoke-Native git @('clone', '-q', '--depth', '1', '-b', $Branch, $Repo, $Src)) -ne 0) { throw 'git clone не удался' }
+$zip = Join-Path $env:TEMP 'tgads-src.zip'
+$got = $null
+foreach ($b in @($Branch, 'main')) {
+    try {
+        Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/$Repo/archive/refs/heads/$b.zip" -OutFile $zip
+        $got = $b
+        break
+    } catch { Write-Host "    ветка $b недоступна: $($_.Exception.Message)" }
 }
-Invoke-Native git @('-c', $safe, '-C', $Src, 'log', '--oneline', '-1') | Out-Null
+if (-not $got) { throw "Не удалось скачать код с https://github.com/$Repo" }
+$tmp = Join-Path $env:TEMP 'tgads-src'
+if (Test-Path $tmp) { Remove-Item -Recurse -Force $tmp }
+Expand-Archive -Path $zip -DestinationPath $tmp -Force
+$root = Get-ChildItem -Path $tmp -Directory | Select-Object -First 1
+if (-not $root -or -not (Test-Path (Join-Path $root.FullName 'tgads\requirements.txt'))) { throw 'В архиве нет папки tgads' }
+if (Test-Path $Src) { Remove-Item -Recurse -Force $Src }
+Move-Item -Path $root.FullName -Destination $Src
+Remove-Item -Recurse -Force $tmp, $zip
+Write-Host "    ветка $got"
 
 # ---------------------------------------------------------------- python
 if (-not (Test-Path $Py)) {
