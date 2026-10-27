@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status %}
+{% block title %}Закуп #{{ p.id }}{% endblock %}
+{% block content %}
+<h1>Закуп #{{ p.id }}: <a href="/channels/{{ ch.id }}">{{ ch.title or ch.ref }}</a> → {{ mc.title or mc.ref }} {{ status(p.status) }}</h1>
+
+<div class="cards">
+  <div class="card"><div class="v">{{ p.price_uzs|num }}</div><div class="l">цена, сум ({{ p.amount|num }} {{ p.currency }}, {{ p.fmt }})</div></div>
+  <div class="card"><div class="v">{{ m.views|num }}</div><div class="l">просмотров поста (ожидали {{ expected|num }})</div></div>
+  <div class="card"><div class="v">{{ m.cpm|num }}</div><div class="l">CPM, сум</div></div>
+  <div class="card"><div class="v">{{ m.joins }}</div><div class="l">подписалось</div></div>
+  <div class="card"><div class="v">{{ m.alive }}</div><div class="l">осталось</div></div>
+  <div class="card"><div class="v">{{ m.left_1d }} / {{ m.left_3d }} / {{ m.left_7d }}</div><div class="l">отписались за 1 / 3 / 7 дней</div></div>
+  <div class="card"><div class="v">{{ m.ctr|pct(2) }}</div><div class="l">CTR (подписки / просмотры)</div></div>
+  <div class="card"><div class="v">{{ m.cps|num }}</div><div class="l">CPS, сум</div></div>
+  <div class="card"><div class="v">{{ m.cps_alive|num }}</div><div class="l">CPS живого, сум</div></div>
+</div>
+
+<div class="grid2">
+<section>
+  <h2>Ссылка и пост</h2>
+  {% if link %}
+    <input id="lnk" value="{{ link.link }}" readonly>
+    <button class="sm secondary" data-copy="#lnk" type="button">Копировать ссылку</button>
+    <p class="small muted">{{ 'С заявками (одобряются автоматически)' if link.request_needed else 'Обычная' }} · вступлений по данным Telegram: {{ link.usage }}
+      · синхронизация {{ link.synced_at|ago }}</p>
+  {% else %}
+    <form method="post" action="/purchases/{{ p.id }}/link"><button>Создать трекинг-ссылку</button></form>
+  {% endif %}
+  {% if ad_text %}
+    <h3>Текст для админа</h3>
+    <textarea id="adtext" rows="8" readonly>{{ ad_text }}</textarea>
+    <button class="sm secondary" data-copy="#adtext" type="button">Копировать</button>
+  {% endif %}
+  {% if post %}<p class="small">Рекламный пост найден: <a href="{{ ch.link }}/{{ post.msg_id }}" target="_blank" rel="noopener">{{ post.date|local }}</a>{% if post.tracked %} <span class="badge warn">замер просмотров</span>{% endif %}</p>
+    {% for f in (post.analysis or {}).get('flags', []) %}<span class="badge bad">{{ f }}</span>{% endfor %}
+  {% else %}<p class="small muted">Рекламный пост ещё не найден: ищется в последних 40 постах площадки по вашей ссылке.</p>{% endif %}
+  <form method="post" action="/purchases/{{ p.id }}/sync"><button class="outline">Синхронизировать сейчас</button></form>
+
+  <h3>Статус</h3>
+  <form method="post" action="/purchases/{{ p.id }}/status">
+    <select name="status">{% for s in ['planned', 'paid', 'published', 'done', 'cancelled'] %}<option {{ 'selected' if s == p.status }}>{{ s }}</option>{% endfor %}</select>
+    <textarea name="notes" rows="2" placeholder="Заметки">{{ p.notes }}</textarea>
+    <button class="secondary">Сохранить</button>
+  </form>
+</section>
+<section>
+  <h2>Подписки и просмотры по часам</h2>
+  <div class="chart-box"><canvas id="ch"></canvas></div>
+</section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+new Chart(document.getElementById('ch'), {
+  type: 'line',
+  data: {datasets: [
+    {label: 'подписалось (накопительно)', data: {{ join_points|tojson }}, borderColor: '#10b981', yAxisID: 'y', pointRadius: 0, stepped: true},
+    {label: 'просмотры поста', data: {{ view_points|tojson }}, borderColor: '#3b82f6', yAxisID: 'y2', pointRadius: 2},
+  ]},
+  options: {maintainAspectRatio: false, parsing: false, animation: false,
+    scales: {x: {type: 'linear', title: {display: true, text: 'часов после выхода'}},
+             y: {position: 'left', title: {display: true, text: 'подписчики'}, min: 0},
+             y2: {position: 'right', title: {display: true, text: 'просмотры'}, min: 0, grid: {drawOnChartArea: false}}}},
+});
+</script>
+{% endblock %}

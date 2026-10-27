@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Ниши и идеи{% endblock %}
+{% block content %}
+<h1>1 · Ниши, креативы и идеи</h1>
+
+<div class="grid2">
+  <form method="post" action="/research/search">
+    <h3>Поиск каналов в Telegram</h3>
+    <textarea name="keywords" rows="3">{{ keywords }}</textarea>
+    <small class="muted">Через запятую. Каждый запрос — глобальный поиск Telegram (до 100 каналов). Новые каналы встают в очередь сбора.</small>
+    <button type="submit">Искать</button>
+  </form>
+  <form method="post" action="/research/import">
+    <h3>Импорт списка</h3>
+    <textarea name="refs" rows="3" placeholder="@kun_uz&#10;https://t.me/daryo&#10;t.me/+AbCdEf..." required></textarea>
+    <small class="muted">Любые @username и t.me-ссылки: например, скопированные из каталога uz.tgstat.com.</small>
+    <button type="submit">Добавить в очередь</button>
+  </form>
+</div>
+
+<div class="actions">
+  <form method="post" action="/research/classify"><button class="secondary">Определить тематики ИИ ({{ untyped }} без темы)</button></form>
+  <form method="post" action="/research/creatives"><button class="secondary">Пересобрать креативы</button></form>
+  <a href="/channels" role="button" class="outline">Все каналы →</a>
+</div>
+
+<h2>Ниши</h2>
+<p class="small muted">Score — привлекательность 0–100: спрос (охваты, входящая реклама, живость аудитории) против конкуренции
+(число каналов, концентрация охвата в топ-3). <b>Входящая реклама</b> — сколько найдено размещений, рекламирующих каналы этой ниши: чем больше, тем активнее в неё вкладываются.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Ниша</th><th>Score</th><th>Каналов</th><th>Суммарный охват</th><th>Медиана охвата</th><th>Медиана ERR</th><th>Топ-3 доля</th><th>Реклама в постах</th><th>Входящая реклама</th></tr></thead>
+  <tbody>
+  {% for r in niches %}
+  <tr>
+    <td><a href="/channels?topic={{ r.topic|urlencode }}">{{ r.topic }}</a></td>
+    <td><b>{{ r.score }}</b></td><td>{{ r.channels }}</td><td>{{ r.total_reach|num }}</td><td>{{ r.median_reach|num }}</td>
+    <td>{{ r.median_err|pct }}</td><td>{{ r.top3_share|pct(0) }}</td><td>{{ r.ad_share|pct(0) }}</td><td>{{ r.incoming_ads }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="9" class="muted">Нет данных: соберите каналы и определите тематики.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h2>Рекламные креативы, которые покупают повторно</h2>
+<p class="small muted">Один и тот же рекламный пост, размещённый на многих площадках и в течение долгого времени, почти наверняка окупается — иначе рекламодатель перестал бы его покупать.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Текст</th><th>Рекламирует</th><th>Размещений</th><th>Площадок</th><th>Дней</th><th>Просмотров</th><th>Score</th><th></th></tr></thead>
+  <tbody>
+  {% for c in creatives %}
+  <tr>
+    <td style="max-width: 520px"><details><summary>{{ c.text|short(140) }}</summary><pre class="text">{{ c.text }}</pre></details></td>
+    <td class="small">{% for t in c.targets %}{{ t if t.startswith('+') else '@' ~ t }} {% endfor %}<br><span class="muted">{{ c.topic }}</span></td>
+    <td>{{ c.placements }}</td><td>{{ c.hosts }}</td><td>{{ c.days_span }}</td><td>{{ c.total_views|num }}</td><td><b>{{ c.score }}</b></td>
+    <td>
+      {% if my_channels %}
+      <form method="post" action="/research/variants" class="row">
+        <input type="hidden" name="creative_id" value="{{ c.id }}">
+        <select name="my_channel_id" class="sm">{% for m in my_channels %}<option value="{{ m.id }}">{{ m.title or m.ref }}</option>{% endfor %}</select>
+        <button class="sm">Сделать похожий</button>
+      </form>
+      {% endif %}
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="8" class="muted">Креативов нет: соберите посты каналов и нажмите «Пересобрать креативы».</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h2>Идеи каналов (ИИ)</h2>
+<form method="post" action="/research/ideas">
+  <textarea name="wishes" rows="2" placeholder="Пожелания: язык, бюджет, что интересно, чего избегать (необязательно)"></textarea>
+  <button type="submit">Сгенерировать идеи по собранным данным</button>
+</form>
+{% for j in ideas %}
+<details {{ 'open' if loop.first }}>
+  <summary>{{ j.created_at|local }} — <span class="badge">{{ j.status }}</span> <a href="/ai/{{ j.id }}">задача #{{ j.id }}</a></summary>
+  {% if j.result %}<pre class="text">{{ j.result }}</pre>{% endif %}
+</details>
+{% endfor %}
+{% endblock %}

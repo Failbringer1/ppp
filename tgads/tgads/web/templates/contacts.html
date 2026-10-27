@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status %}
+{% block title %}Контакты{% endblock %}
+{% block content %}
+<h1>4 · Контакты админов</h1>
+<p class="small muted">Контакты извлекаются из описаний и закрепов (кнопка «Найти контакты админов» на страницах каналов).
+Метка <span class="badge ok">реклама</span> означает, что рядом стоят слова «реклама», «reklama», «по вопросам» и т.п. Наверху менеджеры, которые ведут несколько каналов: у них можно просить пакетную цену.</p>
+<div class="actions">
+  <form method="post" action="/contacts/resolve"><button class="secondary">Проверить, кто за username (человек/бот/канал)</button></form>
+  <a href="?only_ads={{ 0 if only_ads else 1 }}" role="button" class="outline">{{ 'Все контакты' if only_ads else 'Только рекламные' }}</a>
+</div>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Контакт</th><th>Тип</th><th>Каналов</th><th>Каналы</th><th>Переписка</th></tr></thead>
+  <tbody>
+  {% for c, n, ad in rows %}
+  <tr>
+    <td>{% if c.kind == 'username' %}<a href="https://t.me/{{ c.value }}" target="_blank" rel="noopener">{{ c.label }}</a>{% else %}{{ c.label }}{% endif %}
+      {% if ad %}<span class="badge ok">реклама</span>{% endif %}<br><span class="small muted">{{ c.display_name }}</span></td>
+    <td class="small">{{ c.kind }}{% if c.entity_type %} · {{ c.entity_type }}{% endif %}</td>
+    <td>{{ n }}</td>
+    <td class="small">{% for ch in chans.get(c.id, [])[:8] %}<a href="/channels/{{ ch.id }}">{{ ch.ref }}</a> {% endfor %}{% if n > 8 %}…{% endif %}</td>
+    <td>{% set conv = convs.get(c.id) %}{% if conv %}<a href="/outreach/{{ conv.id }}">{{ status(conv.status) }}</a>{% endif %}</td>
+  </tr>
+  {% else %}<tr><td colspan="5" class="muted">Контактов пока нет.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

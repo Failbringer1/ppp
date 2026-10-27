@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status %}
+{% block title %}ИИ-задача #{{ j.id }}{% endblock %}
+{% block content %}
+<h1>#{{ j.id }} {{ j.title }} {{ status(j.status) }}</h1>
+{% if j.error %}<p class="flash bad">{{ j.error }}</p>{% endif %}
+{% if j.status in ('pending', 'running') %}<p class="muted">Выполняется… страница обновится сама.</p>
+<script>setTimeout(() => location.reload(), 5000)</script>{% endif %}
+
+{% if j.result %}
+<h2>Ответ</h2>
+<pre class="text">{{ j.result }}</pre>
+{% endif %}
+
+<h2>Промпт</h2>
+<p class="small muted">Для ручного режима: скопируйте текст ниже целиком в чат с Claude, затем вставьте ответ в поле внизу.</p>
+<textarea id="prompt" rows="12" readonly>{{ j.system }}
+
+{{ j.prompt }}</textarea>
+<button class="sm secondary" data-copy="#prompt" type="button">Копировать промпт</button>
+
+<h2>{{ 'Вставить ответ' if j.status != 'done' else 'Заменить ответ' }}</h2>
+<form method="post" action="/ai/{{ j.id }}/answer">
+  <textarea name="text" rows="8" required placeholder="Ответ Claude"></textarea>
+  <div class="actions">
+    <button type="submit">Применить ответ</button>
+    <button type="submit" formaction="/ai/{{ j.id }}/retry" formnovalidate class="outline">Выполнить заново автоматически</button>
+  </div>
+</form>
+{% endblock %}

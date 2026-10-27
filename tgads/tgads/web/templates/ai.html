@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status as st_badge %}
+{% block title %}ИИ-задачи{% endblock %}
+{% block content %}
+<h1>ИИ-задачи</h1>
+{% if ai_mode == 'claude_cli' %}
+<p class="small">Режим: <b>Claude Code CLI</b>. Задачи выполняются локальной командой <code>claude -p</code> на вашей подписке Claude, API-ключ не нужен.
+Если задача падает с ошибкой авторизации, выполните <code>claude</code> в терминале сервера и войдите заново.</p>
+{% elif ai_mode == 'api' %}
+<p class="small">Режим: <b>Anthropic API</b> (ключ из .env).</p>
+{% else %}
+<p class="small">Режим: <b>ручной</b>. Claude Code на сервере не найден, поэтому каждая задача ждёт вас: откройте её, скопируйте промпт в чат с Claude, вставьте ответ обратно.
+Чтобы задачи выполнялись автоматически без API-ключа, установите Claude Code (<code>npm i -g @anthropic-ai/claude-code</code>) и войдите командой <code>claude</code>.</p>
+{% endif %}
+<div class="actions">
+  {% for s in ['', 'manual', 'pending', 'running', 'done', 'error'] %}
+  <a href="?status={{ s }}" class="badge {{ 'ok' if status == s }}">{{ s or 'все' }}</a>
+  {% endfor %}
+</div>
+<table>
+  <thead><tr><th>#</th><th>Задача</th><th>Тип</th><th>Статус</th><th>Создана</th><th>Ошибка</th></tr></thead>
+  <tbody>
+  {% for j in jobs %}
+  <tr>
+    <td><a href="/ai/{{ j.id }}">#{{ j.id }}</a></td><td><a href="/ai/{{ j.id }}">{{ j.title }}</a></td>
+    <td class="small">{{ j.kind }}</td><td>{{ st_badge(j.status) }}</td><td class="small">{{ j.created_at|local }}</td>
+    <td class="small">{{ (j.error or '')|short(100) }}</td>
+  </tr>
+  {% else %}<tr><td colspan="6" class="muted">Задач нет.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

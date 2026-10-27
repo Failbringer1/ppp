@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status as st_badge %}
+{% block title %}Переписка{% endblock %}
+{% block content %}
+<h1>5 · Переписка с админами</h1>
+<p class="small muted">Запросы цены ставятся в очередь с каналов (действие «Запросить цену у админов»). Отправитель шлёт их с аккаунтов с ролью «переписка»:
+только в рабочие часы, с паузами и в пределах дневного лимита (см. Настройки). Ответы приходят сюда, а цены разбираются автоматически.</p>
+<div class="actions">
+  {% for s in ['', 'queued', 'sent', 'replied', 'agreed', 'declined', 'no_reply', 'failed'] %}
+  <a href="?status={{ s }}" class="badge {{ 'ok' if status == s }}">{{ s or 'все' }}</a>
+  {% endfor %}
+</div>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>Контакт</th><th>Каналы</th><th>Статус</th><th>Новые</th><th>Последнее</th><th>Лучшее предложение</th></tr></thead>
+  <tbody>
+  {% for conv, c in rows %}
+  {% set o = offers.get(conv.id) %}
+  <tr>
+    <td><a href="/outreach/{{ conv.id }}">#{{ conv.id }}</a></td>
+    <td><a href="/outreach/{{ conv.id }}">{{ c.label }}</a></td>
+    <td class="small">{% for i in conv.channel_ids or [] %}{{ names.get(i, i) }} {% endfor %}</td>
+    <td>{{ st_badge(conv.status) }}{% if conv.error %}<br><span class="small" style="color: var(--bad)">{{ conv.error|short(60) }}</span>{% endif %}</td>
+    <td>{% if conv.unread %}<span class="badge ok">{{ conv.unread }}</span>{% endif %}</td>
+    <td class="small">{{ conv.last_message_at|ago }}</td>
+    <td class="small">{% if o %}{{ o.price_uzs|num }} сум · {{ o.fmt or '' }} · CPM {{ o.cpm_uzs|num }}
+      <span class="badge {{ {'buy': 'ok', 'negotiate': 'warn', 'skip': 'bad'}.get(o.recommendation, '') }}">{{ REC_TEXT.get(o.recommendation) }}</span>{% endif %}</td>
+  </tr>
+  {% else %}<tr><td colspan="7" class="muted">Нет диалогов.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

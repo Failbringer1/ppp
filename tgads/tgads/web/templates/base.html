@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TGAds{% endblock %} · TGAds</title>
+  <link rel="stylesheet" href="/static/vendor/pico-2.0.6.min.css">
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/vendor/chart-4.4.1.umd.js"></script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/">TGAds</a>
+  <nav class="menu">
+    {% set items = [
+      ("/accounts", "Аккаунты"), ("/research", "1 · Ниши"), ("/content", "2 · Контент"),
+      ("/channels", "Каналы"), ("/vetting", "3 · Проверка"), ("/contacts", "4 · Контакты"),
+      ("/outreach", "5 · Переписка"), ("/purchases", "6 · Закупы"), ("/ai", "ИИ"), ("/settings", "Настройки")] %}
+    {% for href, label in items %}
+      <a href="{{ href }}" class="{{ 'active' if path.startswith(href) else '' }}">{{ label }}</a>
+    {% endfor %}
+  </nav>
+  <span class="ai-mode" title="Режим ИИ">ИИ: {{ {'claude_cli': 'Claude Code', 'api': 'API', 'manual': 'ручной'}.get(ai_mode, ai_mode) }}</span>
+</header>
+<main class="container-fluid">
+  {% if msg %}<p class="flash ok">{{ msg }}</p>{% endif %}
+  {% if err %}<p class="flash bad">{{ err }}</p>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+<script>
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-copy]');
+  if (t) { navigator.clipboard.writeText(document.querySelector(t.dataset.copy).value || document.querySelector(t.dataset.copy).textContent); t.textContent = 'Скопировано'; }
+  const all = e.target.closest('[data-check-all]');
+  if (all) document.querySelectorAll('input[name="ids"]').forEach(c => c.checked = all.checked);
+});
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

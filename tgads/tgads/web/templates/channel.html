@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% from "_macros.html" import verdict, status, bulk_bar, CHANNEL_ACTIONS with context %}
+{% block title %}{{ ch.title or ch.ref }}{% endblock %}
+{% block content %}
+<h1>{{ ch.title or ch.ref }} {{ verdict(ch) }} {{ status(ch.status) }}</h1>
+<p class="small"><a href="{{ ch.link }}" target="_blank" rel="noopener">{{ ch.ref }}</a> · тема: {{ ch.topic or '—' }} · источник: {{ ch.source }} {{ ch.source_detail }}
+  · собран: {{ ch.collected_at|ago }}{% if ch.error %} · <span style="color: var(--bad)">{{ ch.error }}</span>{% endif %}</p>
+
+<form method="post" action="/channels/bulk">
+  <input type="hidden" name="ids" value="{{ ch.id }}">
+  {{ bulk_bar(my_channels, '/channels/' ~ ch.id, CHANNEL_ACTIONS) }}
+</form>
+
+<div class="cards">
+  <div class="card"><div class="v">{{ ch.subscribers|num }}</div><div class="l">подписчиков</div></div>
+  <div class="card"><div class="v">{{ ch.avg_views|num }}</div><div class="l">охват поста (медиана 24–72ч)</div></div>
+  <div class="card"><div class="v">{{ ch.err|pct }}</div><div class="l">ERR</div></div>
+  <div class="card"><div class="v">{{ ch.honest_reach|num }}</div><div class="l">честный охват (по первым минутам)</div></div>
+  <div class="card"><div class="v">{{ fair_price|num if fair_price else '—' }}</div><div class="l">справедливая цена при целевом CPM, сум</div></div>
+  <div class="card"><div class="v">{{ ch.fwd_per_1k|num(1) }} / {{ ch.react_per_1k|num(1) }}</div><div class="l">пересылок / реакций на 1000 просмотров</div></div>
+  <div class="card"><div class="v">{{ ch.posts_per_day|num(1) }}</div><div class="l">постов в день</div></div>
+  <div class="card"><div class="v">{{ ch.ad_share|pct(0) }}</div><div class="l">доля рекламных постов</div></div>
+</div>
+
+{% if ch.reasons %}
+<h2>Почему такой вердикт</h2>
+<ul>{% for r in ch.reasons %}<li>{{ r }}</li>{% endfor %}</ul>
+{% endif %}
+
+<h2>Динамика просмотров</h2>
+{% if series %}
+<p class="small muted">Ось Y — просмотры, делённые на прогноз суточных просмотров по первым 30 минутам. Чистый пост идёт вдоль серой полосы эталона и к 24 ч (1440 мин) выходит примерно на 1.
+Линия, которая уходит заметно выше полосы, означает, что просмотры добавили позже: это накрутка. Эталон обучен на {{ curve_posts[0] }} дневных / {{ curve_posts[1] }} ночных постах (при нуле используется априорная кривая).</p>
+<div class="chart-box"><canvas id="curves"></canvas></div>
+{% else %}
+<p class="muted">Нет отслеженных постов. Отправьте канал на проверку: монитор вступит в него и начнёт замерять каждый новый пост с 30-й секунды.</p>
+{% endif %}
+
+<div class="grid2">
+<section>
+  <h2>Описание</h2>
+  <pre class="text">{{ ch.about or '—' }}</pre>
+  {% if ch.pinned_text %}<h3>Закреп</h3><pre class="text">{{ ch.pinned_text }}</pre>{% endif %}
+</section>
+<section>
+  <h2>Контакты</h2>
+  <table>
+    {% for link, c in links %}
+    <tr><td>{{ c.label }}</td><td class="small">{{ c.entity_type or '?' }}{% if c.display_name %} · {{ c.display_name }}{% endif %}</td>
+      <td>{% if link.ad_context %}<span class="badge ok">реклама</span>{% endif %}</td><td class="small muted">{{ link.source }}</td></tr>
+    {% else %}<tr><td class="muted">Не искали или не найдено.</td></tr>{% endfor %}
+  </table>
+  {% if convs %}<h3>Переписка</h3>
+  <ul>{% for c in convs %}<li><a href="/outreach/{{ c.id }}">диалог #{{ c.id }}</a> {{ status(c.status) }}</li>{% endfor %}</ul>{% endif %}
+</section>
+</div>
+
+<h2>Посты</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Дата</th><th>Текст</th><th>Просмотры</th><th>Пересылки</th><th>Реакции</th><th>Реклама</th><th>Анализ</th></tr></thead>
+  <tbody>
+  {% for p in posts %}
+  <tr>
+    <td class="small">{{ p.date|local }}{% if p.tracked %}<br><span class="badge warn">замер</span>{% endif %}</td>
+    <td style="max-width: 520px"><a href="{{ ch.link }}/{{ p.msg_id }}" target="_blank" rel="noopener" class="small">{{ (p.text or '[' ~ (p.media_type or 'медиа') ~ ']')|short(160) }}</a></td>
+    <td>{{ p.views|num }}</td><td>{{ p.forwards|num }}</td><td>{{ p.reactions|num }}</td>
+    <td>{% if p.promotes_channel %}<span class="badge">канал</span>{% elif p.is_ad %}<span class="badge">реклама</span>{% endif %}</td>
+    <td class="small">
+      {% if p.analysis %}
+        {% set fc = p.analysis.forecast %}
+        {% if fc %}прогноз {{ fc.est|num }} ({{ fc.low|num }}–{{ fc.high|num }}){% endif %}
+        {% if p.analysis.actual_24h %} · факт 24ч {{ p.analysis.actual_24h|num }}{% endif %}
+        {% for f in p.analysis.flags %}<span class="badge bad">{{ f }}</span>{% endfor %}
+        {% for d in p.analysis.details %}<br><span class="muted">{{ d }}</span>{% endfor %}
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if series %}
+<script>
+const series = {{ series|tojson }};
+const ref = {{ ref|tojson }};
+const palette = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#f97316','#6366f1','#84cc16','#06b6d4','#a855f7','#ef4444','#22c55e','#eab308','#0ea5e9'];
+const datasets = [
+  {label: 'эталон p75', data: ref.p75, borderColor: 'rgba(138,148,166,.4)', backgroundColor: 'rgba(138,148,166,.15)', pointRadius: 0, fill: '+1'},
+  {label: 'эталон p25', data: ref.p25, borderColor: 'rgba(138,148,166,.4)', pointRadius: 0, fill: false},
+  {label: 'эталон медиана', data: ref.p50, borderColor: 'rgba(138,148,166,.9)', borderDash: [5, 4], pointRadius: 0},
+];
+series.filter(s => s.normalized).forEach((s, i) => datasets.push({
+  label: s.label + (s.flags.length ? ' ⚠ ' + s.flags.join(',') : '') + (s.night ? ' (ночь)' : ''),
+  data: s.points, borderColor: s.flags.some(f => f !== 'rate_spike') ? '#d64545' : palette[i % palette.length],
+  borderWidth: s.flags.length ? 2.5 : 1.5, pointRadius: 2, tension: .2,
+}));
+new Chart(document.getElementById('curves'), {
+  type: 'line', data: {datasets},
+  options: {
+    maintainAspectRatio: false, parsing: false, animation: false,
+    scales: {x: {type: 'logarithmic', title: {display: true, text: 'время после публикации'}, min: 0.4,
+                 ticks: {autoSkip: false, maxRotation: 0, callback: v => {
+                   const nice = {0.5: '30с', 1: '1м', 3: '3м', 10: '10м', 30: '30м', 60: '1ч', 180: '3ч', 360: '6ч', 720: '12ч', 1440: '24ч', 2880: '48ч'};
+                   return nice[v] || '';
+                 }}},
+             y: {title: {display: true, text: 'доля от прогноза на сутки'}, min: 0}},
+    plugins: {legend: {labels: {boxWidth: 12, font: {size: 11}}}},
+  },
+});
+</script>
+{% endif %}
+{% endblock %}

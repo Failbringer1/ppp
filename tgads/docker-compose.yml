@@ -1,0 +1,13 @@
+services:
+  tgads:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      TGADS_HOST: 0.0.0.0
+      TGADS_DATA_DIR: /app/data
+      CLAUDE_CONFIG_DIR: /app/data/claude
+    volumes:
+      - ./data:/app/data        # database, Telegram sessions, media, Claude login
+    ports:
+      - "127.0.0.1:8080:8080"   # open via SSH tunnel or put behind a reverse proxy with HTTPS

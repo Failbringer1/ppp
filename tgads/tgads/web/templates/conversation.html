@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status, verdict %}
+{% block title %}Диалог #{{ conv.id }}{% endblock %}
+{% block content %}
+<h1>Диалог #{{ conv.id }} с {{ contact.label }} {{ status(conv.status) }}</h1>
+<p class="small">Каналы: {% for ch in chans %}<a href="/channels/{{ ch.id }}">{{ ch.ref }}</a> {{ verdict(ch) }}
+  честный охват {{ ch.honest_reach|num }} · справедливая цена {{ ((ch.honest_reach or ch.avg_views or 0) * target_cpm / 1000)|num }} сум; {% endfor %}
+  {% if conv.error %}<br><span style="color: var(--bad)">{{ conv.error }}</span>{% endif %}</p>
+
+<div class="grid2">
+<section>
+  <h2>Сообщения</h2>
+  {% if conv.status == 'queued' %}<p class="muted small">Первое сообщение в очереди на отправку:</p><pre class="text">{{ conv.first_text }}</pre>{% endif %}
+  {% for m in msgs %}
+    <div class="{{ 'msg-in' if m.direction == 'in' else 'msg-out' }}">
+      <div class="small muted">{{ 'админ' if m.direction == 'in' else 'я' }} · {{ m.at|local }}</div>
+      <pre class="text" style="padding: .2rem 0">{{ m.text }}</pre>
+    </div>
+  {% endfor %}
+  <form method="post" action="/outreach/{{ conv.id }}/send">
+    <textarea name="text" rows="4" placeholder="Ответ" required>{{ conv.draft_reply }}</textarea>
+    <div class="actions">
+      <button type="submit">Отправить</button>
+      <button type="submit" formaction="/outreach/{{ conv.id }}/draft" formnovalidate class="secondary">Черновик ИИ (с торгом)</button>
+      <button type="submit" formaction="/outreach/{{ conv.id }}/parse" formnovalidate class="outline">Разобрать цены заново</button>
+    </div>
+  </form>
+  <form method="post" action="/outreach/{{ conv.id }}/status" class="row">
+    <select name="status">{% for s in ['queued', 'sent', 'replied', 'agreed', 'declined', 'no_reply', 'failed'] %}<option {{ 'selected' if s == conv.status }}>{{ s }}</option>{% endfor %}</select>
+    <button class="sm outline">Сменить статус</button>
+  </form>
+</section>
+
+<section>
+  <h2>Предложения</h2>
+  <p class="small muted">Цены извлекаются регулярками сразу и ИИ — точнее. CPM = цена / честный охват × 1000. Целевой CPM: {{ target_cpm|num }} сум.</p>
+  <table>
+    <thead><tr><th>Канал</th><th>Цена</th><th>Формат</th><th>CPM</th><th>Решение</th><th></th></tr></thead>
+    {% for o in offers %}
+    <tr>
+      <td class="small">{% for ch in chans if ch.id == o.channel_id %}{{ ch.ref }}{% endfor %}<br><span class="muted">{{ o.source }}</span></td>
+      <td>{{ o.amount|num }} {{ o.currency or '' }}<br><span class="small muted">{{ o.price_uzs|num }} сум</span></td>
+      <td>{{ o.fmt or '—' }}</td><td>{{ o.cpm_uzs|num }}</td>
+      <td><span class="badge {{ {'buy': 'ok', 'negotiate': 'warn', 'skip': 'bad'}.get(o.recommendation, '') }}">{{ REC_TEXT.get(o.recommendation) }}</span>
+        {% if o.notes %}<br><span class="small muted">{{ o.notes|short(80) }}</span>{% endif %}</td>
+      <td><button class="sm" onclick="fillBuy({{ o.id }}, {{ o.channel_id or 0 }}, {{ o.amount or 0 }}, '{{ o.currency or 'UZS' }}', '{{ o.fmt or '1/24' }}')">Купить</button></td>
+    </tr>
+    {% else %}<tr><td colspan="6" class="muted">Пока нет.</td></tr>{% endfor %}
+  </table>
+
+  <details>
+    <summary class="small">Добавить предложение вручную</summary>
+    <form method="post" action="/outreach/{{ conv.id }}/offer" class="row">
+      <select name="channel_id">{% for ch in chans %}<option value="{{ ch.id }}">{{ ch.ref }}</option>{% endfor %}</select>
+      <input name="amount" type="number" step="any" placeholder="сумма" required style="width: 130px">
+      <select name="currency"><option>UZS</option><option>USD</option><option>RUB</option></select>
+      <input name="fmt" value="1/24" style="width: 80px">
+      <input name="notes" placeholder="условия">
+      <button class="sm secondary">Добавить</button>
+    </form>
+  </details>
+
+  <h2 id="buy">Покупка</h2>
+  <form method="post" action="/outreach/{{ conv.id }}/buy">
+    <input type="hidden" name="offer_id" id="b_offer" value="0">
+    <div class="row">
+      <label>Площадка<select name="channel_id" id="b_channel">{% for ch in chans %}<option value="{{ ch.id }}">{{ ch.ref }}</option>{% endfor %}</select></label>
+      <label>Мой канал<select name="my_channel_id">{% for m in my_channels %}<option value="{{ m.id }}" {{ 'selected' if m.id == conv.my_channel_id }}>{{ m.title or m.ref }}</option>{% endfor %}</select></label>
+    </div>
+    <div class="row">
+      <label>Сумма<input name="amount" id="b_amount" type="number" step="any" required></label>
+      <label>Валюта<select name="currency" id="b_currency"><option>UZS</option><option>USD</option><option>RUB</option></select></label>
+      <label>Формат<input name="fmt" id="b_fmt" value="1/24"></label>
+      <label>Выход (Ташкент)<input type="datetime-local" name="scheduled_at"></label>
+    </div>
+    <label>Рекламный пост<select name="creative_id"><option value="0">—</option>
+      {% for cr in creatives %}<option value="{{ cr.id }}">{{ cr.title or cr.text|short(60) }}</option>{% endfor %}</select></label>
+    <label class="small"><input type="checkbox" name="request_needed" value="1"> Ссылка с заявками на вступление (точнее учёт, заявки одобряются автоматически)</label>
+    <input name="notes" placeholder="Заметки: реквизиты, договорённости">
+    <button type="submit" {{ 'disabled' if not my_channels }}>Создать закуп и трекинг-ссылку</button>
+    {% if not my_channels %}<p class="small muted">Сначала добавьте свой канал на странице <a href="/content">Контент</a>.</p>{% endif %}
+  </form>
+</section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function fillBuy(offer, channel, amount, currency, fmt) {
+  document.getElementById('b_offer').value = offer;
+  if (channel) document.getElementById('b_channel').value = channel;
+  document.getElementById('b_amount').value = amount;
+  document.getElementById('b_currency').value = currency;
+  document.getElementById('b_fmt').value = fmt;
+  location.hash = 'buy';
+}
+</script>
+{% endblock %}
