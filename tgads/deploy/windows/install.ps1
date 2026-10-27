@@ -12,8 +12,12 @@ What it does (everything lives in C:\Apps\TGAds, other apps are not touched):
   * scheduled task "TGAds" (LocalService, starts with Windows, restarts on failure)
     serving the panel on 127.0.0.1 only;
   * adds ONE site block for <ip-with-dashes>.sslip.io to the running Caddy's
-    Caddyfile (backup first, `caddy validate`, rollback on error, then reload).
+    Caddyfile (backup first, `caddy validate`, rollback on error, then reload);
+  * with -RunnerRepo owner/private-repo: registers a GitHub Actions self-hosted
+    runner (service, SYSTEM, label "tgads-ops") so the server can be managed by
+    pushing to that private repository. Never use a public repository for this.
 Re-running it updates the code and dependencies; data, .env and Caddy block stay.
+-Unattended skips every question (used when the runner updates TGAds itself).
 #>
 param(
     [string]$ApiId = '',
@@ -25,7 +29,11 @@ param(
     [int]$Port = 8790,
     [switch]$NoCaddy,
     [switch]$NoBrowser,
-    [switch]$NoClaude
+    [switch]$NoClaude,
+    [string]$RunnerRepo = '',
+    [string]$RunnerToken = '',
+    [string]$RunnerLabel = 'tgads-ops',
+    [switch]$Unattended
 )
 
 $ErrorActionPreference = 'Stop'
@@ -49,6 +57,12 @@ function Invoke-Native {
         else { & $Exe @Arguments 2>&1 | ForEach-Object { Write-Host "    $_" } }
         return $LASTEXITCODE
     } finally { $ErrorActionPreference = $old }
+}
+
+function Get-NativeOutput([string]$Exe, [string[]]$Arguments) {
+    $old = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try { return (& $Exe @Arguments 2>$null | Out-String).Trim() } finally { $ErrorActionPreference = $old }
 }
 
 function Get-Status([string]$Url) {
@@ -168,7 +182,8 @@ function Read-EnvValue([string]$Name) {
 if (-not $HostName) { $HostName = Read-EnvValue 'PUBLIC_HOST' }
 if (-not $HostName) {
     try { $ip = (Invoke-RestMethod -Uri 'https://api.ipify.org' -TimeoutSec 15).ToString().Trim() } catch { $ip = '' }
-    if (-not $ip) { $ip = Read-Host 'Публичный IP сервера' }
+    if (-not $ip -and -not $Unattended) { $ip = Read-Host 'Публичный IP сервера' }
+    if (-not $ip) { throw 'Не удалось узнать публичный IP: передайте -HostName' }
     $HostName = ($ip -replace '\.', '-') + '.sslip.io'
 }
 
@@ -177,6 +192,7 @@ if (Test-Path $EnvFile) {
     $Password = Read-EnvValue 'TGADS_PANEL_PASSWORD'
 } else {
     Step 'Настройки (.env)'
+    if ((-not $ApiId -or -not $ApiHash) -and $Unattended) { throw 'Первая установка: нужны -ApiId и -ApiHash' }
     if (-not $ApiId) { $ApiId = Read-Host 'Telegram api_id' }
     if (-not $ApiHash) { $ApiHash = Read-Host 'Telegram api_hash' }
     while (Get-NetTCPConnection -State Listen -LocalPort $Port -ErrorAction SilentlyContinue) { $Port++ }
@@ -282,6 +298,53 @@ if (-not $NoCaddy) {
     }
 }
 
+# ---------------------------------------------------------------- runner for Claude
+$runnerOk = $false
+if ($RunnerRepo) {
+    Step "Доступ для Claude: раннер GitHub Actions ($RunnerRepo, метка $RunnerLabel)"
+    $RunnerDir = 'C:\actions-runner-claude'
+    $existing = Get-Service -Name 'actions.runner.*' -ErrorAction SilentlyContinue |
+        Where-Object { (Test-Path (Join-Path $RunnerDir '.runner')) }
+    if ($existing) {
+        Write-Host "    раннер уже установлен: $($existing.Name -join ', ') ($($existing.Status -join ', '))"
+        $runnerOk = $true
+    } else {
+        if (-not $RunnerToken) {
+            $gh = (Get-Command gh -ErrorAction SilentlyContinue | Select-Object -First 1).Source
+            if (-not $gh) {
+                $gh = @('C:\Apps\SpreadEdge\tools\gh\bin\gh.exe', 'C:\Program Files\GitHub CLI\gh.exe') |
+                    Where-Object { Test-Path $_ } | Select-Object -First 1
+            }
+            if ($gh) {
+                $RunnerToken = Get-NativeOutput $gh @('api', '-X', 'POST', "repos/$RunnerRepo/actions/runners/registration-token", '--jq', '.token')
+            }
+        }
+        if (-not $RunnerToken -and -not $Unattended) {
+            Write-Host "    Откройте https://github.com/$RunnerRepo/settings/actions/runners/new и скопируйте значение после --token в команде config"
+            $RunnerToken = (Read-Host 'Токен раннера').Trim()
+        }
+        if (-not $RunnerToken) {
+            Write-Warning 'Нет токена регистрации раннера — доступ для Claude не настроен.'
+        } else {
+            $rel = Invoke-RestMethod -Uri 'https://api.github.com/repos/actions/runner/releases/latest' -Headers @{ 'User-Agent' = 'tgads-installer' }
+            $ver = $rel.tag_name.TrimStart('v')
+            $zip = Join-Path $env:TEMP 'actions-runner.zip'
+            Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/actions/runner/releases/download/v$ver/actions-runner-win-x64-$ver.zip" -OutFile $zip
+            New-Item -ItemType Directory -Force -Path $RunnerDir | Out-Null
+            Expand-Archive -Path $zip -DestinationPath $RunnerDir -Force
+            Remove-Item -Force $zip
+            Push-Location $RunnerDir
+            try {
+                $code = Invoke-Native (Join-Path $RunnerDir 'config.cmd') @('--unattended', '--url', "https://github.com/$RunnerRepo",
+                    '--token', $RunnerToken, '--name', "$env:COMPUTERNAME-claude", '--labels', $RunnerLabel,
+                    '--runasservice', '--windowslogonaccount', 'NT AUTHORITY\SYSTEM', '--replace')
+            } finally { Pop-Location }
+            if ($code -eq 0) { $runnerOk = $true; Write-Host "    раннер $ver установлен как служба" }
+            else { Write-Warning "Регистрация раннера не удалась (код $code)" }
+        }
+    }
+}
+
 # ---------------------------------------------------------------- done
 Write-Host ''
 Write-Host 'Готово.' -ForegroundColor Green
@@ -289,9 +352,10 @@ if ($caddyOk) { Write-Host "  Панель:  $publicUrl" } else { Write-Host "  
 Write-Host '  Логин:   admin'
 Write-Host "  Пароль:  $Password   (хранится в $EnvFile)"
 Write-Host "  Логи:    $Dir\logs\tgads.log"
+if ($RunnerRepo) { Write-Host ("  Доступ для Claude: " + $(if ($runnerOk) { "есть (раннер $RunnerLabel в $RunnerRepo)" } else { 'не настроен' })) }
 Write-Host ''
 
-if (-not $NoClaude -and (Test-Path $Claude) -and -not (Read-EnvValue 'TGADS_CLAUDE_OAUTH_TOKEN')) {
+if (-not $Unattended -and -not $NoClaude -and (Test-Path $Claude) -and -not (Read-EnvValue 'TGADS_CLAUDE_OAUTH_TOKEN')) {
     Write-Host 'Чтобы ИИ работал без API-ключа, нужен токен подписки Claude (делается один раз).'
     $ans = Read-Host 'Получить токен сейчас? [Y/n]'
     if ($ans -notmatch '^[nNнН]') {
