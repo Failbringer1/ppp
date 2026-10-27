@@ -18,6 +18,11 @@
   * Ликвидация портфеля: эквити (в худшей точке бара) < mmr * gross.
   * path_mode=1 - альтернативный путь внутри бара: для лонга всегда O->H->L->C, для шорта O->L->H->C
     (проверка чувствительности к допущению о пути цены внутри бара).
+  * fund_tp=1 - фандинг, полученный лотом, засчитывается в его прибыль: тейк на откате (и выход базы
+    в безубыток) сдвигается на накопленный фандинг.
+  * drift_k > 0 - фильтр одностороннего движения: если за drift_win баров цена ушла против стороны,
+    которой платят, вход и доборы разрешены, только если годовой фандинг >= drift_k * годовой темп
+    этого движения; иначе позиция переходит в режим выхода, как при развороте фандинга.
   * bph - баров в часе (1 для 1h, 4 для 15m, 12 для 5m); интервалы в параметрах - в барах.
   * dir_mode: 0 - по фандингу, 1/-1 - всегда лонг/шорт, 2 - против фандинга (контроль),
               3 - рыночно-нейтральный кросс-секционный вариант: лонг rank_n монет с самым
@@ -42,7 +47,8 @@ def _lvl(anchor, step, k, d):
 def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
              lot_pct, max_lots, step_fix, step_k, step_min, step_max,
              thr, alpha, exit_mode, unwind_h, sl_eq, cooldown_h, gross_cap,
-             trail, side_mask, maker, taker, slip, mmr, vol_win, dir_mode, rank_n, path_mode, bph=1, dbg_j=-1):
+             trail, side_mask, maker, taker, slip, mmr, vol_win, dir_mode, rank_n, path_mode,
+             fund_tp, drift_k, drift_win, bph=1, dbg_j=-1):
     T, N = O.shape
     E0 = 1.0
     cash = E0
@@ -50,6 +56,7 @@ def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
     nl = np.zeros(N, np.int64)           # число открытых лотов (0 - нет позиции)
     lp = np.zeros((N, MAXL))             # цены лотов
     lq = np.zeros((N, MAXL))             # количества лотов
+    lf = np.zeros((N, MAXL))             # фандинг, полученный каждым лотом (минус - заплачен)
     Q = np.zeros(N)                      # суммарное кол-во
     QP = np.zeros(N)                     # sum q*p
     anchor = np.zeros(N)
@@ -96,6 +103,8 @@ def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
                 if nl[j] > 0 and np.isfinite(O[t, j]):
                     pay = d[j] * Q[j] * O[t, j] * f
                     cash -= pay
+                    for kk in range(nl[j]):
+                        lf[j, kk] -= d[j] * lq[j, kk] * O[t, j] * f
                     k = 0 if d[j] > 0 else 1
                     fund[k] -= pay
                     pnl_asset[j] -= pay
@@ -157,11 +166,24 @@ def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
             if fav != 0 and (side_mask & (1 if fav > 0 else 2)) == 0:
                 fav = 0
             inu = U[mi, j]
+            # фильтр одностороннего движения: если цена за drift_win ушла против стороны, которой платят,
+            # фандинг (в годовых) должен покрывать хотя бы drift_k этого движения (в годовых)
+            blocked = False
+            if drift_k > 0 and fav != 0:
+                tb = t - 1 - drift_win
+                if tb < 0 or not (np.isfinite(C[t - 1, j]) and np.isfinite(C[tb, j])):
+                    blocked = True
+                else:
+                    adv = -fav * np.log(C[t - 1, j] / C[tb, j]) * (8760.0 * bph / drift_win)
+                    recv = -fav * sig[j] * 1095.0 if sig_ok[j] else 0.0
+                    if adv > 0 and recv < drift_k * adv:
+                        blocked = True
             side = 0
             # ---------- управление открытой позицией на открытии бара ----------
             if nl[j] > 0:
                 side = 0 if d[j] > 0 else 1
-                against = (fav == -d[j]) or (not inu) or (dir_mode == 3 and fav != d[j])
+                against = (fav == -d[j]) or (not inu) or (dir_mode == 3 and fav != d[j]) \
+                    or (blocked and fav == d[j])
                 if against:
                     if exit_mode == 0:
                         # закрыть всё по рынку
@@ -183,7 +205,7 @@ def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
                     nl[j] = 0; Q[j] = 0; QP[j] = 0; unw[j] = False
                     cnt[6] += 1
             # ---------- новый вход ----------
-            if nl[j] == 0 and inu and fav != 0 and t >= cool[j] and not force_close[t, j]:
+            if nl[j] == 0 and inu and fav != 0 and not blocked and t >= cool[j] and not force_close[t, j]:
                 ln = lot_pct * E
                 if gross + ln <= gross_cap * E:
                     if step_fix > 0:
@@ -200,7 +222,7 @@ def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
                     fe = ln * taker
                     side = 0 if fav > 0 else 1
                     cash -= fe; fee[side] += fe; pnl_asset[j] -= fe
-                    lp[j, 0] = px; lq[j, 0] = q; Q[j] = q; QP[j] = q * px
+                    lp[j, 0] = px; lq[j, 0] = q; lf[j, 0] = 0.0; Q[j] = q; QP[j] = q * px
                     nl[j] = 1; anchor[j] = o; stp[j] = st; lotn[j] = ln; unw[j] = False
                     gross += ln
                     cnt[0] += 1
@@ -254,7 +276,7 @@ def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
                             fe = lotn[j] * (taker if late else maker)
                             cash -= fe; fee[side] += fe; pnl_asset[j] -= fe
                             k = nl[j]
-                            lp[j, k] = px; lq[j, k] = q
+                            lp[j, k] = px; lq[j, k] = q; lf[j, k] = 0.0
                             Q[j] += q; QP[j] += q * px
                             nl[j] = k + 1
                             gross += lotn[j]
@@ -269,6 +291,9 @@ def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
                     while nl[j] >= 2:
                         k = nl[j] - 1
                         tp = _lvl(anchor[j], stp[j], k - 1, dj)
+                        if fund_tp:
+                            # полученный лотом фандинг засчитывается в прибыль: тейк ближе
+                            tp -= dj * lf[j, k] / lq[j, k]
                         if dj * (b - tp) >= 0:
                             px = tp if dj * (tp - cur) >= 0 else cur
                             pr = dj * lq[j, k] * (px - lp[j, k]); fe = lq[j, k] * px * maker
@@ -283,6 +308,8 @@ def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
                     if nl[j] == 1:
                         if unw[j]:
                             tp = lp[j, 0]
+                            if fund_tp:
+                                tp -= dj * lf[j, 0] / lq[j, 0]
                             if dj * (b - tp) >= 0:
                                 px = tp if dj * (tp - cur) >= 0 else cur
                                 pr = dj * Q[j] * (px - QP[j] / Q[j]); fe = Q[j] * px * maker

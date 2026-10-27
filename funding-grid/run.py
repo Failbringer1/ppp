@@ -10,10 +10,12 @@ BASE = dict(
     gross_cap=100.0, trail=0, side_mask=3,
     maker=0.0002, taker=0.0005, slip=0.0003, mmr=0.01, vol_win=24 * 30,
     dir_mode=0, rank_n=20, path_mode=0,
+    fund_tp=0, drift_k=0.0, drift_win=24 * 90,
 )
 ORDER = ["lot_pct", "max_lots", "step_fix", "step_k", "step_min", "step_max", "thr", "alpha",
          "exit_mode", "unwind_h", "sl_eq", "cooldown_h", "gross_cap", "trail", "side_mask",
-         "maker", "taker", "slip", "mmr", "vol_win", "dir_mode", "rank_n", "path_mode"]
+         "maker", "taker", "slip", "mmr", "vol_win", "dir_mode", "rank_n", "path_mode",
+         "fund_tp", "drift_k", "drift_win"]
 
 _P = {}
 # имя панели -> (файл, баров в часе)
@@ -40,7 +42,7 @@ def run(start="2021-01-01", end=None, dbg_j=-1, res="1h", **kw):
     P = panel(res)
     bph = P["bph"]
     cfg = dict(BASE); cfg.update(kw)
-    for k in ("unwind_h", "cooldown_h", "vol_win"):
+    for k in ("unwind_h", "cooldown_h", "vol_win", "drift_win"):
         cfg[k] = int(cfg[k] * bph)
     hours = P["hours"]
     st = int(np.searchsorted(hours, np.datetime64(start)))
