@@ -59,7 +59,8 @@
   const countRows = () => tx('rows', 'readonly', s => s.count());
   const allRows = () => tx('rows', 'readonly', s => s.getAll());
 
-  const form = () => document.querySelector('form[action="/channels/search"]');
+  // the form action carries the site language: /channels/search or /ru/channels/search
+  const form = () => document.querySelector('form[action$="/channels/search"]');
   const categoryIds = () => {
     const map = {};
     const sel = form() && form().querySelector('select[name="categories[]"]');
@@ -76,7 +77,7 @@
     fd.set('offset', '0');
     for (let attempt = 1; ; attempt++) {
       try {
-        const r = await fetch('/channels/search', {method: 'POST', body: fd, headers: {'X-Requested-With': 'XMLHttpRequest'}});
+        const r = await fetch(form().getAttribute('action'), {method: 'POST', body: fd, headers: {'X-Requested-With': 'XMLHttpRequest'}});
         const j = await r.json();
         if (r.status === 200 && j.status === 'ok') return j;
         throw new Error(`HTTP ${r.status}, status=${j && j.status}`);
