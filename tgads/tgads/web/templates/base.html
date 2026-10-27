@@ -4,6 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}TGAds{% endblock %} · TGAds</title>
+  <meta name="theme-color" content="#0172ad">
+  <link rel="manifest" href="/static/manifest.webmanifest">
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/static/icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="TGAds">
   <link rel="stylesheet" href="/static/vendor/pico-2.0.6.min.css">
   <link rel="stylesheet" href="/static/app.css">
   <script src="/static/vendor/chart-4.4.1.umd.js"></script>
@@ -28,6 +34,7 @@
   {% block content %}{% endblock %}
 </main>
 <script>
+document.querySelector('.menu a.active')?.scrollIntoView({inline: 'center', block: 'nearest'});
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-copy]');
   if (t) { navigator.clipboard.writeText(document.querySelector(t.dataset.copy).value || document.querySelector(t.dataset.copy).textContent); t.textContent = 'Скопировано'; }

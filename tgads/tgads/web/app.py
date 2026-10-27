@@ -109,7 +109,8 @@ def create_app() -> FastAPI:
     @app.middleware("http")
     async def basic_auth(request: Request, call_next):
         cfg = get_config()
-        if cfg.panel_password:
+        # static assets stay public: browsers fetch the PWA manifest/icons without credentials
+        if cfg.panel_password and not request.url.path.startswith("/static/"):
             ok = False
             header = request.headers.get("authorization", "")
             if header.startswith("Basic "):

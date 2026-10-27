@@ -1,6 +1,10 @@
 services:
   tgads:
-    build: .
+    build:
+      context: .
+      args:
+        INSTALL_CLAUDE: "1"
+        INSTALL_BROWSER: "1"   # headless Chromium for TGStat pages behind Cloudflare
     restart: unless-stopped
     env_file: .env
     environment:

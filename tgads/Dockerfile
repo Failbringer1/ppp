@@ -12,6 +12,13 @@ RUN if [ "$INSTALL_CLAUDE" = "1" ]; then \
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Headless Chromium for TGStat pages protected by Cloudflare (optional, ~400 MB)
+ARG INSTALL_BROWSER=1
+RUN if [ "$INSTALL_BROWSER" = "1" ]; then \
+      pip install --no-cache-dir playwright==1.55.0 && playwright install --with-deps chromium \
+      && rm -rf /var/lib/apt/lists/*; \
+    fi
 COPY tgads ./tgads
 
 ENV TGADS_HOST=0.0.0.0 \

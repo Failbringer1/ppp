@@ -55,3 +55,20 @@ textarea { font-size: 0.9rem; }
 .chart-box { position: relative; height: 340px; }
 details > summary { cursor: pointer; }
 .msg-in pre, .msg-out pre { font-family: inherit; background: none; font-size: 0.95rem; }
+.row > label { flex: 1 1 160px; }
+
+@media (max-width: 760px) {
+  :root { --pico-font-size: 15px; }
+  header.top { position: static; flex-wrap: nowrap; gap: 0.5rem; padding: 0.4rem 0.6rem; }
+  header.top .menu { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  header.top .menu::-webkit-scrollbar { display: none; }
+  .ai-mode { display: none; }
+  main.container-fluid { padding: 0.6rem; }
+  h1 { font-size: 1.25rem; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+  .card { padding: 0.45rem 0.6rem; }
+  .card .v { font-size: 1.1rem; }
+  main table { display: block; overflow-x: auto; }
+  .row > label { flex: 1 1 140px; }
+  .chart-box { height: 260px; }
+}

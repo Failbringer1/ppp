@@ -4,6 +4,8 @@
 {% block content %}
 <h1>Каналы <span class="muted small">{{ total }}</span></h1>
 
+<details class="filters" {{ 'open' if params.status or params.topic or params.verdict or params.source or params.q or params.min_subs }}>
+<summary>Фильтры и сортировка</summary>
 <form method="get" class="row">
   <label>Статус<select name="status"><option value="">все</option>
     {% for st in statuses %}<option {{ 'selected' if params.status == st }}>{{ st }}</option>{% endfor %}</select></label>
@@ -20,6 +22,7 @@
     <option value="{{ k }}" {{ 'selected' if params.sort == k }}>{{ label }}</option>{% endfor %}</select></label>
   <button type="submit" class="secondary">Показать</button>
 </form>
+</details>
 
 <form method="post" action="/channels/bulk">
 {{ bulk_bar(my_channels, request.url.path ~ ('?' ~ request.url.query if request.url.query else ''), CHANNEL_ACTIONS) }}
