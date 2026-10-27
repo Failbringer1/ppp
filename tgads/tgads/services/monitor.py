@@ -285,6 +285,13 @@ async def _join_next() -> int:
         await s.commit()
         await _leave_checked(s, settings)
         await s.commit()
+        # a joined channel whose description/contacts could not be read yet (flood wait, crash)
+        unread = (await s.execute(select(Channel.id, Channel.monitor_account_id)
+                                  .where(Channel.joined.is_(True), Channel.collected_at.is_(None))
+                                  .order_by(Channel.subscribers.desc().nullslast()).limit(1))).first()
+    if unread:
+        await _read_channel(*unread)
+    async with session() as s:
         # the biggest channels first: join slots are scarce (daily limit, 500 channels per account)
         ch = (await s.scalars(select(Channel).where(Channel.status == "monitoring", Channel.joined.is_(False))
                               .order_by(Channel.subscribers.desc().nullslast(), Channel.id).limit(1))).first()
@@ -345,10 +352,16 @@ async def _read_channel(channel_id: int, account_id: int) -> None:
     try:
         await collect_channel(channel_id, account_id=account_id)
         await contacts.extract_for_channels([channel_id])
-    except FloodWait:
-        pass  # the collector loop will not retry a monitoring channel; the check itself goes on
+    except (FloodWait, NoAccount):
+        return  # stays unread: _join_next retries it later
     except Exception:
         log.exception("reading joined channel %s", channel_id)
+    async with session() as s:
+        ch = await s.get(Channel, channel_id)
+        if ch.status == "error":  # a failed read must not end the view check
+            ch.status = "monitoring"
+        ch.collected_at = ch.collected_at or utcnow()  # tried once; do not loop on a channel that cannot be read
+        await s.commit()
 
 
 async def _finish_overdue(s: AsyncSession, settings: dict) -> None:
