@@ -1,0 +1,5 @@
+data
+__pycache__/
+results_*.json
+sweep_*.json
+!results/*.log
