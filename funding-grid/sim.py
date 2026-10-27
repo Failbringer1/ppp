@@ -23,6 +23,10 @@
   * drift_k > 0 - фильтр одностороннего движения: если за drift_win баров цена ушла против стороны,
     которой платят, вход и доборы разрешены, только если годовой фандинг >= drift_k * годовой темп
     этого движения; иначе позиция переходит в режим выхода, как при развороте фандинга.
+  * FS - ставка, которую платит шорт в момент расчёта (у перпов = -FR, у брокера со своей наценкой
+    платить могут обе стороны). FAIR - справедливый годовой перенос для лонга (разница ставок, только
+    для валют; NaN - правило не применяется). fair_k > 0 - валютное правило: входим, только если
+    получаемый своп >= fair_k * разница ставок.
   * bph - баров в часе (1 для 1h, 4 для 15m, 12 для 5m); интервалы в параметрах - в барах.
   * dir_mode: 0 - по фандингу, 1/-1 - всегда лонг/шорт, 2 - против фандинга (контроль),
               3 - рыночно-нейтральный кросс-секционный вариант: лонг rank_n монет с самым
@@ -44,11 +48,11 @@ def _lvl(anchor, step, k, d):
 
 
 @njit(cache=True)
-def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
+def simulate(O, H, L, C, FR, FS, FI, FAIR, U, month_idx, force_close, start_t,
              lot_pct, max_lots, step_fix, step_k, step_min, step_max,
              thr, alpha, exit_mode, unwind_h, sl_eq, cooldown_h, gross_cap,
              trail, side_mask, maker, taker, slip, mmr, vol_win, dir_mode, rank_n, path_mode,
-             fund_tp, drift_k, drift_win, bph=1, dbg_j=-1):
+             fund_tp, drift_k, drift_win, fair_k, bph=1, dbg_j=-1):
     T, N = O.shape
     E0 = 1.0
     cash = E0
@@ -63,6 +67,7 @@ def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
     stp = np.zeros(N)
     lotn = np.zeros(N)                   # номинал лота в USDT (фиксируется на входе)
     sig = np.zeros(N)
+    sigS = np.zeros(N)                   # сглаженная ставка, которую платит шорт (для перпов = -sig)
     sig_ok = np.zeros(N, np.bool_)
     unw = np.zeros(N, np.bool_)
     unw_t = np.zeros(N, np.int64)
@@ -100,20 +105,24 @@ def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
         for j in range(N):
             f = FR[t, j]
             if np.isfinite(f):
+                fs = FS[t, j]
                 if nl[j] > 0 and np.isfinite(O[t, j]):
-                    pay = d[j] * Q[j] * O[t, j] * f
+                    rate = f if d[j] > 0 else fs
+                    pay = Q[j] * O[t, j] * rate
                     cash -= pay
                     for kk in range(nl[j]):
-                        lf[j, kk] -= d[j] * lq[j, kk] * O[t, j] * f
+                        lf[j, kk] -= lq[j, kk] * O[t, j] * rate
                     k = 0 if d[j] > 0 else 1
                     fund[k] -= pay
                     pnl_asset[j] -= pay
                 ih = FI[t, j] if FI[t, j] > 0 else 8.0
                 f8 = f * 8.0 / ih
+                fs8 = fs * 8.0 / ih
                 if sig_ok[j]:
                     sig[j] = alpha * f8 + (1 - alpha) * sig[j]
+                    sigS[j] = alpha * fs8 + (1 - alpha) * sigS[j]
                 else:
-                    sig[j] = f8; sig_ok[j] = True
+                    sig[j] = f8; sigS[j] = fs8; sig_ok[j] = True
         # --- эквити и gross на открытии ---
         E = cash
         gross = 0.0
@@ -153,9 +162,11 @@ def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
             lastp[j] = c
             fav = 0
             if sig_ok[j]:
-                if sig[j] > thr:
+                # сторона, которой платят: что получает лонг (-sig) и что получает шорт (-sigS)
+                rl = -sig[j]; rs = -sigS[j]
+                if rs > thr and rs >= rl:
                     fav = -1
-                elif sig[j] < -thr:
+                elif rl > thr and rl > rs:
                     fav = 1
             if dir_mode == 1 or dir_mode == -1:
                 fav = dir_mode if sig_ok[j] else 0
@@ -175,8 +186,16 @@ def simulate(O, H, L, C, FR, FI, U, month_idx, force_close, start_t,
                     blocked = True
                 else:
                     adv = -fav * np.log(C[t - 1, j] / C[tb, j]) * (8760.0 * bph / drift_win)
-                    recv = -fav * sig[j] * 1095.0 if sig_ok[j] else 0.0
+                    recv = ((-sig[j]) if fav > 0 else (-sigS[j])) * 1095.0 if sig_ok[j] else 0.0
                     if adv > 0 and recv < drift_k * adv:
+                        blocked = True
+            # валюты: своп, который мы получаем, должен быть не меньше fair_k от разницы ставок (FAIR - годовой
+            # справедливый перенос для лонга: ставка базовой валюты минус ставка котируемой)
+            if fair_k > 0 and fav != 0 and t < FAIR.shape[0] and np.isfinite(FAIR[t, j]):
+                fair_recv = fav * FAIR[t, j]
+                if fair_recv > 0:
+                    recv = ((-sig[j]) if fav > 0 else (-sigS[j])) * 1095.0 if sig_ok[j] else 0.0
+                    if recv < fair_k * fair_recv:
                         blocked = True
             side = 0
             # ---------- управление открытой позицией на открытии бара ----------

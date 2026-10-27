@@ -10,12 +10,12 @@ BASE = dict(
     gross_cap=100.0, trail=0, side_mask=3,
     maker=0.0002, taker=0.0005, slip=0.0003, mmr=0.01, vol_win=24 * 30,
     dir_mode=0, rank_n=20, path_mode=0,
-    fund_tp=0, drift_k=0.0, drift_win=24 * 90,
+    fund_tp=0, drift_k=0.0, drift_win=24 * 90, fair_k=0.0,
 )
 ORDER = ["lot_pct", "max_lots", "step_fix", "step_k", "step_min", "step_max", "thr", "alpha",
          "exit_mode", "unwind_h", "sl_eq", "cooldown_h", "gross_cap", "trail", "side_mask",
          "maker", "taker", "slip", "mmr", "vol_win", "dir_mode", "rank_n", "path_mode",
-         "fund_tp", "drift_k", "drift_win"]
+         "fund_tp", "drift_k", "drift_win", "fair_k"]
 
 _P = {}
 # имя панели -> (файл, баров в часе)
@@ -34,6 +34,10 @@ def panel(res="1h"):
         else:
             p["hours"] = np.datetime64("2020-12-01T00:00") + np.arange(p["O"].shape[0]) * step
         p["bph"] = BPH[res]
+        if "FS" not in p:
+            p["FS"] = -p["FR"]                       # перпетуалы: шорт получает то, что платит лонг
+        if "FAIR" not in p:
+            p["FAIR"] = np.full((1, 1), np.nan, np.float32)
         _P[res] = p
     return _P[res]
 
@@ -46,13 +50,13 @@ def run(start="2021-01-01", end=None, dbg_j=-1, res="1h", **kw):
         cfg[k] = int(cfg[k] * bph)
     hours = P["hours"]
     st = int(np.searchsorted(hours, np.datetime64(start)))
-    O, H, L, C, FR, FI, FC = P["O"], P["H"], P["L"], P["C"], P["FR"], P["FI"], P["force_close"]
+    O, H, L, C, FR, FS, FI, FC = P["O"], P["H"], P["L"], P["C"], P["FR"], P["FS"], P["FI"], P["force_close"]
     if end is not None:
         en = int(np.searchsorted(hours, np.datetime64(end)))
-        O, H, L, C, FR, FI, FC = O[:en], H[:en], L[:en], C[:en], FR[:en], FI[:en], FC[:en].copy()
+        O, H, L, C, FR, FS, FI, FC = O[:en], H[:en], L[:en], C[:en], FR[:en], FS[:en], FI[:en], FC[:en].copy()
         FC[en - 1] = True
     args = [cfg[k] for k in ORDER]
-    r = simulate(O, H, L, C, FR, FI, P["U"], P["month_idx"], FC, st, *args, bph, dbg_j)
+    r = simulate(O, H, L, C, FR, FS, FI, P["FAIR"], P["U"], P["month_idx"], FC, st, *args, bph, dbg_j)
     eq, eqw, gross, lng, sht, npos, nfull, fund, real, fee, unreal, cnt, pnl_asset, blown, dbg = r
     return dict(cfg=cfg, st=st, bph=bph, res=res, hours=hours[:len(eq)], eq=eq, eqw=eqw, gross=gross, lng=lng, sht=sht,
                 npos=npos, nfull=nfull, fund=fund, real=real, fee=fee, unreal=unreal, cnt=cnt,
