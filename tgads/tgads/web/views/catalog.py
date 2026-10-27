@@ -42,11 +42,22 @@ async def index(request: Request, category: int = 0, language: int = -1, kind: s
 
 
 @router.post("/to-work")
-async def to_work(ids: list[int] = Form([]), back_url: str = Form("/catalog")):
+async def to_work(ids: list[int] = Form([]), action: str = Form("work"), back_url: str = Form("/catalog")):
     if not ids:
         return back(back_url, err="Ничего не выбрано")
-    n = await catalog.to_work(ids)
-    return back(back_url, msg=f"В очередь сбора добавлено каналов: {n} (закрытые без @username пропущены)")
+    n = await catalog.to_work(ids, monitor=action == "monitor")
+    what = "на вступление и проверку накрутки" if action == "monitor" else "в очередь сбора"
+    return back(back_url, msg=f"Отправлено {what}: {n} (закрытые без @username пропущены)")
+
+
+@router.post("/top")
+async def top(n: int = Form(100), category: int = Form(0), language: int = Form(-1), kind: str = Form(""),
+              q: str = Form(""), min_subs: int = Form(0), max_subs: int = Form(0), back_url: str = Form("/catalog")):
+    """The n biggest public channels of the current filter -> join and bot check."""
+    ids = await catalog.top_ids(catalog.filtered(category, language, kind, q, min_subs, max_subs), max(1, min(n, 2000)))
+    done = await catalog.to_work(ids, monitor=True)
+    return back("/vetting", msg=f"На вступление поставлено каналов: {done}. Самые крупные идут первыми, "
+                                f"в пределах дневного лимита вступлений на аккаунт")
 
 
 @router.post("/ingest/{key}")

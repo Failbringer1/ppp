@@ -67,10 +67,20 @@
 </details>
 </div>
 
+<form method="post" action="/catalog/top" class="actions">
+  {% for k in ('category', 'language', 'kind', 'q', 'min_subs', 'max_subs') %}<input type="hidden" name="{{ k }}" value="{{ params[k] }}">{% endfor %}
+  <input type="number" name="n" value="100" min="1" max="2000" style="width: 6rem" title="Сколько каналов">
+  <button type="submit">Топ по подписчикам этого фильтра — вступить и проверить</button>
+</form>
+
 <form method="post" action="/catalog/to-work">
 <div class="actions">
   <input type="hidden" name="back_url" value="/catalog{{ '?' ~ qs if qs else '' }}">
-  <button type="submit">Выбранные — в работу (сбор и проверка)</button>
+  <select name="action">
+    <option value="monitor">вступить и проверить на накрутку</option>
+    <option value="work">только собрать данные</option>
+  </select>
+  <button type="submit" class="secondary">Применить к выбранным</button>
 </div>
 <div class="table-wrap">
 <table>

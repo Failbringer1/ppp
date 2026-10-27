@@ -155,8 +155,19 @@ def _bucket_label(lo: int, hi: int | None) -> str:
     return f"от {k(lo)}" if hi is None else f"{k(lo)}–{k(hi)}"
 
 
-async def to_work(ids: list[int]) -> int:
-    """Put selected public catalog channels into the work queue (collection by a Telegram account)."""
+async def top_ids(stmt, n: int) -> list[int]:
+    """Ids of the n biggest public channels of the filtered selection."""
+    sub = stmt.where(CatalogChannel.ref.like("@%")).order_by(CatalogChannel.subscribers.desc().nullslast()).limit(n)
+    async with session() as s:
+        return [c.id for c in (await s.scalars(sub)).all()]
+
+
+async def to_work(ids: list[int], monitor: bool = False) -> int:
+    """Put selected public catalog channels into the work queue.
+
+    monitor=False: collection by a Telegram account; monitor=True: a monitor account joins the channel
+    (biggest first, within the daily join limit) and the bot check of module 3 starts.
+    """
     n = 0
     async with session() as s:
         rows = (await s.scalars(select(CatalogChannel).where(CatalogChannel.id.in_(ids)))).all()
@@ -166,8 +177,10 @@ async def to_work(ids: list[int]) -> int:
             ch = await add_channel_ref(s, c.ref, "tgstat", "каталог TGStat", status="queued")
             if ch is None:
                 continue
+            if monitor and ch.status not in ("monitoring", "checked", "approved"):
+                ch.status = "monitoring"
             ch.title = ch.title or c.title
-            ch.subscribers = ch.subscribers or c.subscribers
+            ch.subscribers = c.subscribers or ch.subscribers
             data = dict(ch.tgstat or {})
             data.update({k: v for k, v in (("subscribers", c.subscribers), ("avg_reach", c.avg_reach), ("ci", c.ci),
                                            ("category", category_name(c.category_id))) if v not in (None, "—")})

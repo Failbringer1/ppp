@@ -278,8 +278,9 @@ async def join_loop() -> None:
 async def _join_next() -> int:
     async with session() as s:
         settings = await get_settings(s)
+        # the biggest channels first: join slots are scarce (daily limit, 500 channels per account)
         ch = (await s.scalars(select(Channel).where(Channel.status == "monitoring", Channel.joined.is_(False))
-                              .order_by(Channel.id).limit(1))).first()
+                              .order_by(Channel.subscribers.desc().nullslast(), Channel.id).limit(1))).first()
         if ch is None:
             await _leave_checked(s, settings)
             await s.commit()

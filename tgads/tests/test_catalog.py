@@ -75,3 +75,15 @@ async def test_ingest_needs_no_panel_login(monkeypatch):
         assert (await c.get("/catalog")).status_code == 401
         r = await c.post(f"/catalog/ingest/{key}", content=b'd={"items": []}')
         assert r.status_code == 200
+
+
+async def test_top_goes_to_monitoring_biggest_first():
+    await init_db()
+    await catalog.ingest({"items": ITEMS})
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app()), base_url="http://test") as c:
+        r = await c.post("/catalog/top", data={"n": "2", "category": "2", "language": "-1"})
+        assert r.status_code == 303 and r.headers["location"].startswith("/vetting")
+    async with session() as s:
+        rows = (await s.scalars(select(Channel).order_by(Channel.subscribers.desc().nullslast(), Channel.id))).all()
+    # the two biggest public news channels, both waiting for a join
+    assert [(ch.username, ch.status) for ch in rows] == [("kun_uz", "monitoring"), ("daryo", "monitoring")]
