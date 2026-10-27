@@ -55,6 +55,11 @@ async def save(request: Request):
         await set_setting(s, "outreach_templates", {"uz": form.get("tpl_uz", ""), "ru": form.get("tpl_ru", "")})
         await set_setting(s, "outreach_language", form.get("outreach_language") or "uz")
         await set_setting(s, "search_keywords", form.get("search_keywords", ""))
+        token = (form.get("claude_oauth_token") or "").strip()
+        if token and not token.startswith("•"):
+            await set_setting(s, "claude_oauth_token", token)
+        elif form.get("claude_token_clear"):
+            await set_setting(s, "claude_oauth_token", "")
         if form.get("tgstat_base"):
             await set_setting(s, "tgstat_base", form["tgstat_base"].strip().rstrip("/"))
         defaults = asdict(Thresholds())

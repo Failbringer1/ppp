@@ -25,12 +25,15 @@ class Config(BaseSettings):
     ai_mode: str = "auto"
     claude_bin: str = "claude"
     claude_model: str = "opus"           # alias for the CLI
+    claude_config_dir: str = ""          # CLAUDE_CONFIG_DIR for the CLI when run as a service
+    claude_oauth_token: str = ""         # from `claude setup-token`; can also be saved in the panel settings
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-opus-5-5"
 
     # TGStat scraping through a headless browser when Cloudflare blocks plain requests: auto | 1 | 0
     tgstat_browser: str = "auto"
     run_worker: bool = True
+    log_file: str = ""                   # rotating log file instead of the console (Windows service)
 
     @property
     def db_url(self) -> str:

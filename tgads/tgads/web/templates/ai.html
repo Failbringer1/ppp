@@ -5,7 +5,7 @@
 <h1>ИИ-задачи</h1>
 {% if ai_mode == 'claude_cli' %}
 <p class="small">Режим: <b>Claude Code CLI</b>. Задачи выполняются локальной командой <code>claude -p</code> на вашей подписке Claude, API-ключ не нужен.
-Если задача падает с ошибкой авторизации, выполните <code>claude</code> в терминале сервера и войдите заново.</p>
+Если задача падает с ошибкой авторизации, выполните <code>claude setup-token</code> и вставьте токен в <a href="/settings">Настройках</a>.</p>
 {% elif ai_mode == 'api' %}
 <p class="small">Режим: <b>Anthropic API</b> (ключ из .env).</p>
 {% else %}

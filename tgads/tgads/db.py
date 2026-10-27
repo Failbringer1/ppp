@@ -42,6 +42,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "outreach_language": "uz",
     "search_keywords": "yangiliklar, kino, futbol, ish, ielts, retsept, avto, uzum, biznes, kripto, islom, "
                        "новости ташкент, работа ташкент, кино uz, футбол uz",
+    "claude_oauth_token": "",
     "tgstat_base": "https://uz.tgstat.com",
     "tgstat_pages_per_day": 300,
     "curve_day": None,

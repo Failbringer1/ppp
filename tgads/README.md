@@ -63,6 +63,23 @@ cd /opt/tgads/tgads && docker compose exec -it tgads claude    # /login → сс
 
 Процесс должен работать **постоянно**: монитор ловит первые минуты постов, а лог отписок Telegram хранит всего 48 часов.
 
+## Windows-сервер (рядом с другими сайтами за Caddy)
+
+Если сервер на Windows и на нём уже работает Caddy с другими сайтами (как на сервере Morningstar Lab), откройте PowerShell **от имени администратора** (через RDP или `ssh Administrator@сервер`) и выполните:
+
+```powershell
+[Net.ServicePointManager]::SecurityProtocol = 'Tls12'
+& ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/Failbringer1/ppp/claude/telegram-channel-ads-platform-8qn7b8/tgads/deploy/windows/install.ps1'))) -ApiId ВАШ_API_ID -ApiHash ВАШ_API_HASH
+```
+
+Что делает установщик:
+- Всё ставит в `C:\Apps\TGAds`: отдельный Python, зависимости, Chromium для TGStat, Claude Code. Python и файлы других приложений не трогает.
+- Создаёт задачу Windows «TGAds» от `LocalService`: автозапуск при старте Windows, перезапуск при сбое. Панель слушает только `127.0.0.1`.
+- Добавляет в Caddyfile работающего Caddy **один** новый блок для адреса `https://<IP-через-дефисы>.sslip.io`. Перед этим делается резервная копия `Caddyfile.bak-tgads-*`, затем `caddy validate`. Если конфиг не прошёл проверку, файл возвращается как был. Существующие сайты не меняются.
+- Печатает адрес, логин и пароль панели. В конце предлагает получить токен Claude (`claude setup-token`), чтобы ИИ работал без API-ключа. Токен можно вставить и позже: «Настройки» → Claude.
+
+Повторный запуск той же команды обновляет код, а данные и настройки сохраняются. Логи лежат в `C:\Apps\TGAds\logs\`.
+
 ## TGStat
 
 Страница «Ниши» → блок **TGStat**. Можно собрать рейтинг каналов Узбекистана по категории или по любому адресу страницы TGStat со списком: все каналы встанут в очередь сбора.

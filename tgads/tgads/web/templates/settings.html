@@ -32,6 +32,15 @@
   <label>Ключевые слова по умолчанию<textarea name="search_keywords" rows="3">{{ st.search_keywords }}</textarea></label>
   <label>Сайт TGStat<input name="tgstat_base" value="{{ st.tgstat_base }}"></label>
 
+  <h2>Claude (ИИ без API-ключа)</h2>
+  <p class="small muted">Токен подписки для фонового режима: на сервере или своём компьютере выполните <code>claude setup-token</code>,
+    войдите в Claude и вставьте сюда выданный токен. {% if st.claude_oauth_token %}<b>Токен сохранён.</b>{% else %}Токен не задан.{% endif %}</p>
+  <div class="row">
+    <label>Токен<input name="claude_oauth_token" type="password" autocomplete="off"
+      placeholder="{{ '•••••••• (сохранён, вставьте новый, чтобы заменить)' if st.claude_oauth_token else 'sk-ant-oat…' }}"></label>
+    {% if st.claude_oauth_token %}<label class="small"><input type="checkbox" name="claude_token_clear" value="1"> удалить токен</label>{% endif %}
+  </div>
+
   <button type="submit">Сохранить</button>
 </form>
 {% endblock %}
