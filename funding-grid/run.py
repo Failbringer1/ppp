@@ -16,12 +16,15 @@ ORDER = ["lot_pct", "max_lots", "step_fix", "step_k", "step_min", "step_max", "t
          "maker", "taker", "slip", "mmr", "vol_win", "dir_mode", "rank_n", "path_mode"]
 
 _P = {}
-BPH = {"1h": 1, "15m": 4, "5m": 12}
+# имя панели -> (файл, баров в часе)
+PANELS = {"1h": ("data/panel.npz", 1), "15m": ("data/panel15m.npz", 4), "5m": ("data/panel5m.npz", 12),
+          "tradfi": ("data/panel_tradfi.npz", 1)}
+BPH = {k: v[1] for k, v in PANELS.items()}
 
 
 def panel(res="1h"):
     if res not in _P:
-        d = np.load("data/panel.npz" if res == "1h" else f"data/panel{res}.npz")
+        d = np.load(PANELS[res][0])
         p = {k: d[k] for k in d.files}
         step = np.timedelta64(60 // BPH[res], "m")
         if "hours" in p:
