@@ -1,0 +1,35 @@
+{% macro verdict(ch) -%}
+  {% set v = VERDICTS.get(ch.verdict, (ch.verdict, 'muted')) %}
+  <span class="badge {{ v[1] }}">{{ v[0] }}{% if ch.score is not none and ch.verdict != 'unknown' %} · {{ ch.score|num }}{% endif %}</span>
+{%- endmacro %}
+
+{% macro status(st) -%}
+  {% set cls = {'approved': 'ok', 'monitoring': 'warn', 'checked': 'ok', 'rejected': 'bad', 'error': 'bad',
+               'queued': 'warn', 'replied': 'ok', 'agreed': 'ok', 'declined': 'bad', 'failed': 'bad',
+               'published': 'ok', 'done': 'ok', 'paid': 'warn', 'manual': 'warn', 'pending': 'warn',
+               'running': 'warn', 'generating': 'warn', 'cancelled': 'bad'}.get(st, '') %}
+  <span class="badge {{ cls }}">{{ st }}</span>
+{%- endmacro %}
+
+{% macro bulk_bar(my_channels, back_url, actions) -%}
+<div class="actions">
+  <select name="action" required>
+    {% for value, label in actions %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+  </select>
+  <select name="my_channel_id" title="Свой канал (для доноров и переписки)">
+    <option value="0">— свой канал —</option>
+    {% for m in my_channels %}<option value="{{ m.id }}">{{ m.title or m.ref }}</option>{% endfor %}
+  </select>
+  <select name="language" title="Язык первого сообщения админу">
+    <option value="uz">uz</option><option value="ru">ru</option>
+  </select>
+  <input type="hidden" name="back_url" value="{{ back_url }}">
+  <button type="submit">Применить к выбранным</button>
+</div>
+{%- endmacro %}
+
+{% set CHANNEL_ACTIONS = [
+  ("collect", "Собрать / обновить данные"), ("tgstat", "Подтянуть цифры TGStat"), ("classify", "Определить тематику (ИИ)"),
+  ("monitor", "Отправить на проверку накрутки"), ("contacts", "Найти контакты админов"),
+  ("outreach", "Запросить цену у админов"), ("donor", "Сделать донорами своего канала"),
+  ("approve", "Одобрить площадку"), ("reject", "Отклонить"), ("unmonitor", "Снять с проверки")] %}

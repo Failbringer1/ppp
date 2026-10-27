@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Свои каналы{% endblock %}
+{% block content %}
+<h1>2 · Свои каналы и контент</h1>
+<table>
+  <thead><tr><th>Канал</th><th>Язык</th><th>Тема</th><th>Подписчики</th></tr></thead>
+  <tbody>
+  {% for m in chans %}
+  <tr><td><a href="/content/{{ m.id }}">{{ m.title or m.ref }}</a> <span class="small muted">{{ m.ref }}</span></td>
+    <td>{{ m.language }}</td><td>{{ m.topic }}</td><td>{{ m.subscribers|num }}</td></tr>
+  {% else %}<tr><td colspan="4" class="muted">Своих каналов пока нет.</td></tr>{% endfor %}
+  </tbody>
+</table>
+
+<h2>Добавить свой канал</h2>
+<form method="post" action="/content" style="max-width: 720px">
+  <label>Канал (@username, t.me-ссылка или числовой id -100…)<input name="ref" required></label>
+  <div class="row">
+    <label>Язык<select name="language"><option value="uz">узбекский (латиница)</option><option value="uz_cyrl">узбекский (кириллица)</option><option value="ru">русский</option></select></label>
+    <label>Тематика<input name="topic" placeholder="кино/сериалы"></label>
+    <label>Аккаунт-публикатор<select name="publisher_account_id"><option value="0">авто</option>
+      {% for a in accounts %}<option value="{{ a.id }}">{{ a.title or a.phone }}</option>{% endfor %}</select></label>
+  </div>
+  <label>Позиционирование и тон (для ИИ)<textarea name="positioning" rows="2" placeholder="Премьеры фильмов и сериалов на узбекском, коротко, с юмором"></textarea></label>
+  <button type="submit">Добавить</button>
+</form>
+{% endblock %}

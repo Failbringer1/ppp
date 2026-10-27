@@ -1,0 +1,74 @@
+:root {
+  --pico-font-size: 14px;
+  --pico-spacing: 0.75rem;
+  --pico-form-element-spacing-vertical: 0.4rem;
+  --pico-form-element-spacing-horizontal: 0.6rem;
+  --ok: #1f9d55;
+  --warn: #c98a00;
+  --bad: #d64545;
+  --muted: #8a94a6;
+}
+body { margin: 0; }
+header.top {
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 0.5rem 1rem; border-bottom: 1px solid var(--pico-muted-border-color);
+  position: sticky; top: 0; background: var(--pico-background-color); z-index: 10;
+}
+header.top .brand { font-weight: 700; font-size: 1.1rem; text-decoration: none; }
+header.top .menu { display: flex; gap: 0.15rem; flex-wrap: wrap; flex: 1; }
+header.top .menu a { padding: 0.25rem 0.55rem; border-radius: 6px; text-decoration: none; white-space: nowrap; }
+header.top .menu a.active { background: var(--pico-primary-background); color: var(--pico-primary-inverse); }
+.ai-mode { font-size: 0.8rem; color: var(--muted); }
+main.container-fluid { padding: 1rem; max-width: 1500px; margin: 0 auto; }
+h1 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+h2 { font-size: 1.2rem; margin: 1.25rem 0 0.5rem; }
+h3 { font-size: 1.05rem; margin: 1rem 0 0.4rem; }
+table { font-size: 0.9rem; }
+table td, table th { padding: 0.35rem 0.5rem; vertical-align: top; }
+.table-wrap { overflow-x: auto; }
+.flash { padding: 0.5rem 0.75rem; border-radius: 6px; }
+.flash.ok { background: color-mix(in srgb, var(--ok) 15%, transparent); }
+.flash.bad { background: color-mix(in srgb, var(--bad) 15%, transparent); }
+.badge { display: inline-block; padding: 0.05rem 0.45rem; border-radius: 999px; font-size: 0.78rem; white-space: nowrap;
+  background: color-mix(in srgb, var(--muted) 18%, transparent); }
+.badge.ok { background: color-mix(in srgb, var(--ok) 20%, transparent); color: var(--ok); }
+.badge.warn { background: color-mix(in srgb, var(--warn) 22%, transparent); color: var(--warn); }
+.badge.bad { background: color-mix(in srgb, var(--bad) 20%, transparent); color: var(--bad); }
+.muted { color: var(--muted); }
+.small { font-size: 0.82rem; }
+.row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end; }
+.row > * { margin-bottom: 0; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+.card { border: 1px solid var(--pico-muted-border-color); border-radius: 8px; padding: 0.6rem 0.8rem; }
+.card .v { font-size: 1.35rem; font-weight: 700; }
+.card .l { font-size: 0.8rem; color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+pre.text { white-space: pre-wrap; word-break: break-word; font-size: 0.85rem; padding: 0.6rem; max-height: 480px; overflow: auto; }
+.actions { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 0.5rem 0; }
+.actions button, .actions select, .actions input { width: auto; margin-bottom: 0; }
+button.sm, a.sm[role=button] { padding: 0.2rem 0.55rem; font-size: 0.82rem; }
+form.inline { display: inline; }
+textarea { font-size: 0.9rem; }
+.msg-in { border-left: 3px solid var(--pico-primary); padding-left: 0.6rem; }
+.msg-out { border-left: 3px solid var(--muted); padding-left: 0.6rem; color: var(--muted); }
+.chart-box { position: relative; height: 340px; }
+details > summary { cursor: pointer; }
+.msg-in pre, .msg-out pre { font-family: inherit; background: none; font-size: 0.95rem; }
+.row > label { flex: 1 1 160px; }
+
+@media (max-width: 760px) {
+  :root { --pico-font-size: 15px; }
+  header.top { position: static; flex-wrap: nowrap; gap: 0.5rem; padding: 0.4rem 0.6rem; }
+  header.top .menu { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  header.top .menu::-webkit-scrollbar { display: none; }
+  .ai-mode { display: none; }
+  main.container-fluid { padding: 0.6rem; }
+  h1 { font-size: 1.25rem; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+  .card { padding: 0.45rem 0.6rem; }
+  .card .v { font-size: 1.1rem; }
+  main table { display: block; overflow-x: auto; }
+  .row > label { flex: 1 1 140px; }
+  .chart-box { height: 260px; }
+}

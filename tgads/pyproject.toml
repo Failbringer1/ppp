@@ -1,0 +1,10 @@
+[project]
+name = "tgads"
+version = "0.1.0"
+description = "Telegram channels: niche research, content, ad platform vetting, outreach and ROI tracking"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"

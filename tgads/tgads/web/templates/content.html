@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status %}
+{% block title %}{{ mc.title or mc.ref }}{% endblock %}
+{% block content %}
+<h1>{{ mc.title or mc.ref }} <span class="small muted">{{ mc.subscribers|num }} подписчиков</span></h1>
+
+<details>
+  <summary>Настройки канала</summary>
+  <form method="post" action="/content/{{ mc.id }}/settings">
+    <div class="row">
+      <label>Канал<input name="ref" value="{{ mc.ref }}" required></label>
+      <label>Язык<select name="language">
+        {% for k, v in [('uz', 'узбекский (латиница)'), ('uz_cyrl', 'узбекский (кириллица)'), ('ru', 'русский')] %}
+        <option value="{{ k }}" {{ 'selected' if mc.language == k }}>{{ v }}</option>{% endfor %}</select></label>
+      <label>Тематика<input name="topic" value="{{ mc.topic }}"></label>
+      <label>Слоты публикаций (Ташкент)<input name="post_times" value="{{ mc.post_times }}" placeholder="09:00,13:00,19:00"></label>
+      <label>Аккаунт-публикатор<select name="publisher_account_id"><option value="0">авто</option>
+        {% for a in accounts %}<option value="{{ a.id }}" {{ 'selected' if a.id == mc.publisher_account_id }}>{{ a.title or a.phone }}</option>{% endfor %}</select></label>
+    </div>
+    <label>Позиционирование и тон<textarea name="positioning" rows="2">{{ mc.positioning }}</textarea></label>
+    <button type="submit">Сохранить</button>
+  </form>
+</details>
+
+<div class="grid2">
+<section>
+  <h2>Доноры</h2>
+  <table>
+    {% for d, c in donors %}
+    <tr><td><a href="/channels/{{ c.id }}">{{ c.title or c.ref }}</a> <span class="small muted">{{ c.ref }}</span></td>
+      <td class="small">{{ c.subscribers|num }} · {{ c.collected_at|ago }}</td>
+      <td><form method="post" action="/content/{{ mc.id }}/donors/{{ d.id }}/delete"><button class="sm outline">убрать</button></form></td></tr>
+    {% else %}<tr><td class="muted">Нет доноров.</td></tr>{% endfor %}
+  </table>
+  <form method="post" action="/content/{{ mc.id }}/donors" class="row">
+    <textarea name="refs" rows="2" placeholder="@donor1, @donor2" required></textarea>
+    <button type="submit" class="secondary">Добавить доноров</button>
+  </form>
+  <form method="post" action="/content/{{ mc.id }}/refresh"><button class="outline">Обновить посты доноров (по 100)</button></form>
+</section>
+<section>
+  <h2>Новый пост</h2>
+  <form method="post" action="/content/{{ mc.id }}/generate">
+    <textarea name="hint" rows="2" placeholder="Задание для ИИ: тема, факты, формат (необязательно)"></textarea>
+    <button type="submit">Сгенерировать ИИ</button>
+  </form>
+  <form method="post" action="/content/{{ mc.id }}/manual">
+    <textarea name="text" rows="3" placeholder="Или напишите сами" required></textarea>
+    <button type="submit" class="secondary">Добавить черновик</button>
+  </form>
+</section>
+</div>
+
+<h2>Очередь и черновики</h2>
+{% for it in items %}
+<article>
+  <form method="post" action="/content/items/{{ it.id }}">
+    <div class="row small">
+      {{ status(it.status) }} <span class="muted">{{ it.source }}{% if it.source_post_id %} · из поста #{{ it.source_post_id }}{% endif %}</span>
+      {% if it.scheduled_at %}<span>выйдет {{ it.scheduled_at|local }}</span>{% endif %}
+      {% if it.published_at %}<span>опубликован {{ it.published_at|local }}</span>{% endif %}
+      {% if it.media_paths %}<span class="badge">медиа: {{ it.media_paths|length }}</span>{% endif %}
+      {% if it.error %}<span style="color: var(--bad)">{{ it.error }}</span>{% endif %}
+    </div>
+    <textarea name="text" rows="5">{{ it.text }}</textarea>
+    {% if it.status not in ('published',) %}
+    <div class="actions">
+      <button name="action" value="save" class="sm secondary">Сохранить</button>
+      <input type="datetime-local" name="when" class="sm" title="Пусто — ближайший свободный слот">
+      <button name="action" value="schedule" class="sm">В очередь</button>
+      <button name="action" value="now" class="sm outline">Опубликовать сейчас</button>
+      {% if it.status == 'queued' %}<button name="action" value="unschedule" class="sm outline">Снять с очереди</button>{% endif %}
+      <button name="action" value="reject" class="sm outline">Удалить</button>
+    </div>
+    {% endif %}
+  </form>
+</article>
+{% else %}<p class="muted">Пусто.</p>{% endfor %}
+
+<h2>Лучшие посты доноров</h2>
+<form method="get" class="row"><label>За последние дней<input type="number" name="days" value="{{ days }}" style="width: 100px"></label><button class="sm secondary">Показать</button></form>
+<p class="small muted">Score сравнивает пост с медианой своего канала: 0.4·просмотры + 0.35·пересылки на 1000 + 0.25·реакции на 1000. Реклама и уже взятые посты исключены, учитываются посты старше суток.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Score</th><th>Донор</th><th>Текст</th><th>Просмотры</th><th>Пересылки</th><th>Реакции</th><th></th></tr></thead>
+  <tbody>
+  {% for p, sc in top %}
+  {% set c = donor_names.get(p.channel_id) %}
+  <tr>
+    <td><b>{{ sc|num(2) }}</b></td>
+    <td class="small">{{ c.ref if c else '' }}<br><span class="muted">{{ p.date|local }}</span></td>
+    <td style="max-width: 560px"><details><summary class="small">{{ (p.text or '[' ~ (p.media_type or 'медиа') ~ ']')|short(150) }}</summary><pre class="text">{{ p.text }}</pre>
+      {% if c %}<a class="small" href="{{ c.link }}/{{ p.msg_id }}" target="_blank" rel="noopener">открыть в Telegram</a>{% endif %}</details></td>
+    <td>{{ p.views|num }}</td><td>{{ p.forwards|num }}</td><td>{{ p.reactions|num }}</td>
+    <td>
+      <form method="post" action="/content/{{ mc.id }}/take" class="row">
+        <input type="hidden" name="post_id" value="{{ p.id }}">
+        <button name="mode" value="rewrite" class="sm">Рерайт ИИ</button>
+        <button name="mode" value="copy" class="sm outline">Как есть</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}<tr><td colspan="7" class="muted">Добавьте доноров и обновите их посты.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h2 id="creatives">Рекламные посты канала</h2>
+<p class="small muted">Тексты для закупа. <code>{link}</code> заменяется трекинг-ссылкой конкретной площадки. Варианты ИИ создаются кнопкой «Сделать похожий» на странице <a href="/research">Ниши</a>.</p>
+{% for cr in creatives %}
+<article>
+  <div class="row small"><b>{{ cr.title or ('#' ~ cr.id) }}</b> <span class="muted">{{ cr.source }} · {{ cr.created_at|local }}</span>
+    <form method="post" action="/content/creatives/{{ cr.id }}/delete" class="inline"><button class="sm outline">удалить</button></form></div>
+  <pre class="text">{{ cr.text }}</pre>
+</article>
+{% endfor %}
+<form method="post" action="/content/{{ mc.id }}/creatives">
+  <input name="title" placeholder="Название (необязательно)">
+  <textarea name="text" rows="4" placeholder="Текст рекламного поста с {link}" required></textarea>
+  <button type="submit" class="secondary">Сохранить рекламный пост</button>
+</form>
+{% endblock %}

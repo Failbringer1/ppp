@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Дашборд{% endblock %}
+{% block content %}
+<h1>Дашборд</h1>
+{% for w in warnings %}<p class="flash bad">{{ w }}</p>{% endfor %}
+
+<div class="cards">
+  <div class="card"><div class="v">{{ online|length }} / {{ accounts|length }}</div><div class="l">аккаунтов онлайн</div></div>
+  <div class="card"><div class="v">{{ by_status.values()|sum }}</div><div class="l">каналов в базе</div></div>
+  <div class="card"><div class="v">{{ by_status.get('monitoring', 0) }}</div><div class="l">на проверке (мониторинг)</div></div>
+  <div class="card"><div class="v">{{ by_verdict.get('clean', 0) }} / {{ by_verdict.get('boosted', 0) }}</div><div class="l">чистых / накрученных</div></div>
+  <div class="card"><div class="v">{{ unread }}</div><div class="l">непрочитанных ответов админов</div></div>
+  <div class="card"><div class="v">{{ manual_jobs }}</div><div class="l">ИИ-задач ждут ручного ответа</div></div>
+  <div class="card"><div class="v">{{ n_purchases }}</div><div class="l">закупов</div></div>
+  <div class="card"><div class="v">{{ spent|num }}</div><div class="l">потрачено, сум</div></div>
+  <div class="card"><div class="v">{{ joins|num }} / {{ alive|num }}</div><div class="l">подписалось / осталось</div></div>
+  <div class="card"><div class="v">{{ (spent / alive)|num if alive else '—' }}</div><div class="l">цена живого подписчика, сум</div></div>
+</div>
+
+<div class="grid2">
+  <section>
+    <h2>Каналы по статусам</h2>
+    <table>
+      {% for st, n in by_status.items() %}<tr><td>{{ st }}</td><td>{{ n }}</td></tr>{% endfor %}
+    </table>
+    <h2>Переписка</h2>
+    <table>
+      {% for st, n in conv_by_status.items() %}<tr><td>{{ st }}</td><td>{{ n }}</td></tr>{% endfor %}
+    </table>
+  </section>
+  <section>
+    <h2>Фоновые задачи</h2>
+    {% if not tasks %}<p class="muted">Пока ничего не запускалось.</p>{% endif %}
+    <table>
+      {% for t in tasks %}
+      <tr>
+        <td>{{ t.name }}</td>
+        <td>{% if t.running %}<span class="badge warn">идёт</span>{% elif t.error %}<span class="badge bad">ошибка</span>{% else %}<span class="badge ok">готово</span>{% endif %}</td>
+        <td class="small">{{ t.error or t.result }}</td>
+        <td class="small muted">{{ t.started|ago }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <h2>Как работать</h2>
+    <ol class="small">
+      <li><a href="/accounts">Аккаунты</a>: добавьте Telegram-аккаунт(ы), назначьте роли.</li>
+      <li><a href="/research">Ниши</a>: соберите каналы поиском/импортом, определите тематики, изучите ниши и креативы, получите идеи.</li>
+      <li><a href="/content">Контент</a>: заведите свой канал, добавьте доноров, наполните очередь публикаций.</li>
+      <li><a href="/channels">Каналы</a>: отберите площадки и отправьте на <a href="/vetting">проверку</a> — монитор ловит новые посты и замеряет просмотры.</li>
+      <li><a href="/contacts">Контакты</a>: соберите контакты админов чистых каналов.</li>
+      <li><a href="/outreach">Переписка</a>: запрос цены, разбор ответа, CPM, покупка.</li>
+      <li><a href="/purchases">Закупы</a>: ссылка на каждую площадку, подписчики, отписки, CPS.</li>
+    </ol>
+  </section>
+</div>
+{% endblock %}

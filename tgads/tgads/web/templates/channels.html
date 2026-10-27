@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "_macros.html" import verdict, status, bulk_bar, CHANNEL_ACTIONS with context %}
+{% block title %}Каналы{% endblock %}
+{% block content %}
+<h1>Каналы <span class="muted small">{{ total }}</span></h1>
+
+<details class="filters" {{ 'open' if params.status or params.topic or params.verdict or params.source or params.q or params.min_subs or params.country or params.language != -1 }}>
+<summary>Фильтры и сортировка</summary>
+<form method="get" class="row">
+  <label>Статус<select name="status"><option value="">все</option>
+    {% for st in statuses %}<option {{ 'selected' if params.status == st }}>{{ st }}</option>{% endfor %}</select></label>
+  <label>Тематика<select name="topic"><option value="">все</option>
+    {% for t in topics %}<option {{ 'selected' if params.topic == t }}>{{ t }}</option>{% endfor %}</select></label>
+  <label>Вердикт<select name="verdict"><option value="">все</option>
+    {% for k, v in VERDICTS.items() %}<option value="{{ k }}" {{ 'selected' if params.verdict == k }}>{{ v[0] }}</option>{% endfor %}</select></label>
+  <label>Источник<select name="source"><option value="">все</option>
+    {% for src in ['search', 'import', 'snowball', 'donor', 'manual'] %}<option {{ 'selected' if params.source == src }}>{{ src }}</option>{% endfor %}</select></label>
+  <label>Страна<select name="country"><option value="">все</option>
+    {% for code, name in countries %}<option value="{{ code }}" {{ 'selected' if params.country == code }}>{{ name }}</option>{% endfor %}</select></label>
+  <label>Язык<select name="language"><option value="-1">все</option>
+    {% for id, name in languages %}<option value="{{ id }}" {{ 'selected' if params.language == id }}>{{ name }}</option>{% endfor %}
+    <option value="0" {{ 'selected' if params.language == 0 }}>не определён</option></select></label>
+  <label>Подписчиков от<input type="number" name="min_subs" value="{{ params.min_subs or '' }}" style="width: 120px"></label>
+  <label>Поиск<input name="q" value="{{ params.q }}" placeholder="название / username"></label>
+  <label>Сортировка<select name="sort">
+    {% for k, label in [('subs', 'подписчики'), ('views', 'охват'), ('err', 'ERR'), ('reach', 'честный охват'), ('score', 'чистота'), ('new', 'новые')] %}
+    <option value="{{ k }}" {{ 'selected' if params.sort == k }}>{{ label }}</option>{% endfor %}</select></label>
+  <button type="submit" class="secondary">Показать</button>
+</form>
+</details>
+
+<form method="post" action="/channels/bulk">
+{{ bulk_bar(my_channels, request.url.path ~ ('?' ~ request.url.query if request.url.query else ''), CHANNEL_ACTIONS) }}
+<div class="table-wrap">
+<table>
+  <thead><tr><th><input type="checkbox" data-check-all></th><th>Канал</th><th>Тема</th><th>Страна / язык</th><th>Подписчики</th><th>Охват 24–72ч</th><th>ERR</th>
+    <th>Постов/день</th><th>Реклама</th><th>Статус</th><th>Проверка</th><th>Честный охват</th><th>Цена при целевом CPM</th></tr></thead>
+  <tbody>
+  {% for ch in rows %}
+  <tr>
+    <td><input type="checkbox" name="ids" value="{{ ch.id }}"></td>
+    <td><a href="/channels/{{ ch.id }}">{{ ch.title or ch.ref }}</a><br><span class="small muted">{{ ch.ref }} · {{ ch.source }}</span>
+      {% if ch.error %}<br><span class="small" style="color: var(--bad)">{{ ch.error|short(80) }}</span>{% endif %}</td>
+    <td class="small">{{ ch.topic }}</td>
+    <td class="small">{{ country_name(ch.country) }}<br>{{ language_name(ch.language_id) if ch.country or ch.language_id else '' }}</td>
+    <td>{{ ch.subscribers|num }}</td><td>{{ ch.avg_views|num }}</td><td>{{ ch.err|pct }}</td>
+    <td>{{ ch.posts_per_day|num(1) }}</td><td>{{ ch.ad_share|pct(0) }}</td>
+    <td>{{ status(ch.status) }}</td><td>{{ verdict(ch) }}</td>
+    <td>{{ ch.honest_reach|num }}</td>
+    <td class="small">{{ ((ch.honest_reach or ch.avg_views or 0) * target_cpm / 1000)|num if (ch.honest_reach or ch.avg_views) else '—' }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="13" class="muted">Пусто. Добавьте каналы на странице <a href="/research">Ниши</a>.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+</form>
+
+{% if pages > 1 %}
+<div class="actions">
+  {% for p in range(1, pages + 1) %}
+    <a href="?{{ params|urlencode }}&page={{ p }}" {{ 'aria-current=page' if p == page }} class="badge {{ 'ok' if p == page }}">{{ p }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
