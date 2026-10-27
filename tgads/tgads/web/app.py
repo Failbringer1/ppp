@@ -109,8 +109,9 @@ def create_app() -> FastAPI:
     @app.middleware("http")
     async def basic_auth(request: Request, call_next):
         cfg = get_config()
-        # static assets stay public: browsers fetch the PWA manifest/icons without credentials
-        if cfg.panel_password and not request.url.path.startswith("/static/"):
+        # static assets stay public: browsers fetch the PWA manifest/icons without credentials;
+        # the catalog ingest URL is posted from tgstat.com and checks its own secret key
+        if cfg.panel_password and not request.url.path.startswith(("/static/", "/catalog/ingest/")):
             ok = False
             header = request.headers.get("authorization", "")
             if header.startswith("Basic "):
@@ -123,7 +124,7 @@ def create_app() -> FastAPI:
                 return Response("Auth required", status_code=401, headers={"WWW-Authenticate": 'Basic realm="tgads"'})
         return await call_next(request)
 
-    from .views import accounts, ai, channels, content, dashboard, outreach, purchases, research, settings
-    for mod in (dashboard, accounts, research, channels, content, outreach, purchases, ai, settings):
+    from .views import accounts, ai, catalog, channels, content, dashboard, outreach, purchases, research, settings
+    for mod in (dashboard, accounts, research, catalog, channels, content, outreach, purchases, ai, settings):
         app.include_router(mod.router)
     return app

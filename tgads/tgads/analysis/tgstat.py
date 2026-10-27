@@ -216,3 +216,96 @@ CATEGORIES = [
     ("transport", "Транспорт"), ("games", "Игры"), ("apps", "Софт и приложения"), ("quotes", "Цитаты"),
     ("edutainment", "Познавательное"), ("other", "Другое"),
 ]
+
+
+# --- Catalog of a country (/channels/search, needs a TGStat login) -------------------------------------------
+# Ids of the search form are the same on every regional site; names: Russian site / Uzbek site.
+CATALOG_CATEGORIES: dict[int, tuple[str, str]] = {
+    32: ("Telegram", "Telegram"), 12: ("Бизнес и стартапы", "Biznes va startaplar"), 4: ("Блоги", "Bloglar"),
+    46: ("Букмекерство", "Bukmekerlik"), 11: ("Видео и фильмы", "Video va filmlar"), 55: ("Даркнет", "Darknet"),
+    34: ("Дизайн", "Dizayn"), 8: ("Для взрослых", "Kattalar uchun"), 17: ("Другое", "Boshqalar"),
+    3: ("Еда и кулинария", "Oziq-ovqat va pishirish"), 45: ("Здоровье и фитнес", "Salomatlik va Fitnes"),
+    44: ("Игры", "O‘yinlar"), 47: ("Инстаграм", "Instagram"), 53: ("Интерьер и строительство", "Interyer va qurilish"),
+    49: ("Искусство", "San’at"), 7: ("Картинки и фото", "Rasmlar va fotosuratlar"), 23: ("Карьера", "Martaba"),
+    15: ("Книги", "Kitoblar"), 22: ("Криптовалюты", "Kriptovalyutalar"), 48: ("Курсы и гайды", "Kurslar va qo‘llanmalar"),
+    21: ("Лингвистика", "Tilshunoslik"), 31: ("Маркетинг, PR, реклама", "Marketing, PR, reklama"),
+    28: ("Медицина", "Tibbiyot"), 27: ("Мода и красота", "Moda va go‘zallik"), 13: ("Музыка", "Musiqa"),
+    2: ("Новости и СМИ", "Yangiliklar va OAV"), 5: ("Образование", "Ta’lim"), 41: ("Познавательное", "Bilim orttirish"),
+    38: ("Политика", "Siyosat"), 50: ("Право", "Huquq"), 37: ("Природа", "Tabiat"), 14: ("Продажи", "Sotish"),
+    33: ("Психология", "Psixologiya"), 25: ("Путешествия", "Sayohat"), 40: ("Религия", "Din"),
+    26: ("Рукоделие", "Chevarlik"), 36: ("Семья и дети", "Oila va bolalar"), 9: ("Софт и приложения", "Dastur va ilovalar"),
+    20: ("Спорт", "Sport"), 1: ("Технологии", "Texnologiyalar"), 29: ("Транспорт", "Transport"), 16: ("Цитаты", "Iqtiboslar"),
+    52: ("Шок-контент", "Hayratlanarli"), 54: ("Эзотерика", "Ezoterika"), 10: ("Экономика", "Iqtisodiyot"),
+    51: ("Эротика", "Erotika"), 6: ("Юмор и развлечения", "Hazil va o‘yin-kulgi"),
+}
+CATALOG_LANGUAGES: dict[int, str] = {
+    13: "Узбекский", 3: "Русский", 12: "Английский", 68: "Таджикский", 51: "Казахский", 46: "Киргизский",
+    16: "Турецкий", 88: "Туркменский", 9: "Арабский", 40: "Азербайджанский", 2: "Фарси", 42: "Украинский",
+    54: "Белорусский", 52: "Хинди", 55: "Китайский", 56: "Тамильский", 57: "Амхарский", 90: "Абхазский",
+    85: "Аварский", 19: "Албанский", 62: "Армянский", 91: "Башкирский", 50: "Бенгальский", 77: "Бирманский",
+    21: "Болгарский", 48: "Венгерский", 41: "Вьетнамский", 36: "Гавайский", 74: "Грузинский", 69: "Гуджарати",
+    25: "Датский", 64: "Иврит", 7: "Индонезийский", 45: "Исландский", 18: "Испанский", 8: "Итальянский",
+    80: "Каннада", 72: "Каталанский", 66: "Корейский", 75: "Кхмерский", 15: "Латинский", 43: "Латышский",
+    34: "Литовский", 44: "Македонский", 67: "Малайский", 84: "Малаялам", 81: "Маратхи", 49: "Монгольский",
+    31: "Немецкий", 71: "Нидерландский", 32: "Норвежский", 82: "Ория", 83: "Панджаби", 5: "Пиджин",
+    11: "Польский", 14: "Португальский", 6: "Пушту", 17: "Румынский", 29: "Себуано", 30: "Сербский",
+    78: "Сингальский", 39: "Словацкий", 26: "Словенский", 28: "Сомалийский", 76: "Суахили", 35: "Суахили",
+    24: "Тагалог", 65: "Тайский", 70: "Татарский", 79: "Телугу", 4: "Урду", 27: "Уэльский", 73: "Филиппинский",
+    33: "Финский", 23: "Французский", 10: "Хауса", 38: "Хорватский", 87: "Чеченский", 47: "Чешский",
+    37: "Шведский", 86: "Эсперанто", 20: "Эстонский", 89: "Якутский", 53: "Японский",
+}
+CATALOG_COUNTRIES = {"uz": 4}
+
+_PRIVATE_ID_RE = re.compile(r"[A-Za-z0-9_-]{6,64}")
+
+
+@dataclass
+class CatalogRow:
+    ref: str
+    title: str = ""
+    subscribers: int | None = None
+    avg_reach: float | None = None
+    ci: float | None = None
+    category_id: int | None = None
+    language_id: int | None = None
+    avatar: str = ""
+
+
+def _num_or_none(v) -> float | None:
+    if v is None or v == "":
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    return parse_number(str(v))
+
+
+def catalog_rows(items: list) -> list[CatalogRow]:
+    """Validate rows sent by the collector: [ref, title, subscribers, reach, ci, category_id, language_id, avatar].
+
+    Numbers may come as TGStat text ("81.4k", "2 376 613"). Rows with a broken ref are dropped.
+    """
+    out: list[CatalogRow] = []
+    for it in items:
+        if not isinstance(it, (list, tuple)) or len(it) < 2:
+            continue
+        ref = str(it[0] or "").strip()
+        if ref.startswith("@"):
+            if not re.fullmatch(r"@[A-Za-z0-9_]{4,32}", ref):
+                continue
+            ref = ref.lower()
+        elif not _PRIVATE_ID_RE.fullmatch(ref):
+            continue
+        get = lambda i: it[i] if len(it) > i else None  # noqa: E731
+        subs = _num_or_none(get(2))
+        cat = get(5)
+        lang = get(6)
+        avatar = str(get(7) or "")
+        out.append(CatalogRow(
+            ref=ref, title=str(get(1) or "").strip()[:256],
+            subscribers=int(subs) if subs is not None else None,
+            avg_reach=_num_or_none(get(3)), ci=_num_or_none(get(4)),
+            category_id=int(cat) if str(cat or "").isdigit() and int(cat) in CATALOG_CATEGORIES else None,
+            language_id=int(lang) if str(lang or "").isdigit() else None,
+            avatar=avatar[:256] if re.match(r"(https?:)?//[\w.-]+\.tgstat\.(ru|com)/", avatar) else "",
+        ))
+    return out

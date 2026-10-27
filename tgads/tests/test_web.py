@@ -91,7 +91,7 @@ async def client_ids():
 
 async def test_pages_and_forms(client_ids):
     c, ids = client_ids
-    pages = ["/", "/accounts", "/research", "/channels", "/channels?status=monitoring&sort=reach",
+    pages = ["/", "/accounts", "/catalog", "/research", "/channels", "/channels?status=monitoring&sort=reach",
              f"/channels/{ids['clean']}", f"/channels/{ids['boosted']}", "/vetting", "/vetting?show=all",
              "/content", f"/content/{ids['mc']}", "/contacts", "/contacts?only_ads=1", "/outreach",
              f"/outreach/{ids['conv']}", "/purchases", f"/purchases/{ids['pur']}", "/ai", "/settings"]

@@ -128,6 +128,39 @@ class Channel(Base):
         return ""
 
 
+class CatalogChannel(Base):
+    """A channel of the TGStat catalog of one country with its basic numbers (filled by the in-browser collector)."""
+    __tablename__ = "catalog_channels"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ref: Mapped[str] = mapped_column(String(80), unique=True)   # "@username" (lowercase) or TGStat id of a private one
+    title: Mapped[str] = mapped_column(String(256), default="")
+    subscribers: Mapped[int | None] = mapped_column(Integer, index=True)
+    avg_reach: Mapped[float | None] = mapped_column(Float)      # TGStat "1 post reach"
+    ci: Mapped[float | None] = mapped_column(Float)             # citation index
+    category_id: Mapped[int | None] = mapped_column(Integer, index=True)
+    language_id: Mapped[int | None] = mapped_column(Integer, index=True)
+    avatar: Mapped[str] = mapped_column(String(256), default="")
+    country: Mapped[str] = mapped_column(String(8), default="uz")
+    seen_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+    @property
+    def is_public(self) -> bool:
+        return self.ref.startswith("@")
+
+    @property
+    def link(self) -> str:
+        return f"https://t.me/{self.ref[1:]}" if self.is_public else ""
+
+    @property
+    def err(self) -> float | None:
+        """Reach of a post per subscriber: the same idea as TGStat ERR."""
+        if self.avg_reach is None or not self.subscribers:
+            return None
+        return self.avg_reach / self.subscribers
+
+
 class ChannelSnapshot(Base):
     __tablename__ = "channel_snapshots"
 

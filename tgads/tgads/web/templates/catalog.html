@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Каталог TGStat{% endblock %}
+{% block content %}
+{% set qs = request.url.query %}
+<h1>Каталог TGStat <span class="muted small">Узбекистан · {{ grand_total|num }} каналов</span></h1>
+
+{% if stats.last %}
+<p class="small muted">Последняя загрузка: {{ stats.last.at|replace('T', ' ') }} UTC, строк {{ stats.last.rows|num }}, новых {{ stats.last.added|num }}.
+  Цифры — как на TGStat в момент сбора: подписчики, охват одного поста, индекс цитирования; ERR ≈ охват / подписчики.</p>
+{% elif not grand_total %}
+<p class="muted">Каталог пуст. Его собирает скрипт в браузере, где выполнен вход в TGStat: без входа TGStat каталог не отдаёт.</p>
+{% endif %}
+
+<div class="cards">
+  <div class="card"><div class="v">{{ stats.total|num }}</div><div class="l">по фильтру</div></div>
+  {% for b in stats.sizes %}
+  <div class="card"><div class="v">{{ b.count|num }}</div><div class="l">{{ b.label }} подписчиков</div></div>
+  {% endfor %}
+</div>
+
+<details class="filters" open>
+<summary>Фильтры и сортировка</summary>
+<form method="get" class="row">
+  <label>Категория<select name="category"><option value="0">все</option>
+    {% for id, name in categories %}<option value="{{ id }}" {{ 'selected' if params.category == id }}>{{ name }}</option>{% endfor %}</select></label>
+  <label>Язык<select name="language"><option value="-1">все</option>
+    {% for id, name in languages %}<option value="{{ id }}" {{ 'selected' if params.language == id }}>{{ name }}</option>{% endfor %}
+    <option value="0" {{ 'selected' if params.language == 0 }}>не определён</option></select></label>
+  <label>Тип<select name="kind"><option value="">все</option>
+    <option value="public" {{ 'selected' if params.kind == 'public' }}>публичные (@username)</option>
+    <option value="private" {{ 'selected' if params.kind == 'private' }}>закрытые</option></select></label>
+  <label>Подписчиков от<input type="number" name="min_subs" value="{{ params.min_subs or '' }}"></label>
+  <label>до<input type="number" name="max_subs" value="{{ params.max_subs or '' }}"></label>
+  <label>Поиск<input name="q" value="{{ params.q }}" placeholder="название / username"></label>
+  <label>Сортировка<select name="sort">
+    {% for k, label in [('subs', 'подписчики'), ('reach', 'охват поста'), ('err', 'ERR'), ('ci', 'индекс цитирования'), ('new', 'новые в каталоге')] %}
+    <option value="{{ k }}" {{ 'selected' if params.sort == k }}>{{ label }}</option>{% endfor %}</select></label>
+  <button type="submit" class="secondary">Показать</button>
+  {% if qs %}<a href="/catalog" class="small">сбросить</a>{% endif %}
+</form>
+</details>
+
+<div class="grid2">
+<details>
+<summary>По категориям ({{ stats.categories|length }})</summary>
+<div class="table-wrap"><table>
+  <thead><tr><th>Категория</th><th>Каналов</th><th>Подписчиков всего</th><th>Средний охват</th></tr></thead>
+  <tbody>
+  {% for c in stats.categories %}
+  <tr><td>{% if c.id %}<a href="?{{ dict(params, category=c.id, page=1)|urlencode }}">{{ c.name }}</a>{% else %}{{ c.name }}{% endif %}</td>
+    <td>{{ c.count|num }}</td><td>{{ c.subs|num }}</td><td>{{ c.reach|num }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+</details>
+<details>
+<summary>По языкам ({{ stats.languages|length }})</summary>
+<div class="table-wrap"><table>
+  <thead><tr><th>Язык</th><th>Каналов</th><th>Подписчиков всего</th><th>Средний охват</th></tr></thead>
+  <tbody>
+  {% for l in stats.languages %}
+  <tr><td><a href="?{{ dict(params, language=(l.id if l.id is not none else 0), page=1)|urlencode }}">{{ l.name }}</a></td>
+    <td>{{ l.count|num }}</td><td>{{ l.subs|num }}</td><td>{{ l.reach|num }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+</details>
+</div>
+
+<form method="post" action="/catalog/to-work">
+<div class="actions">
+  <input type="hidden" name="back_url" value="/catalog{{ '?' ~ qs if qs else '' }}">
+  <button type="submit">Выбранные — в работу (сбор и проверка)</button>
+</div>
+<div class="table-wrap">
+<table>
+  <thead><tr><th><input type="checkbox" data-check-all></th><th>#</th><th>Канал</th><th>Категория</th><th>Язык</th>
+    <th>Подписчики</th><th>Охват поста</th><th>ERR</th><th>ИЦ</th></tr></thead>
+  <tbody>
+  {% for c in rows %}
+  <tr>
+    <td>{% if c.is_public %}<input type="checkbox" name="ids" value="{{ c.id }}">{% endif %}</td>
+    <td class="small muted">{{ (page - 1) * 100 + loop.index }}</td>
+    <td>{{ c.title or c.ref }}<br>
+      <span class="small muted">{% if c.is_public %}<a href="{{ c.link }}" target="_blank" rel="noopener">{{ c.ref }}</a>{% else %}закрытый{% endif %}
+        · <a href="https://uz.tgstat.com/channel/{{ c.ref }}/stat" target="_blank" rel="noopener">TGStat</a></span></td>
+    <td class="small">{{ category_name(c.category_id) }}</td>
+    <td class="small">{{ language_name(c.language_id) }}</td>
+    <td>{{ c.subscribers|num }}</td><td>{{ c.avg_reach|num }}</td><td>{{ c.err|pct }}</td><td>{{ c.ci|num(1) }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="9" class="muted">Нет каналов по этому фильтру.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+</form>
+
+{% if pages > 1 %}
+<div class="actions">
+  {% if page > 1 %}<a class="badge" href="?{{ dict(params, page=page - 1)|urlencode }}">← назад</a>{% endif %}
+  {% for p in range([1, page - 3]|max, [pages, page + 3]|min + 1) %}
+    <a href="?{{ dict(params, page=p)|urlencode }}" class="badge {{ 'ok' if p == page }}">{{ p }}</a>
+  {% endfor %}
+  <span class="small muted">из {{ pages|num }}</span>
+  {% if page < pages %}<a class="badge" href="?{{ dict(params, page=page + 1)|urlencode }}">вперёд →</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}
