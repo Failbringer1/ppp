@@ -28,7 +28,8 @@ class Config(BaseSettings):
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-opus-5-5"
 
-    tgstat_token: str = ""
+    # TGStat scraping through a headless browser when Cloudflare blocks plain requests: auto | 1 | 0
+    tgstat_browser: str = "auto"
     run_worker: bool = True
 
     @property

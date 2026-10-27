@@ -18,6 +18,27 @@
   </form>
 </div>
 
+<details>
+  <summary><b>TGStat</b> <span class="small muted">— рейтинги и каталог {{ tgstat.base }}, сегодня скачано {{ tgstat.today }} из {{ tgstat.limit }} страниц</span></summary>
+  <div class="grid2">
+    <form method="post" action="/research/tgstat">
+      <div class="row">
+        <label>Категория<select name="category">{% for slug, name in categories %}<option value="{{ slug }}">{{ name }}</option>{% endfor %}</select></label>
+        <label>Сортировка<select name="sort"><option value="members">подписчики</option><option value="reach">охват</option><option value="ci">индекс цитирования</option></select></label>
+        <label>Страниц<input type="number" name="pages" value="3" min="1" max="20" style="width: 90px"></label>
+      </div>
+      <input name="url" placeholder="или любой адрес страницы TGStat со списком каналов">
+      <button type="submit">Собрать каналы из TGStat</button>
+      <small class="muted">Страницы качаются медленно (пауза 4–9 с) и кэшируются на 12 ч. Каналы встают в очередь сбора, их цифры TGStat видны в карточке канала.
+        <a href="/research/tgstat/debug">Отладка TGStat</a></small>
+    </form>
+    <form method="post" action="/research/tgstat/html">
+      <textarea name="html" rows="4" placeholder="Если TGStat не пускает сервер: откройте страницу в браузере, «Сохранить как» / Ctrl+U, скопируйте весь HTML сюда" required></textarea>
+      <button type="submit" class="secondary">Разобрать HTML</button>
+    </form>
+  </div>
+</details>
+
 <div class="actions">
   <form method="post" action="/research/classify"><button class="secondary">Определить тематики ИИ ({{ untyped }} без темы)</button></form>
   <form method="post" action="/research/creatives"><button class="secondary">Пересобрать креативы</button></form>

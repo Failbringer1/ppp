@@ -99,6 +99,7 @@ class Channel(Base):
     status: Mapped[str] = mapped_column(String(16), default="new")
     error: Mapped[str | None] = mapped_column(Text)
     static: Mapped[dict | None] = mapped_column(JSONN)       # StaticMetrics
+    tgstat: Mapped[dict | None] = mapped_column(JSONN)       # scraped TGStat numbers
     verdict: Mapped[str] = mapped_column(String(16), default="unknown")
     score: Mapped[float | None] = mapped_column(Float)
     reasons: Mapped[list | None] = mapped_column(JSONN)

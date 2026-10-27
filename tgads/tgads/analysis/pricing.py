@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 AMOUNT_RE = re.compile(
     r"(?P<pre>\$)?\s*"
-    r"(?P<num>\d{1,3}(?:[  .,]\d{3})+(?![\d/])|\d+(?:[.,]\d{1,2})?(?![\d/]))"
+    r"(?P<num>\d{1,3}(?:[ \u00a0.,]\d{3})+(?![\d/])|\d+(?:[.,]\d{1,2})?(?![\d/]))"
     r"\s*(?P<mult>k\b|к\b|тыс\w*\.?|ming\b|минг\b|млн\b|mln\b|million\w*|миллион\w*)?"
     r"\s*(?P<cur>\$|usd\b|долл\w*|dollar\w*|у\.?\s?е\.?|сум\w*|so['ʻ’`]?m\b|sum\b|сўм\w*|uzs\b|руб\w*|₽|rub\b)?",
     re.IGNORECASE,

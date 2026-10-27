@@ -22,6 +22,15 @@
   <div class="card"><div class="v">{{ ch.ad_share|pct(0) }}</div><div class="l">доля рекламных постов</div></div>
 </div>
 
+{% if ch.tgstat %}
+{% set t = ch.tgstat %}
+<p class="small"><b>TGStat</b>{% if t.fetched_at %} ({{ t.fetched_at[:16]|replace('T', ' ') }}){% endif %}:
+  подписчики {{ t.subscribers|num }} · средний охват {{ t.avg_reach|num }} · ERR {{ t.err|pct }} · ИЦ {{ t.ci|num(1) }}
+  · дневной охват {{ t.daily_reach|num }} · упоминаний {{ t.mentions|num }}{% if t.category %} · {{ t.category }}{% endif %}
+  {% if t.url %}· <a href="{{ t.url }}" target="_blank" rel="noopener">открыть</a>{% endif %}
+  {% for w in t.warnings or [] %}<br><span class="badge bad">TGStat: {{ w }}</span>{% endfor %}</p>
+{% endif %}
+
 {% if ch.reasons %}
 <h2>Почему такой вердикт</h2>
 <ul>{% for r in ch.reasons %}<li>{{ r }}</li>{% endfor %}</ul>

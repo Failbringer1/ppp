@@ -7,7 +7,8 @@ from sqlalchemy import select
 
 from ...db import get_setting, session
 from ...models import AiJob, Channel, Creative, MyChannel
-from ...services import research, tasks
+from ...analysis.tgstat import CATEGORIES
+from ...services import research, tasks, tgstat
 from ..app import back, render
 
 router = APIRouter(prefix="/research")
@@ -25,7 +26,8 @@ async def index(request: Request):
         untyped = (await s.scalars(select(Channel.id).where(Channel.status.in_(("collected", "checked", "approved")),
                                                             Channel.topic == ""))).all()
     return render(request, "research.html", niches=table, creatives=creatives, ideas=ideas, keywords=keywords,
-                  my_channels=my_channels, untyped=len(untyped))
+                  my_channels=my_channels, untyped=len(untyped), categories=CATEGORIES,
+                  tgstat=await tgstat.settings_snapshot())
 
 
 async def _search_many(queries: list[str]) -> str:
@@ -77,3 +79,25 @@ async def variants(my_channel_id: int = Form(...), creative_id: int = Form(...))
         text = cr.text
     job_id = await research.make_ad_variants(my_channel_id, text)
     return back(f"/ai/{job_id}", msg="Варианты появятся в «Контент → рекламные посты»")
+
+
+@router.post("/tgstat")
+async def tgstat_rating(category: str = Form(""), sort: str = Form("members"), url: str = Form(""),
+                        pages: int = Form(3)):
+    target = url.strip() or await tgstat.rating_url(category, sort)
+    tasks.spawn(tgstat.import_list(target, max_pages=max(1, min(pages, 20))), f"TGStat: {target}")
+    return back("/research", msg="Сбор из TGStat запущен — результат на дашборде, каналы встанут в очередь сбора")
+
+
+@router.post("/tgstat/html")
+async def tgstat_html(html: str = Form(...)):
+    try:
+        res = await tgstat.import_html(html)
+    except tgstat.TgstatError as e:
+        return back("/research", err=str(e))
+    return back("/research", msg=res)
+
+
+@router.get("/tgstat/debug")
+async def tgstat_debug(request: Request):
+    return render(request, "tgstat_debug.html", pages=tgstat.debug_pages(), tgstat=await tgstat.settings_snapshot())

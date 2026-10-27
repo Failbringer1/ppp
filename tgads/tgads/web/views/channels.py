@@ -7,7 +7,7 @@ from ...analysis.views import CHECKPOINTS, Curve, is_night
 from ...db import get_settings, session
 from ...models import Channel, ChannelContact, Contact, Conversation, MyChannel, Post, ViewSample
 from ...services import contacts as contacts_svc
-from ...services import content, monitor, outreach, research, tasks
+from ...services import content, monitor, outreach, research, tasks, tgstat
 from ..app import back, render
 
 router = APIRouter()
@@ -70,6 +70,9 @@ async def bulk(request: Request, action: str = Form(...), ids: list[int] = Form(
         if late:
             tasks.spawn(_recollect(late), f"Обновление {len(late)} каналов")
         return back(back_url, msg="Каналы поставлены в очередь сбора")
+    if action == "tgstat":
+        tasks.spawn(tgstat.enrich(ids), f"TGStat: {len(ids)} каналов")
+        return back(back_url, msg="Загрузка цифр TGStat запущена (по одной странице в 4–9 с)")
     if action == "classify":
         jobs = await research.classify_topics(ids)
         return back(back_url, msg=f"Создано ИИ-задач: {len(jobs)}")

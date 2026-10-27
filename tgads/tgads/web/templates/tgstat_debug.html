@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Отладка TGStat{% endblock %}
+{% block content %}
+<h1>Отладка TGStat</h1>
+<p class="small muted">Последние скачанные страницы и что из них удалось достать. Если на странице есть каналы или цифры, а здесь нули,
+значит TGStat поменял вёрстку: пришлите файл из <code>data/tgstat/</code>, и парсер поправится. «Cloudflare» означает, что вместо страницы пришла проверка.
+Сегодня скачано {{ tgstat.today }} из {{ tgstat.limit }}.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Файл</th><th>Заголовок</th><th>Размер</th><th>Cloudflare</th><th>Каналов в списке</th><th>Цифры канала</th></tr></thead>
+  <tbody>
+  {% for p in pages %}
+  <tr>
+    <td class="small">{{ p.file }}</td><td class="small">{{ p.title|short(80) }}</td><td>{{ p.size|num }}</td>
+    <td>{% if p.challenge %}<span class="badge bad">да</span>{% else %}нет{% endif %}</td>
+    <td>{{ p.channels }}</td>
+    <td class="small">{{ p.stats.ref or '' }} подп. {{ p.stats.subscribers|num }} · охват {{ p.stats.avg_reach|num }} · ERR {{ p.stats.err|pct }} · ИЦ {{ p.stats.ci|num(1) }}</td>
+  </tr>
+  {% else %}<tr><td colspan="6" class="muted">Ещё ничего не скачивалось.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

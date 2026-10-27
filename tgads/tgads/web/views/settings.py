@@ -22,6 +22,7 @@ NUMBERS = [
     ("dm_delay_max", "Пауза между сообщениями, до (с)", int),
     ("collect_delay_sec", "Пауза между сборами каналов (с)", int),
     ("poll_interval_sec", "Опрос новых постов, каждые (с)", int),
+    ("tgstat_pages_per_day", "Страниц TGStat в день", int),
 ]
 THRESHOLD_LABELS = {
     "late_boost_ratio": "Докрутка: факт / прогноз по первым минутам ≥",
@@ -54,6 +55,8 @@ async def save(request: Request):
         await set_setting(s, "outreach_templates", {"uz": form.get("tpl_uz", ""), "ru": form.get("tpl_ru", "")})
         await set_setting(s, "outreach_language", form.get("outreach_language") or "uz")
         await set_setting(s, "search_keywords", form.get("search_keywords", ""))
+        if form.get("tgstat_base"):
+            await set_setting(s, "tgstat_base", form["tgstat_base"].strip().rstrip("/"))
         defaults = asdict(Thresholds())
         th = {}
         for k, v in defaults.items():

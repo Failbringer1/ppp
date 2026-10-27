@@ -4,7 +4,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator
 
-from sqlalchemy import event, select
+from sqlalchemy import event, inspect, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from .config import get_config
@@ -42,6 +42,8 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "outreach_language": "uz",
     "search_keywords": "yangiliklar, kino, futbol, ish, ielts, retsept, avto, uzum, biznes, kripto, islom, "
                        "новости ташкент, работа ташкент, кино uz, футбол uz",
+    "tgstat_base": "https://uz.tgstat.com",
+    "tgstat_pages_per_day": 300,
     "curve_day": None,
     "curve_night": None,
 }
@@ -68,6 +70,18 @@ def engine():
 async def init_db() -> None:
     async with engine().begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(_add_missing_columns)
+
+
+def _add_missing_columns(conn) -> None:  # noqa: ANN001
+    """Tiny migration: columns added to models after the DB was created become nullable columns."""
+    insp = inspect(conn)
+    for table in Base.metadata.sorted_tables:
+        existing = {c["name"] for c in insp.get_columns(table.name)}
+        for col in table.columns:
+            if col.name not in existing:
+                conn.exec_driver_sql(
+                    f'ALTER TABLE "{table.name}" ADD COLUMN "{col.name}" {col.type.compile(conn.dialect)}')
 
 
 @asynccontextmanager

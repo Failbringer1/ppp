@@ -200,6 +200,13 @@ class PostAnalysis:
     ratio: float | None = None
     flags: list[str] = field(default_factory=list)
     details: list[str] = field(default_factory=list)
+    notes: dict[str, str] = field(default_factory=dict)  # first detail per flag
+
+    def flag(self, name: str, detail: str) -> None:
+        if name not in self.flags:
+            self.flags.append(name)
+            self.notes[name] = detail
+        self.details.append(detail)
 
     @property
     def complete(self) -> bool:
@@ -245,10 +252,8 @@ def analyze_post(samples: list[Sample], subscribers: int, curve: Curve,
             if res.expected_late > 0:
                 res.ratio = lv / res.expected_late
                 if res.ratio >= th.late_boost_ratio and lv > optimistic * 1.2:
-                    res.flags.append("late_boost")
-                    res.details.append(
-                        f"через {lt // 3600} ч: {int(lv)} просмотров при прогнозе {int(res.expected_late)} "
-                        f"(x{res.ratio:.1f})")
+                    res.flag("late_boost", f"через {lt // 3600} ч: {int(lv)} просмотров при прогнозе "
+                                           f"{int(res.expected_late)} (x{res.ratio:.1f})")
 
     # 2. dead start
     if subscribers > 0:
@@ -259,17 +264,14 @@ def analyze_post(samples: list[Sample], subscribers: int, curve: Curve,
             final = actual
         if v5 is not None and final is not None:
             if v5 < th.dead_start_early_share * subscribers and final > th.dead_start_final_share * subscribers:
-                res.flags.append("dead_start")
-                res.details.append(
-                    f"за 5 мин {int(v5)} просмотров ({v5 / subscribers:.2%} подписчиков), "
-                    f"за сутки ~{int(final)} ({final / subscribers:.0%})")
+                res.flag("dead_start", f"за 5 мин {int(v5)} просмотров ({v5 / subscribers:.2%} подписчиков), "
+                                       f"за сутки ~{int(final)} ({final / subscribers:.0%})")
 
     # 3. instant dump at the start
     if actual:
         v2 = views_at(pts, 120)
         if v2 is not None and v2 / actual > th.instant_dump_share:
-            res.flags.append("instant_dump")
-            res.details.append(f"за 2 мин {int(v2)} из {int(actual)} суточных ({v2 / actual:.0%})")
+            res.flag("instant_dump", f"за 2 мин {int(v2)} из {int(actual)} суточных ({v2 / actual:.0%})")
 
     # 4. rate spike after the first hour without matching forwards
     prev_rate = None
@@ -282,9 +284,8 @@ def analyze_post(samples: list[Sample], subscribers: int, curve: Curve,
             morning = _local_hour(published_at, tb) in range(6, 11) and _local_hour(published_at, ta) in NIGHT_HOURS
             if (rate > th.spike_factor * prev_rate and dv >= max(th.spike_min_views, 0.1 * va)
                     and (fb - fa) <= max(2, 0.002 * dv) and not morning):
-                if "rate_spike" not in res.flags:
-                    res.flags.append("rate_spike")
-                res.details.append(f"скачок {ta // 60}–{tb // 60} мин: +{dv} просмотров, x{rate / prev_rate:.1f} к темпу")
+                res.flag("rate_spike", f"скачок {ta // 60}–{tb // 60} мин: +{dv} просмотров, "
+                                       f"x{rate / prev_rate:.1f} к темпу")
         prev_rate = rate
     return res
 
@@ -365,7 +366,7 @@ def channel_verdict(analyses: list[PostAnalysis], static: StaticMetrics | None, 
         for flag in ("late_boost", "dead_start", "instant_dump", "rate_spike"):
             hits = [a for a in dyn if flag in a.flags]
             if hits:
-                example = next((d for d in hits[0].details if d), "")
+                example = hits[0].notes.get(flag, "")
                 reasons.append(f"{FLAG_TEXT[flag]} — {len(hits)} из {n} постов" + (f" (пример: {example})" if example else ""))
     if static:
         for f, d in zip(static.flags, static.details):
