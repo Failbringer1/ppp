@@ -13,7 +13,8 @@
   const INGEST_URL = '__INGEST_URL__';
   const COUNTRY = 4;          // Uzbekistan
   const CHUNK = 15000;        // rows per form post
-  const DELAY = [2000, 4000]; // pause between requests, ms
+  const DELAY = [7000, 14000]; // pause between requests, ms (2-4 s got a captcha after ~330 requests)
+  const REST_EVERY = 80, REST_MS = 6 * 60 * 1000;  // and a longer break now and then
   const LANGS = [13, 3, 12, 68, 51, 46, 16, 88, 9, 40, 2, 42, 54, 52, 55, 56, 57, 90, 85, 19, 62, 91, 50, 77, 21,
     48, 41, 36, 74, 69, 25, 64, 7, 45, 18, 8, 80, 72, 66, 75, 15, 43, 34, 44, 67, 84, 81, 49, 31, 71, 32, 82, 83, 5,
     11, 14, 6, 17, 29, 30, 78, 39, 26, 28, 76, 35, 24, 65, 70, 79, 4, 27, 73, 33, 23, 10, 38, 87, 47, 37, 86, 20,
@@ -78,11 +79,13 @@
     for (let attempt = 1; ; attempt++) {
       try {
         const r = await fetch(form().getAttribute('action'), {method: 'POST', body: fd, headers: {'X-Requested-With': 'XMLHttpRequest'}});
+        if (r.status === 429) throw Object.assign(new Error('TGStat просит капчу: пройдите её на сайте и запустите сбор снова'), {fatal: true});
         const j = await r.json();
         if (r.status === 200 && j.status === 'ok') return j;
-        throw new Error(`HTTP ${r.status}, status=${j && j.status}`);
+        // 'restricted': the account's search limit is spent, retrying only annoys TGStat
+        throw Object.assign(new Error(`HTTP ${r.status}, status=${j && j.status}`), {fatal: j && j.status === 'restricted'});
       } catch (e) {
-        if (attempt >= 4) throw e;
+        if (e.fatal || attempt >= 4) throw e;
         await sleep(30000 * attempt);  // TGStat is busy or rate-limits: back off
       }
     }
@@ -131,7 +134,7 @@
           st.page = 1;
         }
         await putState(st);
-        await pause();
+        await (st.requests % REST_EVERY === 0 ? sleep(REST_MS) : pause());
       }
       if (st.lang >= LANGS.length) st.finished = true;
     } catch (e) {
