@@ -1,0 +1,675 @@
+Как в идее: 0.5% → 5%, шаг 3%, без стопа [2021] final   0.000  CAGR -100.0%  DD  -96.1% (intrabar  -96.1%)  Sh -2.95  gross avg 5.59 max 112.90  L/S 0.03/5.56  BLOWN 2021-01-09T19:00
+                             2021:-96%
+                             fund L/S +0.1/+6.8%  real L/S +1.3/+28.6%  fee -0.5%  unreal -126.9%   (10.1s)
+                             worst: MKRUSDT -6.1%, XLMUSDT -5.3%, ALPHAUSDT -5.2%, RSRUSDT -4.9%, LRCUSDT -4.9%, DOGEUSDT -4.6%
+                             counts: {'entries': 101, 'adds': 2612, 'tps': 2038, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 25}  npos avg 76 full grids avg 20.4 max 56
+Как в идее: 0.5% → 5%, шаг 3%, без стопа [2022] final   0.000  CAGR -100.0%  DD  -79.7% (intrabar  -84.4%)  Sh  2.63  gross avg 2.16 max 23.43  L/S 0.65/1.51  BLOWN 2022-05-11T12:00
+                             2022:+115%
+                             fund L/S +4.6/+6.4%  real L/S +169.9/+192.6%  fee -7.8%  unreal -414.7%   (0.1s)
+                             worst: ANCUSDT -15.6%, SKLUSDT -13.2%, KSMUSDT -10.3%, APEUSDT -9.8%, SUSHIUSDT -8.7%, GMTUSDT -8.5%
+                             counts: {'entries': 2739, 'adds': 12982, 'tps': 11615, 'flip_exits': 0, 'stops': 0, 'delist': 74, 'timeouts': 43, 'be_exits': 2525}  npos avg 97 full grids avg 16.1 max 63
+Как в идее: 0.5% → 5%, шаг 3%, без стопа [2023] final   0.000  CAGR -100.0%  DD  -87.0% (intrabar  -91.8%)  Sh -9.51  gross avg 3.01 max 40.24  L/S 0.08/2.92  BLOWN 2023-01-14T06:00
+                             2023:-87%
+                             fund L/S +0.2/+0.3%  real L/S +2.4/+9.4%  fee -0.3%  unreal -115.1%   (0.0s)
+                             worst: GALAUSDT -7.7%, LDOUSDT -4.6%, APTUSDT -3.8%, MANAUSDT -2.9%, OPUSDT -2.4%, COMPUSDT -2.3%
+                             counts: {'entries': 254, 'adds': 1480, 'tps': 673, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 155}  npos avg 99 full grids avg 5.8 max 59
+Как в идее: 0.5% → 5%, шаг 3%, без стопа [2024] final   0.000  CAGR -100.0%  DD  -95.6% (intrabar  -95.6%)  Sh -2.92  gross avg 2.40 max 112.35  L/S 0.03/2.37  BLOWN 2024-03-02T07:00
+                             2024:-94%
+                             fund L/S +0.1/+11.7%  real L/S +2.3/+84.0%  fee -1.3%  unreal -185.5%   (0.0s)
+                             worst: 1000PEPEUSDT -22.5%, 1000SHIBUSDT -5.6%, PYTHUSDT -5.1%, FETUSDT -5.0%, PEOPLEUSDT -4.7%, WLDUSDT -3.9%
+                             counts: {'entries': 393, 'adds': 5686, 'tps': 4909, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 6, 'be_exits': 261}  npos avg 101 full grids avg 11.4 max 56
+Как в идее: 0.5% → 5%, шаг 3%, без стопа [2025] final   0.000  CAGR -100.0%  DD  -98.9% (intrabar  -98.9%)  Sh  2.03  gross avg 2.75 max 230.24  L/S 1.21/1.54  BLOWN 2025-08-05T21:00
+                             2025:-95%
+                             fund L/S +23.4/-81.9%  real L/S +81.3/+361.0%  fee -11.5%  unreal -444.5%   (0.1s)
+                             worst: MYXUSDT -389.2%, FARTCOINUSDT -18.4%, NEIROETHUSDT -14.8%, BANUSDT -10.2%, ALCHUSDT -8.2%, BNXUSDT -7.5%
+                             counts: {'entries': 4652, 'adds': 21021, 'tps': 19811, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 133, 'be_exits': 4401}  npos avg 102 full grids avg 31.1 max 66
+Шаг 2% [2021]                final   0.000  CAGR -100.0%  DD  -96.7% (intrabar  -96.7%)  Sh -15.31  gross avg 5.42 max 132.62  L/S 0.05/5.38  BLOWN 2021-01-07T13:00
+                             2021:-97%
+                             fund L/S +0.1/+4.6%  real L/S +1.5/+22.5%  fee -0.6%  unreal -115.2%   (0.0s)
+                             worst: XLMUSDT -7.4%, LRCUSDT -6.5%, ALPHAUSDT -5.7%, DOGEUSDT -4.9%, RSRUSDT -3.9%, MATICUSDT -3.8%
+                             counts: {'entries': 95, 'adds': 2998, 'tps': 2414, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 19}  npos avg 76 full grids avg 21.4 max 58
+Шаг 2% [2022]                final   0.000  CAGR -100.0%  DD  -96.1% (intrabar  -96.1%)  Sh -0.31  gross avg 2.61 max 130.75  L/S 0.87/1.74  BLOWN 2022-03-31T08:00
+                             2022:-88%
+                             fund L/S +3.7/+4.2%  real L/S +103.6/+184.7%  fee -6.6%  unreal -366.0%   (0.0s)
+                             worst: RUNEUSDT -12.6%, SKLUSDT -8.7%, SUSHIUSDT -8.6%, VETUSDT -7.5%, AAVEUSDT -6.9%, LRCUSDT -6.7%
+                             counts: {'entries': 1897, 'adds': 14841, 'tps': 13685, 'flip_exits': 0, 'stops': 0, 'delist': 40, 'timeouts': 26, 'be_exits': 1734}  npos avg 96 full grids avg 24.8 max 79
+Шаг 2% [2023]                final   0.000  CAGR -100.0%  DD  -80.0% (intrabar  -85.0%)  Sh -11.49  gross avg 3.71 max 26.38  L/S 0.09/3.62  BLOWN 2023-01-14T00:00
+                             2023:-80%
+                             fund L/S +0.2/+0.4%  real L/S +2.5/+11.1%  fee -0.4%  unreal -102.7%   (0.0s)
+                             worst: GALAUSDT -8.6%, LDOUSDT -4.8%, MANAUSDT -3.1%, APTUSDT -2.8%, OPUSDT -2.7%, SANDUSDT -2.1%
+                             counts: {'entries': 253, 'adds': 2044, 'tps': 1208, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 155}  npos avg 99 full grids avg 14.3 max 79
+Шаг 2% [2024]                final   0.000  CAGR -100.0%  DD  -95.6% (intrabar  -95.6%)  Sh -2.14  gross avg 2.95 max 116.69  L/S 0.04/2.92  BLOWN 2024-03-01T22:00
+                             2024:-94%
+                             fund L/S +0.1/+13.1%  real L/S +3.2/+89.6%  fee -2.0%  unreal -190.4%   (0.0s)
+                             worst: 1000PEPEUSDT -18.7%, FETUSDT -5.8%, PYTHUSDT -5.5%, PEOPLEUSDT -4.8%, WLDUSDT -4.5%, CTSIUSDT -4.3%
+                             counts: {'entries': 393, 'adds': 8685, 'tps': 7828, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 6, 'be_exits': 261}  npos avg 100 full grids avg 19.8 max 74
+Шаг 2% [2025]                final   0.000  CAGR -100.0%  DD  -92.7% (intrabar  -94.8%)  Sh  1.99  gross avg 3.15 max 38.41  L/S 1.37/1.78  BLOWN 2025-08-05T21:00
+                             2025:-68%
+                             fund L/S +25.6/-86.4%  real L/S +66.3/+410.7%  fee -16.3%  unreal -485.9%   (0.2s)
+                             worst: MYXUSDT -410.4%, FARTCOINUSDT -21.0%, NEIROETHUSDT -15.0%, BANUSDT -12.5%, ALCHUSDT -11.5%, BNXUSDT -8.2%
+                             counts: {'entries': 4652, 'adds': 33665, 'tps': 32288, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 133, 'be_exits': 4401}  npos avg 102 full grids avg 41.8 max 79
+Шаг 5% [2021]                final   0.000  CAGR -100.0%  DD  -96.6% (intrabar  -96.6%)  Sh  0.07  gross avg 5.64 max 114.04  L/S 0.02/5.62  BLOWN 2021-01-17T21:00
+                             2021:-96%
+                             fund L/S +0.1/+9.8%  real L/S +1.3/+51.8%  fee -0.5%  unreal -155.6%   (0.0s)
+                             worst: AVAXUSDT -11.7%, IOSTUSDT -8.8%, ALPHAUSDT -5.5%, MKRUSDT -5.1%, XLMUSDT -4.2%, LRCUSDT -4.1%
+                             counts: {'entries': 114, 'adds': 2774, 'tps': 2222, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 38}  npos avg 76 full grids avg 15.7 max 44
+Шаг 5% [2022]                final   0.000  CAGR -100.0%  DD  -88.3% (intrabar  -92.8%)  Sh  1.15  gross avg 1.54 max 20.68  L/S 0.57/0.97  BLOWN 2022-05-12T03:00
+                             2022:-60%
+                             fund L/S +4.4/+4.1%  real L/S +130.0/+153.8%  fee -4.5%  unreal -384.8%   (0.1s)
+                             worst: ANCUSDT -12.4%, SKLUSDT -10.7%, KSMUSDT -8.6%, APEUSDT -7.9%, GMTUSDT -7.1%, FTMUSDT -6.6%
+                             counts: {'entries': 2743, 'adds': 6766, 'tps': 5604, 'flip_exits': 0, 'stops': 0, 'delist': 74, 'timeouts': 43, 'be_exits': 2529}  npos avg 97 full grids avg 6.3 max 58
+Шаг 5% [2023]                final   0.000  CAGR -100.0%  DD  -90.9% (intrabar  -95.2%)  Sh -0.75  gross avg 5.44 max 50.14  L/S 0.06/5.39  BLOWN 2023-01-21T00:00
+                             2023:-91%
+                             fund L/S +0.2/+1.0%  real L/S +2.4/+14.7%  fee -0.3%  unreal -108.6%   (0.0s)
+                             worst: GALAUSDT -6.6%, APTUSDT -6.1%, MANAUSDT -4.4%, LDOUSDT -3.9%, OPUSDT -3.9%, KNCUSDT -2.7%
+                             counts: {'entries': 264, 'adds': 1271, 'tps': 631, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 167}  npos avg 99 full grids avg 7.8 max 27
+Шаг 5% [2024]                final   0.000  CAGR -100.0%  DD  -97.9% (intrabar  -97.9%)  Sh -4.26  gross avg 2.32 max 203.87  L/S 0.02/2.30  BLOWN 2024-03-04T07:00
+                             2024:-97%
+                             fund L/S +0.1/+11.7%  real L/S +1.8/+67.7%  fee -0.7%  unreal -168.1%   (0.0s)
+                             worst: 1000PEPEUSDT -28.8%, 1000SHIBUSDT -6.6%, 1000BONKUSDT -5.6%, FETUSDT -5.2%, PEOPLEUSDT -4.6%, PYTHUSDT -3.8%
+                             counts: {'entries': 393, 'adds': 3087, 'tps': 2451, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 6, 'be_exits': 262}  npos avg 101 full grids avg 5.1 max 30
+Шаг 5% [2025]                final   0.000  CAGR -100.0%  DD  -99.3% (intrabar  -99.3%)  Sh  1.38  gross avg 2.24 max 325.72  L/S 0.97/1.27  BLOWN 2025-08-06T10:00
+                             2025:-97%
+                             fund L/S +18.6/-96.1%  real L/S +84.4/+272.5%  fee -7.1%  unreal -353.9%   (0.2s)
+                             worst: MYXUSDT -349.5%, FARTCOINUSDT -16.2%, NEIROETHUSDT -13.9%, BANUSDT -6.7%, NEIROUSDT -6.0%, BNXUSDT -5.9%
+                             counts: {'entries': 4672, 'adds': 10848, 'tps': 9891, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 133, 'be_exits': 4421}  npos avg 102 full grids avg 17.2 max 45
+Шаг 0.5 дневной волатильности [2021] final   0.000  CAGR -100.0%  DD  -99.7% (intrabar  -99.7%)  Sh -5.64  gross avg 3.13 max 1226.96  L/S 0.01/3.12  BLOWN 2021-02-05T03:00
+                             2021:-100%
+                             fund L/S +0.1/+9.5%  real L/S +1.2/+36.0%  fee -0.4%  unreal -141.0%   (0.0s)
+                             worst: ALPHAUSDT -16.6%, FTMUSDT -15.8%, DOGEUSDT -12.3%, AAVEUSDT -6.1%, UNIUSDT -5.5%, CRVUSDT -4.9%
+                             counts: {'entries': 124, 'adds': 1875, 'tps': 1452, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 45}  npos avg 44 full grids avg 4.3 max 25
+Шаг 0.5 дневной волатильности [2022] final   0.000  CAGR -100.0%  DD  -79.7% (intrabar  -84.3%)  Sh  2.16  gross avg 2.11 max 23.69  L/S 0.72/1.39  BLOWN 2022-05-11T12:00
+                             2022:+62%
+                             fund L/S +3.9/+4.7%  real L/S +122.6/+123.9%  fee -5.6%  unreal -311.4%   (0.0s)
+                             worst: ANCUSDT -11.6%, SKLUSDT -8.9%, KSMUSDT -8.4%, APEUSDT -7.2%, FTMUSDT -6.6%, SUSHIUSDT -6.4%
+                             counts: {'entries': 2490, 'adds': 11502, 'tps': 10130, 'flip_exits': 0, 'stops': 0, 'delist': 74, 'timeouts': 44, 'be_exits': 2275}  npos avg 85 full grids avg 17.3 max 63
+Шаг 0.5 дневной волатильности [2023] final   0.000  CAGR -100.0%  DD  -96.9% (intrabar  -96.9%)  Sh  0.90  gross avg 2.47 max 140.48  L/S 0.37/2.10  BLOWN 2023-11-09T04:00
+                             2023:-76%
+                             fund L/S +17.0/+22.4%  real L/S +176.6/+576.8%  fee -23.8%  unreal -826.7%   (0.1s)
+                             worst: RUNEUSDT -26.8%, LINKUSDT -24.2%, TRBUSDT -22.1%, BCHUSDT -21.4%, AAVEUSDT -19.8%, OGNUSDT -18.6%
+                             counts: {'entries': 3689, 'adds': 27101, 'tps': 25548, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 172, 'be_exits': 3417}  npos avg 97 full grids avg 22.1 max 72
+Шаг 0.5 дневной волатильности [2024] final   0.000  CAGR -100.0%  DD  -96.4% (intrabar  -96.4%)  Sh -4.07  gross avg 1.94 max 133.66  L/S 0.04/1.90  BLOWN 2024-03-02T07:00
+                             2024:-96%
+                             fund L/S +0.1/+7.9%  real L/S +1.6/+41.9%  fee -0.7%  unreal -142.9%   (0.0s)
+                             worst: 1000PEPEUSDT -18.8%, WLDUSDT -6.5%, 1000SHIBUSDT -5.1%, FETUSDT -5.0%, GRTUSDT -3.3%, GALAUSDT -3.3%
+                             counts: {'entries': 331, 'adds': 3111, 'tps': 2427, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 7, 'be_exits': 200}  npos avg 76 full grids avg 6.5 max 47
+Шаг 0.5 дневной волатильности [2025] final   0.000  CAGR -100.0%  DD  -98.7% (intrabar  -98.7%)  Sh  0.54  gross avg 2.47 max 192.97  L/S 1.15/1.32  BLOWN 2025-08-07T12:00
+                             2025:-96%
+                             fund L/S +15.4/-111.8%  real L/S +76.6/+255.3%  fee -7.9%  unreal -315.0%   (0.1s)
+                             worst: MYXUSDT -304.2%, FARTCOINUSDT -10.8%, NEIROETHUSDT -10.3%, BANUSDT -7.1%, NEIROUSDT -6.7%, BNXUSDT -4.4%
+                             counts: {'entries': 4416, 'adds': 15833, 'tps': 14662, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 136, 'be_exits': 4163}  npos avg 95 full grids avg 27.0 max 60
+Только лонги [2021]          final   0.000  CAGR -100.0%  DD  -86.1% (intrabar  -91.8%)  Sh  1.67  gross avg 0.56 max 11.21  L/S 0.56/0.00  BLOWN 2021-05-23T16:00
+                             2021:-58%
+                             fund L/S -20.5/+0.0%  real L/S +149.2/+0.0%  fee -2.1%  unreal -209.3%   (0.0s)
+                             worst: CHRUSDT -7.2%, LITUSDT -5.1%, RVNUSDT -4.7%, ZRXUSDT -4.5%, DODOUSDT -4.5%, BELUSDT -4.0%
+                             counts: {'entries': 104, 'adds': 6250, 'tps': 5627, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 4}  npos avg 42 full grids avg 1.8 max 61
+Только лонги [2022]          final   0.000  CAGR -100.0%  DD  -95.0% (intrabar  -97.3%)  Sh -6.18  gross avg 1.75 max 52.05  L/S 1.75/0.00  BLOWN 2022-01-24T12:00
+                             2022:-91%
+                             fund L/S +0.6/+0.0%  real L/S +19.5/+0.0%  fee -0.3%  unreal -116.6%   (0.0s)
+                             worst: LRCUSDT -2.4%, KEEPUSDT -2.3%, CRVUSDT -2.1%, GTCUSDT -2.1%, REEFUSDT -2.0%, RUNEUSDT -1.9%
+                             counts: {'entries': 93, 'adds': 2041, 'tps': 1288, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 0}  npos avg 55 full grids avg 9.0 max 74
+Только лонги [2023]          final   0.000  CAGR -100.0%  DD  -87.7% (intrabar  -93.0%)  Sh  0.40  gross avg 1.32 max 12.18  L/S 1.32/0.00  BLOWN 2024-08-05T06:00
+                             2023:+77% 2024:-81%
+                             fund L/S -18.0/+0.0%  real L/S +159.7/+0.0%  fee -4.4%  unreal -215.0%   (0.3s)
+                             worst: BLURUSDT -11.3%, STGUSDT -8.0%, TNSRUSDT -7.0%, AEVOUSDT -7.0%, REZUSDT -6.8%, CHZUSDT -6.8%
+                             counts: {'entries': 405, 'adds': 14289, 'tps': 12981, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 116, 'be_exits': 179}  npos avg 89 full grids avg 12.0 max 53
+Только лонги [2024]          final   0.000  CAGR -100.0%  DD  -90.5% (intrabar  -96.6%)  Sh -0.24  gross avg 1.20 max 21.37  L/S 1.20/0.00  BLOWN 2024-08-05T01:00
+                             2024:-70%
+                             fund L/S -5.8/+0.0%  real L/S +101.1/+0.0%  fee -2.1%  unreal -184.6%   (0.1s)
+                             worst: TNSRUSDT -4.4%, REZUSDT -4.4%, AEVOUSDT -4.3%, BLURUSDT -4.2%, FRONTUSDT -4.1%, STGUSDT -3.9%
+                             counts: {'entries': 200, 'adds': 8734, 'tps': 7762, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 35, 'be_exits': 55}  npos avg 69 full grids avg 12.4 max 71
+Только лонги [2025]          final   0.000  CAGR -100.0%  DD  -78.4% (intrabar  -87.7%)  Sh -3.38  gross avg 1.28 max 12.08  L/S 1.28/0.00  BLOWN 2025-02-03T01:00
+                             2025:-75%
+                             fund L/S +0.1/+0.0%  real L/S +35.8/+0.0%  fee -0.6%  unreal -146.6%   (0.0s)
+                             worst: TROYUSDT -3.1%, PNUTUSDT -2.9%, BOMEUSDT -2.8%, GMTUSDT -2.6%, ENAUSDT -2.6%, TURBOUSDT -2.4%
+                             counts: {'entries': 102, 'adds': 3127, 'tps': 2328, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 0}  npos avg 69 full grids avg 9.7 max 65
+Только шорты [2021]          final   0.000  CAGR -100.0%  DD  -98.3% (intrabar  -98.3%)  Sh -3.03  gross avg 6.60 max 265.48  L/S 0.00/6.60  BLOWN 2021-01-09T18:00
+                             2021:-98%
+                             fund L/S +0.0/+6.7%  real L/S +0.0/+30.1%  fee -0.5%  unreal -128.5%   (0.0s)
+                             worst: MKRUSDT -5.1%, RSRUSDT -5.1%, LRCUSDT -5.1%, XLMUSDT -5.1%, ALPHAUSDT -4.9%, AVAXUSDT -4.8%
+                             counts: {'entries': 76, 'adds': 2649, 'tps': 2070, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 0}  npos avg 75 full grids avg 20.6 max 57
+Только шорты [2022]          final   0.000  CAGR -100.0%  DD  -98.9% (intrabar  -98.9%)  Sh  0.71  gross avg 1.58 max 241.91  L/S 0.00/1.58  BLOWN 2023-12-20T13:00
+                             2022:+189% 2023:-99%
+                             fund L/S +0.0/+1.4%  real L/S +0.0/+348.6%  fee -6.8%  unreal -432.7%   (0.4s)
+                             worst: INJUSDT -70.2%, TRBUSDT -39.3%, RUNEUSDT -30.2%, WLDUSDT -28.1%, SEIUSDT -23.0%, OPUSDT -21.4%
+                             counts: {'entries': 530, 'adds': 16479, 'tps': 15619, 'flip_exits': 0, 'stops': 0, 'delist': 77, 'timeouts': 63, 'be_exits': 290}  npos avg 99 full grids avg 8.8 max 39
+Только шорты [2023]          final   0.000  CAGR -100.0%  DD  -97.0% (intrabar  -97.0%)  Sh -8.69  gross avg 3.54 max 178.61  L/S 0.00/3.54  BLOWN 2023-01-14T00:00
+                             2023:-97%
+                             fund L/S +0.0/+0.1%  real L/S +0.0/+10.0%  fee -0.2%  unreal -90.6%   (0.0s)
+                             worst: GALAUSDT -8.4%, LDOUSDT -5.2%, MANAUSDT -3.1%, APTUSDT -3.1%, OPUSDT -2.5%, OCEANUSDT -2.0%
+                             counts: {'entries': 98, 'adds': 1497, 'tps': 702, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 0}  npos avg 92 full grids avg 6.1 max 52
+Только шорты [2024]          final   0.000  CAGR -100.0%  DD  -96.5% (intrabar  -96.5%)  Sh -3.97  gross avg 2.33 max 131.02  L/S 0.00/2.33  BLOWN 2024-03-04T08:00
+                             2024:-95%
+                             fund L/S +0.0/+12.7%  real L/S +0.0/+71.8%  fee -1.1%  unreal -171.2%   (0.0s)
+                             worst: 1000PEPEUSDT -19.5%, FETUSDT -6.2%, 1000SHIBUSDT -6.2%, PEOPLEUSDT -5.6%, 1000BONKUSDT -5.3%, WLDUSDT -4.3%
+                             counts: {'entries': 153, 'adds': 5272, 'tps': 4521, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 34}  npos avg 101 full grids avg 11.1 max 53
+Только шорты [2025]          final   0.000  CAGR -100.0%  DD  -94.3% (intrabar  -95.5%)  Sh  1.82  gross avg 0.87 max 27.26  L/S 0.00/0.87  BLOWN 2025-08-05T21:00
+                             2025:-84%
+                             fund L/S +0.0/-71.5%  real L/S +0.0/+196.2%  fee -2.8%  unreal -217.2%   (0.1s)
+                             worst: MYXUSDT -255.6%, NEIROETHUSDT -12.5%, MAGICUSDT -8.4%, ALCHUSDT -7.2%, PENGUUSDT -5.9%, BNXUSDT -3.1%
+                             counts: {'entries': 286, 'adds': 9087, 'tps': 8913, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 6, 'be_exits': 175}  npos avg 100 full grids avg 4.6 max 17
+Разворот фандинга → закрыть сразу [2021] final   0.000  CAGR -100.0%  DD  -90.9% (intrabar  -95.9%)  Sh -7.92  gross avg 4.83 max 44.76  L/S 0.03/4.80  BLOWN 2021-01-10T05:00
+                             2021:-90%
+                             fund L/S +0.1/+7.3%  real L/S +2.6/+13.9%  fee -0.6%  unreal -116.7%   (0.0s)
+                             worst: MKRUSDT -8.9%, ALPHAUSDT -5.7%, XLMUSDT -5.5%, CVCUSDT -5.1%, IOSTUSDT -4.4%, AVAXUSDT -3.3%
+                             counts: {'entries': 139, 'adds': 2790, 'tps': 2160, 'flip_exits': 63, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 0}  npos avg 76 full grids avg 18.9 max 53
+Разворот фандинга → закрыть сразу [2022] final   0.000  CAGR -100.0%  DD  -95.7% (intrabar  -95.7%)  Sh  0.63  gross avg 1.61 max 100.68  L/S 0.38/1.24  BLOWN 2023-01-28T04:00
+                             2022:+462% 2023:-96%
+                             fund L/S +39.6/+25.5%  real L/S +100.7/+397.7%  fee -64.3%  unreal -563.2%   (0.2s)
+                             worst: GMTUSDT -26.0%, FTMUSDT -19.5%, KNCUSDT -18.9%, TRBUSDT -18.6%, WAVESUSDT -15.4%, CRVUSDT -14.5%
+                             counts: {'entries': 23491, 'adds': 47967, 'tps': 34367, 'flip_exits': 23315, 'stops': 0, 'delist': 77, 'timeouts': 0, 'be_exits': 0}  npos avg 98 full grids avg 4.8 max 67
+Разворот фандинга → закрыть сразу [2023] final   0.000  CAGR -100.0%  DD  -96.7% (intrabar  -96.7%)  Sh -3.01  gross avg 6.91 max 129.24  L/S 0.08/6.83  BLOWN 2023-01-28T00:00
+                             2023:-97%
+                             fund L/S +0.3/+2.4%  real L/S +5.2/-1.6%  fee -0.9%  unreal -99.4%   (0.0s)
+                             worst: FTMUSDT -4.1%, CRVUSDT -3.8%, WAVESUSDT -3.3%, GMTUSDT -3.2%, OPUSDT -2.7%, GALUSDT -2.5%
+                             counts: {'entries': 763, 'adds': 3326, 'tps': 2224, 'flip_exits': 664, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 0}  npos avg 99 full grids avg 19.6 max 55
+Разворот фандинга → закрыть сразу [2024] final   0.000  CAGR -100.0%  DD  -98.0% (intrabar  -98.0%)  Sh -4.22  gross avg 2.55 max 193.54  L/S 0.02/2.53  BLOWN 2024-03-04T00:00
+                             2024:-97%
+                             fund L/S +0.2/+12.9%  real L/S +1.6/+52.8%  fee -1.8%  unreal -155.4%   (0.0s)
+                             worst: 1000PEPEUSDT -32.2%, FETUSDT -6.0%, PYTHUSDT -5.9%, 1000SHIBUSDT -5.8%, WLDUSDT -4.1%, GALAUSDT -4.1%
+                             counts: {'entries': 716, 'adds': 6183, 'tps': 5138, 'flip_exits': 616, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 0}  npos avg 100 full grids avg 9.0 max 48
+Разворот фандинга → закрыть сразу [2025] final   0.497  CAGR  -32.9%  DD  -91.6% (intrabar  -96.8%)  Sh  0.42  gross avg 1.35 max 26.45  L/S 0.30/1.05  
+                             2025:+22% 2026:-59%
+                             fund L/S +76.0/+28.6%  real L/S -88.5/+2.8%  fee -52.5%  unreal -16.6%   (0.5s)
+                             worst: NEIROETHUSDT -44.5%, LABUSDT -29.4%, LIGHTUSDT -18.2%, SIRENUSDT -15.5%, SOONUSDT -12.3%, HUSDT -12.2%
+                             counts: {'entries': 53600, 'adds': 84743, 'tps': 58283, 'flip_exits': 53499, 'stops': 0, 'delist': 1, 'timeouts': 0, 'be_exits': 0}  npos avg 100 full grids avg 3.9 max 48
+Порог: фандинг по модулю > 0.01% [2021] final   0.000  CAGR -100.0%  DD  -96.0% (intrabar  -96.0%)  Sh -7.59  gross avg 4.76 max 107.96  L/S 0.04/4.72  BLOWN 2021-01-10T05:00
+                             2021:-96%
+                             fund L/S +0.0/+7.2%  real L/S +1.8/+27.8%  fee -0.5%  unreal -123.9%   (0.0s)
+                             worst: MKRUSDT -8.7%, ALPHAUSDT -5.5%, XLMUSDT -5.5%, LRCUSDT -4.7%, DOGEUSDT -4.5%, IOSTUSDT -4.0%
+                             counts: {'entries': 103, 'adds': 2568, 'tps': 1994, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 27}  npos avg 71 full grids avg 18.1 max 54
+Порог: фандинг по модулю > 0.01% [2022] final   0.000  CAGR -100.0%  DD  -95.3% (intrabar  -97.6%)  Sh -0.04  gross avg 1.80 max 43.72  L/S 1.78/0.02  BLOWN 2022-05-11T07:00
+                             2022:-93%
+                             fund L/S +2.4/+0.1%  real L/S +68.2/+6.7%  fee -1.7%  unreal -170.6%   (0.0s)
+                             worst: ONEUSDT -5.4%, RSRUSDT -4.9%, LUNAUSDT -4.9%, FTMUSDT -4.2%, STORJUSDT -4.1%, KSMUSDT -4.0%
+                             counts: {'entries': 237, 'adds': 8374, 'tps': 7263, 'flip_exits': 0, 'stops': 0, 'delist': 72, 'timeouts': 17, 'be_exits': 53}  npos avg 76 full grids avg 22.2 max 83
+Порог: фандинг по модулю > 0.01% [2023] final   0.000  CAGR -100.0%  DD  -97.6% (intrabar  -97.6%)  Sh -0.13  gross avg 2.04 max 164.07  L/S 1.07/0.97  BLOWN 2023-12-26T00:00
+                             2023:-92%
+                             fund L/S -0.3/+28.4%  real L/S +114.8/+226.2%  fee -7.3%  unreal -437.1%   (0.1s)
+                             worst: BAKEUSDT -39.1%, AVAXUSDT -26.9%, SEIUSDT -26.2%, NEARUSDT -14.4%, SOLUSDT -14.0%, STXUSDT -13.1%
+                             counts: {'entries': 741, 'adds': 17940, 'tps': 16561, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 153, 'be_exits': 488}  npos avg 93 full grids avg 19.0 max 54
+Порог: фандинг по модулю > 0.01% [2024] final   0.000  CAGR -100.0%  DD  -96.1% (intrabar  -96.1%)  Sh -3.98  gross avg 2.05 max 114.91  L/S 0.21/1.84  BLOWN 2024-03-05T04:00
+                             2024:-95%
+                             fund L/S -0.1/+12.9%  real L/S +12.5/+68.8%  fee -1.3%  unreal -163.3%   (0.0s)
+                             worst: 1000PEPEUSDT -18.5%, 1000SHIBUSDT -15.2%, 1000BONKUSDT -6.8%, FETUSDT -5.8%, SUIUSDT -5.0%, PEOPLEUSDT -4.0%
+                             counts: {'entries': 235, 'adds': 6079, 'tps': 5355, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 15, 'be_exits': 99}  npos avg 98 full grids avg 7.9 max 50
+Порог: фандинг по модулю > 0.01% [2025] final   0.000  CAGR -100.0%  DD  -81.5% (intrabar  -94.4%)  Sh -3.58  gross avg 0.95 max 11.17  L/S 0.88/0.08  BLOWN 2025-02-03T02:00
+                             2025:-80%
+                             fund L/S +0.3/+0.1%  real L/S +18.5/+4.3%  fee -0.5%  unreal -107.0%   (0.0s)
+                             worst: TROYUSDT -3.3%, PNUTUSDT -3.1%, WIFUSDT -2.8%, TURBOUSDT -2.7%, BOMEUSDT -2.6%, NOTUSDT -2.4%
+                             counts: {'entries': 103, 'adds': 2389, 'tps': 1750, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 4, 'be_exits': 19}  npos avg 52 full grids avg 7.9 max 59
+Порог: фандинг по модулю > 0.03% [2021] final   0.000  CAGR -100.0%  DD  -98.3% (intrabar  -98.3%)  Sh -7.54  gross avg 5.56 max 267.12  L/S 0.03/5.53  BLOWN 2021-01-10T07:00
+                             2021:-98%
+                             fund L/S +0.1/+7.2%  real L/S +1.3/+27.7%  fee -0.5%  unreal -130.1%   (0.0s)
+                             worst: MKRUSDT -8.1%, ALPHAUSDT -5.7%, XLMUSDT -5.2%, DOGEUSDT -4.8%, IOSTUSDT -3.5%, AVAXUSDT -3.4%
+                             counts: {'entries': 97, 'adds': 2580, 'tps': 1984, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 21}  npos avg 68 full grids avg 18.6 max 57
+Порог: фандинг по модулю > 0.03% [2022] final   0.000  CAGR -100.0%  DD  -86.8% (intrabar  -90.8%)  Sh -0.66  gross avg 1.31 max 10.40  L/S 1.31/0.00  BLOWN 2022-05-11T12:00
+                             2022:-83%
+                             fund L/S +2.6/+0.0%  real L/S +44.3/+0.3%  fee -1.1%  unreal -159.2%   (0.0s)
+                             worst: ONEUSDT -5.5%, RSRUSDT -5.1%, NEARUSDT -4.8%, LUNAUSDT -4.5%, ANCUSDT -4.1%, KSMUSDT -4.0%
+                             counts: {'entries': 162, 'adds': 6194, 'tps': 5300, 'flip_exits': 0, 'stops': 0, 'delist': 58, 'timeouts': 11, 'be_exits': 18}  npos avg 60 full grids avg 17.7 max 63
+Порог: фандинг по модулю > 0.03% [2023] final   0.000  CAGR -100.0%  DD  -99.4% (intrabar  -99.4%)  Sh  0.72  gross avg 2.16 max 610.90  L/S 0.69/1.47  BLOWN 2024-02-28T16:00
+                             2023:+33% 2024:-99%
+                             fund L/S +3.1/+44.9%  real L/S +112.7/+202.5%  fee -7.2%  unreal -440.1%   (0.2s)
+                             worst: SEIUSDT -54.3%, STXUSDT -33.8%, SUIUSDT -25.1%, BAKEUSDT -20.3%, WLDUSDT -19.7%, FETUSDT -19.3%
+                             counts: {'entries': 572, 'adds': 18959, 'tps': 17756, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 119, 'be_exits': 354}  npos avg 84 full grids avg 17.4 max 48
+Порог: фандинг по модулю > 0.03% [2024] final   0.000  CAGR -100.0%  DD  -97.6% (intrabar  -97.6%)  Sh -0.35  gross avg 2.80 max 175.26  L/S 0.09/2.71  BLOWN 2024-03-09T00:00
+                             2024:-97%
+                             fund L/S +0.1/+16.4%  real L/S +6.7/+71.4%  fee -1.3%  unreal -184.2%   (0.0s)
+                             worst: 1000PEPEUSDT -27.4%, FETUSDT -11.9%, 1000SHIBUSDT -9.6%, 1000BONKUSDT -7.2%, WIFUSDT -6.1%, RNDRUSDT -4.5%
+                             counts: {'entries': 196, 'adds': 6399, 'tps': 5695, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 20, 'be_exits': 76}  npos avg 97 full grids avg 10.3 max 59
+Порог: фандинг по модулю > 0.03% [2025] final   0.000  CAGR -100.0%  DD  -90.5% (intrabar  -93.0%)  Sh -2.01  gross avg 1.96 max 18.51  L/S 1.88/0.09  BLOWN 2025-04-07T06:00
+                             2025:-90%
+                             fund L/S +5.1/-0.0%  real L/S +12.4/+7.1%  fee -1.0%  unreal -123.5%   (0.1s)
+                             worst: ENAUSDT -3.5%, TROYUSDT -3.0%, GOATUSDT -2.9%, GMTUSDT -2.9%, ETHFIUSDT -2.9%, ACHUSDT -2.8%
+                             counts: {'entries': 159, 'adds': 6021, 'tps': 5091, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 26, 'be_exits': 35}  npos avg 59 full grids avg 23.3 max 67
+Сетка подтягивается за ценой [2021] final   0.000  CAGR -100.0%  DD  -96.7% (intrabar  -96.7%)  Sh -14.47  gross avg 5.61 max 139.31  L/S 0.10/5.52  BLOWN 2021-01-07T15:00
+                             2021:-97%
+                             fund L/S +0.2/+4.9%  real L/S +2.2/+23.6%  fee -0.4%  unreal -120.6%   (0.0s)
+                             worst: XLMUSDT -6.6%, LRCUSDT -6.2%, ALPHAUSDT -5.2%, DOGEUSDT -4.6%, CVCUSDT -3.8%, RSRUSDT -3.6%
+                             counts: {'entries': 86, 'adds': 2389, 'tps': 1757, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 10}  npos avg 76 full grids avg 17.0 max 60
+Сетка подтягивается за ценой [2022] final   0.000  CAGR -100.0%  DD  -94.0% (intrabar  -95.1%)  Sh  1.95  gross avg 2.62 max 36.48  L/S 0.63/1.99  BLOWN 2022-05-12T04:00
+                             2022:-72%
+                             fund L/S +6.8/+9.0%  real L/S +202.4/+317.5%  fee -9.9%  unreal -631.1%   (0.1s)
+                             worst: ANCUSDT -18.7%, KSMUSDT -13.2%, GMTUSDT -12.1%, APEUSDT -11.8%, MTLUSDT -10.7%, KNCUSDT -9.2%
+                             counts: {'entries': 1441, 'adds': 19189, 'tps': 17699, 'flip_exits': 0, 'stops': 0, 'delist': 73, 'timeouts': 52, 'be_exits': 1220}  npos avg 98 full grids avg 22.8 max 83
+Сетка подтягивается за ценой [2023] final   0.000  CAGR -100.0%  DD  -97.5% (intrabar  -97.5%)  Sh -9.61  gross avg 3.77 max 213.95  L/S 0.15/3.62  BLOWN 2023-01-14T02:00
+                             2023:-97%
+                             fund L/S +0.3/+0.3%  real L/S +4.1/+8.4%  fee -0.3%  unreal -100.7%   (0.0s)
+                             worst: GALAUSDT -7.9%, LDOUSDT -4.8%, MANAUSDT -3.5%, APTUSDT -2.6%, OPUSDT -2.5%, OCEANUSDT -2.3%
+                             counts: {'entries': 203, 'adds': 1542, 'tps': 742, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 104}  npos avg 99 full grids avg 6.6 max 65
+Сетка подтягивается за ценой [2024] final   0.000  CAGR -100.0%  DD  -95.8% (intrabar  -95.8%)  Sh -0.63  gross avg 5.26 max 108.65  L/S 0.03/5.23  BLOWN 2024-02-27T02:00
+                             2024:-94%
+                             fund L/S +0.1/+12.9%  real L/S +1.1/+82.2%  fee -1.4%  unreal -182.0%   (0.0s)
+                             worst: WLDUSDT -9.4%, PYTHUSDT -9.0%, BEAMXUSDT -6.1%, STXUSDT -5.7%, 1000PEPEUSDT -5.6%, NTRNUSDT -5.4%
+                             counts: {'entries': 175, 'adds': 6509, 'tps': 5586, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 25, 'be_exits': 50}  npos avg 103 full grids avg 31.8 max 80
+Сетка подтягивается за ценой [2025] final   0.000  CAGR -100.0%  DD  -98.8% (intrabar  -98.8%)  Sh  1.97  gross avg 3.62 max 252.32  L/S 1.17/2.45  BLOWN 2025-08-05T21:00
+                             2025:-95%
+                             fund L/S +35.3/-85.2%  real L/S +63.0/+469.9%  fee -12.8%  unreal -537.6%   (0.2s)
+                             worst: MYXUSDT -409.2%, FARTCOINUSDT -29.4%, NEIROETHUSDT -28.6%, ALCHUSDT -19.8%, PENGUUSDT -19.1%, BANUSDT -16.9%
+                             counts: {'entries': 2200, 'adds': 27676, 'tps': 26198, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 155, 'be_exits': 1929}  npos avg 103 full grids avg 40.2 max 70
+Стоп 2% эквити на актив [2021] final   0.042  CAGR  -42.3%  DD  -96.6% (intrabar  -96.6%)  Sh  0.17  gross avg 1.75 max 5.80  L/S 0.55/1.20  
+                             2021:-92% 2022:+5% 2023:-14% 2024:+27% 2025:-8% 2026:-51%
+                             fund L/S +7.9/+18.0%  real L/S -4.7/-108.2%  fee -7.9%  unreal -0.8%   (1.1s)
+                             worst: ALPHAUSDT -3.6%, FTMUSDT -3.5%, DOGEUSDT -3.1%, MATICUSDT -2.9%, SNXUSDT -2.7%, SRMUSDT -2.5%
+                             counts: {'entries': 38082, 'adds': 219622, 'tps': 196356, 'flip_exits': 0, 'stops': 2230, 'delist': 65, 'timeouts': 807, 'be_exits': 34885}  npos avg 92 full grids avg 8.1 max 41
+Стоп 2% эквити на актив [2022] final   0.516  CAGR  -13.0%  DD  -84.6% (intrabar  -85.0%)  Sh  0.45  gross avg 1.80 max 5.80  L/S 0.63/1.16  
+                             2022:+4% 2023:-14% 2024:+27% 2025:-8% 2026:-51%
+                             fund L/S +89.4/+56.8%  real L/S -152.4/+32.1%  fee -63.9%  unreal -10.4%   (0.9s)
+                             worst: MYXUSDT -16.4%, RUNEUSDT -11.5%, SOONUSDT -11.1%, ALCHUSDT -10.2%, SEIUSDT -9.9%, FTMUSDT -9.8%
+                             counts: {'entries': 34238, 'adds': 167643, 'tps': 150371, 'flip_exits': 0, 'stops': 1579, 'delist': 63, 'timeouts': 745, 'be_exits': 31756}  npos avg 94 full grids avg 8.9 max 40
+Стоп 2% эквити на актив [2023] final   0.294  CAGR  -27.8%  DD  -84.7% (intrabar  -85.1%)  Sh  0.25  gross avg 1.82 max 6.93  L/S 0.58/1.24  
+                             2023:-49% 2024:+27% 2025:-8% 2026:-51%
+                             fund L/S +44.7/+29.7%  real L/S -47.9/-62.0%  fee -29.1%  unreal -5.9%   (0.9s)
+                             worst: MYXUSDT -9.3%, SOONUSDT -6.3%, ALCHUSDT -5.8%, SEIUSDT -5.7%, 1000PEPEUSDT -5.5%, AAVEUSDT -5.1%
+                             counts: {'entries': 25844, 'adds': 132673, 'tps': 119021, 'flip_exits': 0, 'stops': 1274, 'delist': 3, 'timeouts': 586, 'be_exits': 23886}  npos avg 95 full grids avg 8.4 max 34
+Стоп 2% эквити на актив [2024] final   0.657  CAGR  -14.2%  DD  -81.9% (intrabar  -82.2%)  Sh  0.40  gross avg 1.82 max 4.89  L/S 0.68/1.14  
+                             2024:+45% 2025:-8% 2026:-51%
+                             fund L/S +89.3/+39.0%  real L/S -204.4/+104.1%  fee -49.1%  unreal -13.2%   (0.7s)
+                             worst: MYXUSDT -20.9%, SOONUSDT -14.1%, ALCHUSDT -13.0%, ARCUSDT -10.9%, AIAUSDT -10.0%, DASHUSDT -9.6%
+                             counts: {'entries': 21249, 'adds': 104604, 'tps': 94143, 'flip_exits': 0, 'stops': 971, 'delist': 3, 'timeouts': 422, 'be_exits': 19758}  npos avg 95 full grids avg 9.0 max 34
+Стоп 2% эквити на актив [2025] final   0.479  CAGR  -34.4%  DD  -78.4% (intrabar  -78.8%)  Sh  0.12  gross avg 1.87 max 4.63  L/S 0.92/0.95  
+                             2025:-3% 2026:-51%
+                             fund L/S +61.6/+5.7%  real L/S -222.3/+135.7%  fee -23.1%  unreal -9.6%   (0.5s)
+                             worst: MYXUSDT -15.2%, SOONUSDT -10.3%, ALCHUSDT -9.4%, ARCUSDT -7.8%, AIAUSDT -7.3%, DASHUSDT -7.0%
+                             counts: {'entries': 15722, 'adds': 67631, 'tps': 60521, 'flip_exits': 0, 'stops': 625, 'delist': 1, 'timeouts': 329, 'be_exits': 14672}  npos avg 95 full grids avg 9.9 max 34
+Плечо ≤ 2x [2021]            final   0.000  CAGR -100.0%  DD  -98.8% (intrabar  -98.8%)  Sh -5.29  gross avg 6.01 max 218.62  L/S 0.01/6.00  BLOWN 2021-01-19T08:00
+                             2021:-99%
+                             fund L/S +0.0/+8.3%  real L/S +0.7/+13.0%  fee -0.2%  unreal -117.2%   (0.0s)
+                             worst: AVAXUSDT -10.3%, ALPHAUSDT -9.2%, LRCUSDT -6.1%, RSRUSDT -4.5%, SNXUSDT -4.1%, XLMUSDT -4.0%
+                             counts: {'entries': 95, 'adds': 1076, 'tps': 859, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 25}  npos avg 73 full grids avg 7.7 max 11
+Плечо ≤ 2x [2022]            final   0.000  CAGR -100.0%  DD  -99.3% (intrabar  -99.3%)  Sh  0.58  gross avg 2.39 max 244.46  L/S 0.72/1.67  BLOWN 2023-12-24T01:00
+                             2022:+146% 2023:-98%
+                             fund L/S +36.7/+43.8%  real L/S +6.3/+403.0%  fee -19.5%  unreal -555.7%   (0.4s)
+                             worst: BAKEUSDT -72.3%, AVAXUSDT -52.2%, STXUSDT -34.8%, FETUSDT -32.2%, TRBUSDT -28.4%, OPUSDT -25.4%
+                             counts: {'entries': 8218, 'adds': 21637, 'tps': 19646, 'flip_exits': 0, 'stops': 0, 'delist': 73, 'timeouts': 389, 'be_exits': 7711}  npos avg 82 full grids avg 16.2 max 35
+Плечо ≤ 2x [2023]            final   0.000  CAGR -100.0%  DD  -97.5% (intrabar  -97.5%)  Sh -1.18  gross avg 6.95 max 101.25  L/S 0.04/6.91  BLOWN 2023-01-29T23:00
+                             2023:-97%
+                             fund L/S +0.2/+1.3%  real L/S +2.4/+2.5%  fee -0.1%  unreal -101.4%   (0.0s)
+                             worst: GALAUSDT -9.8%, MANAUSDT -5.3%, LDOUSDT -4.6%, OPUSDT -4.1%, FTMUSDT -3.8%, GALUSDT -2.9%
+                             counts: {'entries': 230, 'adds': 423, 'tps': 195, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 143}  npos avg 91 full grids avg 1.6 max 2
+Плечо ≤ 2x [2024]            final   0.000  CAGR -100.0%  DD  -98.9% (intrabar  -98.9%)  Sh  1.06  gross avg 2.84 max 221.48  L/S 0.15/2.69  BLOWN 2024-11-23T14:00
+                             2024:-95%
+                             fund L/S +3.7/+43.8%  real L/S +122.1/+282.2%  fee -7.3%  unreal -531.3%   (0.2s)
+                             worst: 1000PEPEUSDT -104.2%, SUIUSDT -52.9%, DOGEUSDT -43.5%, FTMUSDT -14.9%, TAOUSDT -14.1%, MEWUSDT -13.7%
+                             counts: {'entries': 3231, 'adds': 10976, 'tps': 10494, 'flip_exits': 0, 'stops': 0, 'delist': 2, 'timeouts': 86, 'be_exits': 3062}  npos avg 85 full grids avg 13.8 max 28
+Плечо ≤ 2x [2025]            final   0.000  CAGR -100.0%  DD  -98.7% (intrabar  -98.7%)  Sh  1.78  gross avg 1.98 max 171.82  L/S 0.94/1.03  BLOWN 2025-08-05T21:00
+                             2025:-96%
+                             fund L/S +15.9/-57.5%  real L/S +25.8/+220.9%  fee -6.4%  unreal -280.0%   (0.1s)
+                             worst: MYXUSDT -260.6%, PENGUUSDT -13.4%, FARTCOINUSDT -10.8%, BANUSDT -9.8%, ALCHUSDT -6.5%, MAGICUSDT -4.6%
+                             counts: {'entries': 3740, 'adds': 10716, 'tps': 9787, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 113, 'be_exits': 3538}  npos avg 88 full grids avg 21.6 max 36
+Стоп 2% + плечо ≤ 2x [2021]  final   0.085  CAGR  -34.9%  DD  -96.6% (intrabar  -96.6%)  Sh  0.19  gross avg 1.67 max 2.68  L/S 0.55/1.11  
+                             2021:-92% 2022:+54% 2023:-44% 2024:+67% 2025:-2% 2026:-20%
+                             fund L/S +9.4/+18.4%  real L/S +1.0/-111.5%  fee -7.2%  unreal -1.6%   (1.1s)
+                             worst: FTMUSDT -4.0%, DOGEUSDT -3.4%, ALPHAUSDT -3.3%, MATICUSDT -3.0%, UNIUSDT -2.7%, AAVEUSDT -2.6%
+                             counts: {'entries': 35224, 'adds': 158293, 'tps': 140235, 'flip_exits': 0, 'stops': 1798, 'delist': 65, 'timeouts': 828, 'be_exits': 32447}  npos avg 91 full grids avg 7.6 max 26
+Стоп 2% + плечо ≤ 2x [2022]  final   0.910  CAGR   -2.0%  DD  -86.9% (intrabar  -87.1%)  Sh  0.50  gross avg 1.71 max 2.63  L/S 0.64/1.07  
+                             2022:+40% 2023:-47% 2024:+43% 2025:+5% 2026:-18%
+                             fund L/S +95.7/+48.7%  real L/S -109.5/+24.1%  fee -51.9%  unreal -16.2%   (1.0s)
+                             worst: FTMUSDT -13.8%, ENAUSDT -10.4%, MYXUSDT -10.2%, UNIUSDT -9.9%, ARCUSDT -9.6%, SOONUSDT -9.6%
+                             counts: {'entries': 31829, 'adds': 117767, 'tps': 104838, 'flip_exits': 0, 'stops': 1209, 'delist': 65, 'timeouts': 766, 'be_exits': 29701}  npos avg 93 full grids avg 8.2 max 27
+Стоп 2% + плечо ≤ 2x [2023]  final   0.378  CAGR  -22.9%  DD  -87.0% (intrabar  -87.2%)  Sh  0.23  gross avg 1.74 max 3.23  L/S 0.60/1.15  
+                             2023:-65% 2024:+33% 2025:-9% 2026:-10%
+                             fund L/S +33.5/+19.7%  real L/S -6.7/-85.6%  fee -16.7%  unreal -6.4%   (0.8s)
+                             worst: UNIUSDT -6.0%, MYXUSDT -4.6%, FTMUSDT -4.6%, ENAUSDT -4.6%, SOONUSDT -3.9%, AAVEUSDT -3.9%
+                             counts: {'entries': 23375, 'adds': 87449, 'tps': 77605, 'flip_exits': 0, 'stops': 968, 'delist': 3, 'timeouts': 583, 'be_exits': 21732}  npos avg 93 full grids avg 7.9 max 28
+Стоп 2% + плечо ≤ 2x [2024]  final   1.027  CAGR   +1.0%  DD  -78.1% (intrabar  -78.5%)  Sh  0.50  gross avg 1.75 max 2.72  L/S 0.69/1.06  
+                             2024:+44% 2025:-11% 2026:-20%
+                             fund L/S +92.9/+34.2%  real L/S -124.2/+58.9%  fee -39.2%  unreal -20.0%   (0.6s)
+                             worst: ARCUSDT -13.4%, MYXUSDT -13.4%, SOONUSDT -11.9%, ENAUSDT -10.2%, DOGEUSDT -10.0%, FTMUSDT -9.3%
+                             counts: {'entries': 19246, 'adds': 73187, 'tps': 65291, 'flip_exits': 0, 'stops': 750, 'delist': 3, 'timeouts': 428, 'be_exits': 17981}  npos avg 93 full grids avg 8.9 max 28
+Стоп 2% + плечо ≤ 2x [2025]  final   1.017  CAGR   +1.0%  DD  -67.2% (intrabar  -71.9%)  Sh  0.46  gross avg 1.82 max 2.44  L/S 0.94/0.88  
+                             2025:+3% 2026:-1%
+                             fund L/S +72.3/+6.8%  real L/S -171.9/+133.9%  fee -21.4%  unreal -17.9%   (0.5s)
+                             worst: HUSDT -11.3%, SOONUSDT -10.4%, MYXUSDT -10.3%, UNIUSDT -8.1%, ARCUSDT -8.0%, 1000BONKUSDT -7.7%
+                             counts: {'entries': 13783, 'adds': 49482, 'tps': 43911, 'flip_exits': 0, 'stops': 475, 'delist': 1, 'timeouts': 337, 'be_exits': 12880}  npos avg 94 full grids avg 10.8 max 28
+Размер /5: 0.1% → 1% [2021]  final   0.000  CAGR -100.0%  DD  -99.1% (intrabar  -99.1%)  Sh -3.98  gross avg 2.52 max 205.20  L/S 0.00/2.51  BLOWN 2021-02-08T08:00
+                             2021:-99%
+                             fund L/S +0.0/+10.1%  real L/S +0.5/+12.4%  fee -0.2%  unreal -119.1%   (0.0s)
+                             worst: DOGEUSDT -12.6%, ALPHAUSDT -9.6%, AVAXUSDT -7.2%, FTMUSDT -5.6%, EGLDUSDT -4.1%, AAVEUSDT -3.6%
+                             counts: {'entries': 132, 'adds': 5125, 'tps': 4453, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 53}  npos avg 77 full grids avg 48.6 max 71
+Размер /5: 0.1% → 1% [2022]  final   0.000  CAGR -100.0%  DD  -99.5% (intrabar  -99.5%)  Sh -0.38  gross avg 0.90 max 337.89  L/S 0.14/0.76  BLOWN 2024-03-08T00:00
+                             2022:+52% 2023:-27% 2024:-99%
+                             fund L/S +5.5/+27.6%  real L/S +13.0/+90.0%  fee -4.2%  unreal -226.2%   (0.3s)
+                             worst: FETUSDT -18.8%, 1000PEPEUSDT -14.4%, SEIUSDT -12.0%, RNDRUSDT -8.7%, STXUSDT -8.0%, OPUSDT -7.6%
+                             counts: {'entries': 9863, 'adds': 51629, 'tps': 47758, 'flip_exits': 0, 'stops': 0, 'delist': 77, 'timeouts': 494, 'be_exits': 9192}  npos avg 101 full grids avg 36.6 max 90
+Размер /5: 0.1% → 1% [2023]  final   0.000  CAGR -100.0%  DD  -98.5% (intrabar  -98.5%)  Sh -0.24  gross avg 1.44 max 131.76  L/S 0.05/1.39  BLOWN 2024-03-07T14:00
+                             2023:-38% 2024:-97%
+                             fund L/S +0.9/+15.8%  real L/S +7.6/+25.1%  fee -1.2%  unreal -142.2%   (0.2s)
+                             worst: FETUSDT -10.6%, 1000PEPEUSDT -7.7%, SEIUSDT -5.8%, RNDRUSDT -4.7%, STXUSDT -4.5%, NEARUSDT -4.1%
+                             counts: {'entries': 3235, 'adds': 22632, 'tps': 20580, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 228, 'be_exits': 2886}  npos avg 102 full grids avg 44.4 max 90
+Размер /5: 0.1% → 1% [2024]  final   0.000  CAGR -100.0%  DD  -99.0% (intrabar  -99.0%)  Sh  0.67  gross avg 0.92 max 154.89  L/S 0.09/0.83  BLOWN 2025-09-08T16:00
+                             2024:+39% 2025:-98%
+                             fund L/S +6.0/-8.1%  real L/S +29.8/+151.5%  fee -4.5%  unreal -254.4%   (0.4s)
+                             worst: MYXUSDT -209.2%, 1000PEPEUSDT -6.9%, XRPUSDT -6.1%, OMUSDT -3.9%, NEIROETHUSDT -3.8%, SUIUSDT -3.8%
+                             counts: {'entries': 8664, 'adds': 51968, 'tps': 49977, 'flip_exits': 0, 'stops': 0, 'delist': 3, 'timeouts': 290, 'be_exits': 8275}  npos avg 102 full grids avg 36.6 max 92
+Размер /5: 0.1% → 1% [2025]  final   0.000  CAGR -100.0%  DD  -89.8% (intrabar  -97.5%)  Sh -0.08  gross avg 0.61 max 13.50  L/S 0.22/0.39  BLOWN 2025-09-08T18:00
+                             2025:-86%
+                             fund L/S +3.5/-16.6%  real L/S +8.7/+51.4%  fee -1.6%  unreal -143.9%   (0.2s)
+                             worst: MYXUSDT -142.2%, NEIROETHUSDT -2.5%, FARTCOINUSDT -1.9%, BANUSDT -1.4%, NEIROUSDT -1.1%, ALCHUSDT -1.0%
+                             counts: {'entries': 5357, 'adds': 23619, 'tps': 22252, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 163, 'be_exits': 5093}  npos avg 102 full grids avg 31.2 max 66
+Размер /10: 0.05% → 0.5% [2021] final   0.000  CAGR -100.0%  DD  -98.7% (intrabar  -98.7%)  Sh -0.28  gross avg 2.60 max 124.88  L/S 0.00/2.60  BLOWN 2021-03-11T21:00
+                             2021:-99%
+                             fund L/S +0.0/+17.8%  real L/S +0.3/+6.6%  fee -0.1%  unreal -118.2%   (0.0s)
+                             worst: MATICUSDT -10.5%, FTMUSDT -9.7%, ENJUSDT -5.3%, DOGEUSDT -4.2%, AVAXUSDT -3.5%, IOSTUSDT -2.7%
+                             counts: {'entries': 140, 'adds': 5546, 'tps': 4790, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 55}  npos avg 79 full grids avg 62.2 max 84
+Размер /10: 0.05% → 0.5% [2022] final   0.000  CAGR -100.0%  DD  -98.8% (intrabar  -98.8%)  Sh -0.05  gross avg 0.54 max 102.91  L/S 0.06/0.48  BLOWN 2025-09-10T09:00
+                             2022:+24% 2023:-11% 2024:+16% 2025:-98%
+                             fund L/S +5.0/-17.9%  real L/S +16.6/+87.1%  fee -3.5%  unreal -183.2%   (0.7s)
+                             worst: MYXUSDT -176.3%, 1000PEPEUSDT -6.2%, SOLUSDT -3.2%, XRPUSDT -3.1%, SUIUSDT -2.2%, BTCUSDT -2.2%
+                             counts: {'entries': 17318, 'adds': 92442, 'tps': 87345, 'flip_exits': 0, 'stops': 0, 'delist': 80, 'timeouts': 764, 'be_exits': 16374}  npos avg 101 full grids avg 41.0 max 92
+Размер /10: 0.05% → 0.5% [2023] final   0.000  CAGR -100.0%  DD  -99.1% (intrabar  -99.1%)  Sh -0.19  gross avg 0.68 max 130.45  L/S 0.04/0.64  BLOWN 2025-09-10T10:00
+                             2023:-17% 2024:+15% 2025:-99%
+                             fund L/S +2.4/-14.9%  real L/S +12.3/+40.6%  fee -1.9%  unreal -134.0%   (0.5s)
+                             worst: MYXUSDT -130.4%, 1000PEPEUSDT -4.6%, SOLUSDT -2.3%, XRPUSDT -2.2%, BTCUSDT -2.1%, SUIUSDT -1.7%
+                             counts: {'entries': 10753, 'adds': 63514, 'tps': 60223, 'flip_exits': 0, 'stops': 0, 'delist': 3, 'timeouts': 519, 'be_exits': 10131}  npos avg 102 full grids avg 46.0 max 92
+Размер /10: 0.05% → 0.5% [2024] final   0.000  CAGR -100.0%  DD  -99.8% (intrabar  -99.8%)  Sh -0.56  gross avg 0.50 max 494.70  L/S 0.05/0.45  BLOWN 2025-09-10T12:00
+                             2024:+18% 2025:-100%
+                             fund L/S +2.3/-31.3%  real L/S +11.5/+62.8%  fee -1.8%  unreal -139.4%   (0.3s)
+                             worst: MYXUSDT -149.8%, 1000PEPEUSDT -3.4%, XRPUSDT -2.6%, OMUSDT -1.6%, SUIUSDT -1.5%, FARTCOINUSDT -1.3%
+                             counts: {'entries': 8684, 'adds': 52154, 'tps': 50152, 'flip_exits': 0, 'stops': 0, 'delist': 3, 'timeouts': 290, 'be_exits': 8293}  npos avg 102 full grids avg 36.6 max 92
+Размер /10: 0.05% → 0.5% [2025] final   0.000  CAGR -100.0%  DD  -96.4% (intrabar  -98.8%)  Sh -2.00  gross avg 0.39 max 29.21  L/S 0.11/0.27  BLOWN 2025-09-11T01:00
+                             2025:-94%
+                             fund L/S +1.7/-33.3%  real L/S +4.0/+24.5%  fee -0.8%  unreal -97.3%   (0.2s)
+                             worst: MYXUSDT -120.7%, NEIROETHUSDT -1.2%, FARTCOINUSDT -1.1%, BANUSDT -0.6%, NEIROUSDT -0.5%, PUMPUSDT -0.5%
+                             counts: {'entries': 5382, 'adds': 23869, 'tps': 22460, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 163, 'be_exits': 5118}  npos avg 102 full grids avg 31.2 max 66
+Размер /5 + стоп 0.5% + плечо ≤ 1x [2021] final   1.098  CAGR   +1.6%  DD  -44.6% (intrabar  -44.9%)  Sh  0.20  gross avg 0.41 max 0.94  L/S 0.14/0.27  
+                             2021:-26% 2022:+26% 2023:-9% 2024:+26% 2025:+16% 2026:-12%
+                             fund L/S +22.6/+23.4%  real L/S +2.0/-19.6%  fee -12.0%  unreal -6.7%   (1.0s)
+                             worst: FTMUSDT -3.5%, SIRENUSDT -3.4%, MYXUSDT -3.1%, SOLUSDT -3.0%, ARCUSDT -2.7%, CRVUSDT -2.1%
+                             counts: {'entries': 34156, 'adds': 217680, 'tps': 200460, 'flip_exits': 0, 'stops': 1376, 'delist': 72, 'timeouts': 975, 'be_exits': 31639}  npos avg 95 full grids avg 15.4 max 56
+Размер /5 + стоп 0.5% + плечо ≤ 1x [2022] final   1.490  CAGR   +8.7%  DD  -36.8% (intrabar  -37.1%)  Sh  0.46  gross avg 0.42 max 0.93  L/S 0.16/0.26  
+                             2022:+27% 2023:-9% 2024:+26% 2025:+16% 2026:-12%
+                             fund L/S +29.5/+15.9%  real L/S -18.1/+44.3%  fee -13.5%  unreal -9.1%   (1.1s)
+                             worst: SIRENUSDT -4.6%, MYXUSDT -4.2%, ARCUSDT -3.7%, SOLUSDT -2.5%, LABUSDT -2.5%, BRUSDT -2.2%
+                             counts: {'entries': 30627, 'adds': 163424, 'tps': 150420, 'flip_exits': 0, 'stops': 934, 'delist': 72, 'timeouts': 903, 'be_exits': 28624}  npos avg 97 full grids avg 16.3 max 55
+Размер /5 + стоп 0.5% + плечо ≤ 1x [2023] final   1.010  CAGR   +0.3%  DD  -36.8% (intrabar  -37.1%)  Sh  0.14  gross avg 0.43 max 1.10  L/S 0.15/0.29  
+                             2023:-22% 2024:+26% 2025:+16% 2026:-12%
+                             fund L/S +17.9/+10.2%  real L/S -9.9/-3.5%  fee -7.6%  unreal -6.2%   (0.8s)
+                             worst: SIRENUSDT -3.2%, MYXUSDT -2.9%, ARCUSDT -2.5%, SOLUSDT -1.8%, LABUSDT -1.7%, BRUSDT -1.5%
+                             counts: {'entries': 23051, 'adds': 129885, 'tps': 119368, 'flip_exits': 0, 'stops': 798, 'delist': 3, 'timeouts': 697, 'be_exits': 21459}  npos avg 98 full grids avg 15.8 max 54
+Размер /5 + стоп 0.5% + плечо ≤ 1x [2024] final   1.289  CAGR   +9.7%  DD  -26.1% (intrabar  -26.6%)  Sh  0.51  gross avg 0.42 max 0.90  L/S 0.17/0.25  
+                             2024:+26% 2025:+16% 2026:-12%
+                             fund L/S +21.7/+8.2%  real L/S -23.2/+38.0%  fee -7.9%  unreal -7.9%   (0.6s)
+                             worst: SIRENUSDT -4.0%, MYXUSDT -3.7%, ARCUSDT -3.2%, LABUSDT -2.1%, BRUSDT -1.9%, IPUSDT -1.9%
+                             counts: {'entries': 18651, 'adds': 102584, 'tps': 94723, 'flip_exits': 0, 'stops': 575, 'delist': 3, 'timeouts': 519, 'be_exits': 17460}  npos avg 98 full grids avg 17.1 max 49
+Размер /5 + стоп 0.5% + плечо ≤ 1x [2025] final   1.030  CAGR   +1.7%  DD  -23.2% (intrabar  -23.5%)  Sh  0.20  gross avg 0.44 max 0.83  L/S 0.24/0.20  
+                             2025:+17% 2026:-12%
+                             fund L/S +16.8/+1.0%  real L/S -32.6/+28.4%  fee -4.4%  unreal -6.3%   (0.4s)
+                             worst: SIRENUSDT -3.2%, MYXUSDT -2.9%, ARCUSDT -2.5%, LABUSDT -1.7%, BRUSDT -1.5%, IPUSDT -1.5%
+                             counts: {'entries': 13378, 'adds': 64357, 'tps': 58775, 'flip_exits': 0, 'stops': 362, 'delist': 1, 'timeouts': 408, 'be_exits': 12513}  npos avg 98 full grids avg 20.4 max 48
+то же, сетка подтягивается [2021] final   0.148  CAGR  -28.2%  DD  -85.6% (intrabar  -85.7%)  Sh -0.60  gross avg 0.59 max 1.06  L/S 0.14/0.45  
+                             2021:-75% 2022:+47% 2023:-28% 2024:-16% 2025:-5% 2026:-29%
+                             fund L/S +6.6/+18.3%  real L/S -0.9/-103.6%  fee -4.5%  unreal -1.1%   (1.0s)
+                             worst: EGLDUSDT -2.5%, AAVEUSDT -2.0%, FTMUSDT -1.8%, FLMUSDT -1.8%, NEARUSDT -1.8%, MATICUSDT -1.7%
+                             counts: {'entries': 16297, 'adds': 294466, 'tps': 268728, 'flip_exits': 0, 'stops': 2148, 'delist': 69, 'timeouts': 1218, 'be_exits': 12774}  npos avg 94 full grids avg 24.6 max 75
+то же, сетка подтягивается [2022] final   0.574  CAGR  -11.0%  DD  -63.3% (intrabar  -63.5%)  Sh -0.14  gross avg 0.59 max 1.05  L/S 0.17/0.42  
+                             2022:+41% 2023:-28% 2024:-16% 2025:-5% 2026:-29%
+                             fund L/S +24.3/+21.2%  real L/S -24.5/-48.1%  fee -11.2%  unreal -4.3%   (0.9s)
+                             worst: MTLUSDT -3.0%, MYXUSDT -2.9%, NEARUSDT -2.8%, FLMUSDT -2.5%, AVAXUSDT -2.3%, AAVEUSDT -2.1%
+                             counts: {'entries': 14792, 'adds': 219826, 'tps': 201403, 'flip_exits': 0, 'stops': 1381, 'delist': 68, 'timeouts': 1129, 'be_exits': 12126}  npos avg 97 full grids avg 24.5 max 75
+то же, сетка подтягивается [2023] final   0.358  CAGR  -23.9%  DD  -65.2% (intrabar  -65.4%)  Sh -0.52  gross avg 0.61 max 1.08  L/S 0.15/0.46  
+                             2023:-37% 2024:-16% 2025:-5% 2026:-29%
+                             fund L/S +12.8/+12.5%  real L/S -10.9/-70.5%  fee -5.3%  unreal -2.7%   (0.7s)
+                             worst: UNIUSDT -1.8%, NEARUSDT -1.8%, MYXUSDT -1.8%, AAVEUSDT -1.6%, LINKUSDT -1.6%, ADAUSDT -1.6%
+                             counts: {'entries': 10947, 'adds': 176048, 'tps': 160535, 'flip_exits': 0, 'stops': 1209, 'delist': 3, 'timeouts': 902, 'be_exits': 8745}  npos avg 98 full grids avg 24.7 max 75
+то же, сетка подтягивается [2024] final   0.541  CAGR  -20.0%  DD  -54.7% (intrabar  -55.0%)  Sh -0.38  gross avg 0.60 max 1.05  L/S 0.18/0.43  
+                             2024:-20% 2025:-5% 2026:-29%
+                             fund L/S +16.9/+11.7%  real L/S -25.7/-38.9%  fee -5.9%  unreal -4.0%   (0.7s)
+                             worst: MYXUSDT -2.7%, UNIUSDT -2.4%, ARCUSDT -2.0%, LABUSDT -2.0%, NEARUSDT -1.8%, ALCHUSDT -1.8%
+                             counts: {'entries': 9133, 'adds': 142659, 'tps': 130674, 'flip_exits': 0, 'stops': 935, 'delist': 3, 'timeouts': 679, 'be_exits': 7428}  npos avg 97 full grids avg 26.1 max 74
+то же, сетка подтягивается [2025] final   0.672  CAGR  -20.4%  DD  -54.8% (intrabar  -55.1%)  Sh -0.49  gross avg 0.57 max 0.92  L/S 0.25/0.32  
+                             2025:-5% 2026:-29%
+                             fund L/S +20.3/+3.6%  real L/S -41.7/-5.4%  fee -4.7%  unreal -5.0%   (0.6s)
+                             worst: MYXUSDT -3.4%, ARCUSDT -2.5%, LABUSDT -2.5%, ALCHUSDT -2.3%, UNIUSDT -2.2%, HUSDT -1.8%
+                             counts: {'entries': 7223, 'adds': 90192, 'tps': 82187, 'flip_exits': 0, 'stops': 564, 'delist': 1, 'timeouts': 515, 'be_exits': 6055}  npos avg 98 full grids avg 26.7 max 53
+то же, путь внутри свечи Б [2021] final   3.259  CAGR  +22.8%  DD  -37.1% (intrabar  -37.4%)  Sh  0.87  gross avg 0.41 max 0.94  L/S 0.14/0.27  
+                             2021:+7% 2022:+43% 2023:+2% 2024:+50% 2025:+37% 2026:+1%
+                             fund L/S +53.7/+36.5%  real L/S +15.0/+166.6%  fee -26.2%  unreal -19.7%   (0.9s)
+                             worst: SIRENUSDT -8.7%, MYXUSDT -7.0%, ARCUSDT -5.8%, BRUSDT -4.4%, LABUSDT -4.1%, IPUSDT -3.9%
+                             counts: {'entries': 34089, 'adds': 256373, 'tps': 239292, 'flip_exits': 0, 'stops': 1357, 'delist': 72, 'timeouts': 976, 'be_exits': 31589}  npos avg 95 full grids avg 15.6 max 55
+то же, путь внутри свечи Б [2022] final   3.053  CAGR  +26.5%  DD  -31.6% (intrabar  -31.9%)  Sh  1.04  gross avg 0.42 max 0.93  L/S 0.16/0.26  
+                             2022:+44% 2023:+2% 2024:+50% 2025:+37% 2026:+1%
+                             fund L/S +49.3/+21.5%  real L/S -9.2/+183.9%  fee -21.9%  unreal -18.4%   (1.0s)
+                             worst: SIRENUSDT -8.1%, MYXUSDT -6.6%, ARCUSDT -5.4%, BRUSDT -4.1%, LABUSDT -3.8%, IPUSDT -3.7%
+                             counts: {'entries': 30586, 'adds': 189206, 'tps': 176299, 'flip_exits': 0, 'stops': 922, 'delist': 72, 'timeouts': 902, 'be_exits': 28595}  npos avg 97 full grids avg 16.5 max 54
+то же, путь внутри свечи Б [2023] final   1.808  CAGR  +17.1%  DD  -31.6% (intrabar  -31.9%)  Sh  0.75  gross avg 0.43 max 1.10  L/S 0.14/0.29  
+                             2023:-13% 2024:+50% 2025:+37% 2026:+1%
+                             fund L/S +27.2/+12.3%  real L/S -6.8/+70.4%  fee -11.4%  unreal -10.9%   (0.8s)
+                             worst: SIRENUSDT -4.8%, MYXUSDT -3.9%, ARCUSDT -3.2%, BRUSDT -2.4%, LABUSDT -2.2%, IPUSDT -2.2%
+                             counts: {'entries': 23017, 'adds': 150499, 'tps': 140053, 'flip_exits': 0, 'stops': 789, 'delist': 3, 'timeouts': 697, 'be_exits': 21433}  npos avg 98 full grids avg 16.0 max 54
+то же, путь внутри свечи Б [2024] final   2.074  CAGR  +30.4%  DD  -23.1% (intrabar  -23.5%)  Sh  1.23  gross avg 0.42 max 0.89  L/S 0.17/0.25  
+                             2024:+50% 2025:+37% 2026:+1%
+                             fund L/S +30.1/+9.5%  real L/S -18.8/+110.3%  fee -11.2%  unreal -12.5%   (0.6s)
+                             worst: SIRENUSDT -5.5%, MYXUSDT -4.5%, ARCUSDT -3.7%, BRUSDT -2.8%, LABUSDT -2.6%, IPUSDT -2.5%
+                             counts: {'entries': 18623, 'adds': 119467, 'tps': 111660, 'flip_exits': 0, 'stops': 567, 'delist': 3, 'timeouts': 519, 'be_exits': 17439}  npos avg 98 full grids avg 17.4 max 50
+то же, путь внутри свечи Б [2025] final   1.415  CAGR  +22.0%  DD  -14.2% (intrabar  -18.0%)  Sh  1.05  gross avg 0.43 max 0.81  L/S 0.24/0.20  
+                             2025:+40% 2026:+1%
+                             fund L/S +20.0/+1.3%  real L/S -26.3/+60.6%  fee -5.6%  unreal -8.5%   (0.4s)
+                             worst: SIRENUSDT -3.8%, MYXUSDT -3.1%, ARCUSDT -2.5%, BRUSDT -1.9%, LABUSDT -1.8%, IPUSDT -1.7%
+                             counts: {'entries': 13338, 'adds': 75160, 'tps': 69633, 'flip_exits': 0, 'stops': 353, 'delist': 1, 'timeouts': 410, 'be_exits': 12479}  npos avg 98 full grids avg 20.7 max 49
+Нейтральный 20/20 [2021]     final   0.000  CAGR -100.0%  DD  -98.2% (intrabar  -98.2%)  Sh -2.54  gross avg 3.55 max 144.51  L/S 0.07/3.48  BLOWN 2021-02-03T23:00
+                             2021:-98%
+                             fund L/S +0.2/+15.3%  real L/S +7.3/+24.8%  fee -0.7%  unreal -141.8%   (0.0s)
+                             worst: ALPHAUSDT -39.9%, AAVEUSDT -11.9%, DOGEUSDT -8.6%, FTMUSDT -7.8%, EGLDUSDT -5.7%, ENJUSDT -5.5%
+                             counts: {'entries': 499, 'adds': 3027, 'tps': 2647, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 9, 'be_exits': 435}  npos avg 46 full grids avg 15.7 max 28
+Нейтральный 20/20 [2022]     final   0.000  CAGR -100.0%  DD  -99.0% (intrabar  -99.0%)  Sh  0.41  gross avg 1.53 max 172.77  L/S 0.52/1.01  BLOWN 2024-03-14T03:00
+                             2022:+70% 2023:+13% 2024:-98%
+                             fund L/S +33.7/+57.3%  real L/S +20.1/+105.7%  fee -24.0%  unreal -278.7%   (0.7s)
+                             worst: 1000PEPEUSDT -100.7%, SEIUSDT -44.5%, FETUSDT -27.9%, PYTHUSDT -20.5%, WIFUSDT -19.3%, OPUSDT -16.8%
+                             counts: {'entries': 15979, 'adds': 31744, 'tps': 28112, 'flip_exits': 0, 'stops': 0, 'delist': 48, 'timeouts': 799, 'be_exits': 15085}  npos avg 60 full grids avg 13.1 max 35
+Нейтральный 20/20 [2023]     final   0.000  CAGR -100.0%  DD  -99.0% (intrabar  -99.0%)  Sh  0.21  gross avg 1.89 max 172.96  L/S 0.29/1.59  BLOWN 2024-03-14T03:00
+                             2023:-33% 2024:-98%
+                             fund L/S +4.3/+19.6%  real L/S +28.1/-44.0%  fee -5.4%  unreal -97.7%   (0.4s)
+                             worst: 1000PEPEUSDT -35.3%, SEIUSDT -15.6%, FETUSDT -9.8%, APTUSDT -7.7%, PYTHUSDT -7.2%, WIFUSDT -6.8%
+                             counts: {'entries': 8167, 'adds': 14699, 'tps': 12861, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 414, 'be_exits': 7706}  npos avg 55 full grids avg 10.0 max 27
+Нейтральный 20/20 [2024]     final   0.000  CAGR -100.0%  DD  -94.0% (intrabar  -96.1%)  Sh  0.83  gross avg 2.59 max 51.27  L/S 0.30/2.29  BLOWN 2024-12-03T06:00
+                             2024:-87%
+                             fund L/S +4.0/+38.5%  real L/S +50.1/+115.1%  fee -7.4%  unreal -281.7%   (0.4s)
+                             worst: 1000PEPEUSDT -96.0%, XRPUSDT -31.7%, SAGAUSDT -10.4%, 1000BONKUSDT -8.9%, PYTHUSDT -8.6%, FETUSDT -8.4%
+                             counts: {'entries': 8289, 'adds': 15237, 'tps': 13849, 'flip_exits': 0, 'stops': 0, 'delist': 2, 'timeouts': 252, 'be_exits': 7962}  npos avg 57 full grids avg 13.6 max 32
+Нейтральный 20/20 [2025]     final   0.000  CAGR -100.0%  DD  -99.5% (intrabar  -99.5%)  Sh  0.85  gross avg 2.32 max 458.55  L/S 0.93/1.39  BLOWN 2025-08-05T21:00
+                             2025:-99%
+                             fund L/S +14.6/-25.5%  real L/S -21.3/+88.4%  fee -5.8%  unreal -143.0%   (0.3s)
+                             worst: MYXUSDT -120.1%, NEIROETHUSDT -13.5%, FARTCOINUSDT -11.0%, BANUSDT -9.6%, NEIROUSDT -9.0%, ENAUSDT -6.5%
+                             counts: {'entries': 6629, 'adds': 13511, 'tps': 12160, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 230, 'be_exits': 6315}  npos avg 70 full grids avg 20.4 max 34
+Нейтральный 20/20, /5 + стоп 0.5% + 1x [2021] final   0.952  CAGR   -0.9%  DD  -27.2% (intrabar  -27.4%)  Sh  0.01  gross avg 0.25 max 0.47  L/S 0.11/0.14  
+                             2021:-6% 2022:+9% 2023:+1% 2024:+15% 2025:-9% 2026:-13%
+                             fund L/S +22.7/+18.6%  real L/S -18.5/-14.3%  fee -10.4%  unreal -2.9%   (2.1s)
+                             worst: MYXUSDT -2.6%, ARCUSDT -2.6%, ENAUSDT -2.2%, ALPHAUSDT -2.2%, LUNAUSDT -2.1%, SIRENUSDT -2.1%
+                             counts: {'entries': 52830, 'adds': 124102, 'tps': 110745, 'flip_exits': 0, 'stops': 721, 'delist': 45, 'timeouts': 1847, 'be_exits': 50160}  npos avg 58 full grids avg 8.8 max 27
+Нейтральный 20/20, /5 + стоп 0.5% + 1x [2022] final   1.004  CAGR   +0.1%  DD  -27.2% (intrabar  -27.4%)  Sh  0.07  gross avg 0.26 max 0.47  L/S 0.13/0.13  
+                             2022:+9% 2023:+1% 2024:+15% 2025:-9% 2026:-13%
+                             fund L/S +22.8/+8.8%  real L/S -32.5/+13.6%  fee -9.2%  unreal -3.0%   (1.6s)
+                             worst: MYXUSDT -2.8%, ARCUSDT -2.7%, ENAUSDT -2.4%, SIRENUSDT -2.2%, RIVERUSDT -2.1%, HUSDT -2.0%
+                             counts: {'entries': 46045, 'adds': 97482, 'tps': 86624, 'flip_exits': 0, 'stops': 517, 'delist': 45, 'timeouts': 1627, 'be_exits': 43799}  npos avg 61 full grids avg 9.4 max 27
+Нейтральный 20/20, /5 + стоп 0.5% + 1x [2023] final   0.879  CAGR   -3.4%  DD  -27.2% (intrabar  -27.4%)  Sh -0.20  gross avg 0.25 max 0.47  L/S 0.12/0.14  
+                             2023:-4% 2024:+15% 2025:-9% 2026:-13%
+                             fund L/S +17.3/+7.2%  real L/S -19.9/-7.2%  fee -6.7%  unreal -2.6%   (1.4s)
+                             worst: MYXUSDT -2.4%, ARCUSDT -2.4%, ENAUSDT -2.1%, SIRENUSDT -1.9%, RIVERUSDT -1.8%, HUSDT -1.8%
+                             counts: {'entries': 37838, 'adds': 79152, 'tps': 70324, 'flip_exits': 0, 'stops': 451, 'delist': 3, 'timeouts': 1273, 'be_exits': 36054}  npos avg 60 full grids avg 8.8 max 27
+Нейтральный 20/20, /5 + стоп 0.5% + 1x [2024] final   0.906  CAGR   -3.5%  DD  -27.2% (intrabar  -27.4%)  Sh -0.20  gross avg 0.26 max 0.47  L/S 0.13/0.13  
+                             2024:+14% 2025:-9% 2026:-13%
+                             fund L/S +16.7/+5.3%  real L/S -27.8/+4.9%  fee -5.8%  unreal -2.7%   (1.1s)
+                             worst: MYXUSDT -2.5%, ARCUSDT -2.5%, ENAUSDT -2.1%, SIRENUSDT -2.0%, RIVERUSDT -1.9%, HUSDT -1.8%
+                             counts: {'entries': 30531, 'adds': 66512, 'tps': 59342, 'flip_exits': 0, 'stops': 389, 'delist': 3, 'timeouts': 931, 'be_exits': 29151}  npos avg 62 full grids avg 9.7 max 27
+Нейтральный 20/20, /5 + стоп 0.5% + 1x [2025] final   0.788  CAGR  -12.7%  DD  -27.2% (intrabar  -27.4%)  Sh -0.94  gross avg 0.29 max 0.47  L/S 0.17/0.12  
+                             2025:-10% 2026:-13%
+                             fund L/S +13.7/+1.4%  real L/S -33.6/+3.2%  fee -3.4%  unreal -2.4%   (0.7s)
+                             worst: MYXUSDT -2.2%, ARCUSDT -2.1%, SIRENUSDT -1.7%, RIVERUSDT -1.6%, HUSDT -1.6%, ENAUSDT -1.4%
+                             counts: {'entries': 20653, 'adds': 47067, 'tps': 41608, 'flip_exits': 0, 'stops': 288, 'delist': 1, 'timeouts': 674, 'be_exits': 19633}  npos avg 67 full grids avg 11.4 max 27
+Как в идее, путь внутри свечи Б [2021] final   0.000  CAGR -100.0%  DD  -96.2% (intrabar  -96.2%)  Sh -6.72  gross avg 5.20 max 118.58  L/S 0.03/5.18  BLOWN 2021-01-10T00:00
+                             2021:-96%
+                             fund L/S +0.1/+7.9%  real L/S +1.7/+38.4%  fee -0.6%  unreal -137.9%   (0.0s)
+                             worst: MKRUSDT -7.3%, ALPHAUSDT -5.8%, XLMUSDT -5.2%, RSRUSDT -4.9%, LRCUSDT -4.9%, IOSTUSDT -4.7%
+                             counts: {'entries': 101, 'adds': 3329, 'tps': 2738, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 25}  npos avg 76 full grids avg 21.5 max 59
+Как в идее, путь внутри свечи Б [2022] final   0.000  CAGR -100.0%  DD  -78.7% (intrabar  -83.3%)  Sh  2.86  gross avg 2.12 max 22.26  L/S 0.64/1.47  BLOWN 2022-05-11T12:00
+                             2022:+147%
+                             fund L/S +4.9/+7.0%  real L/S +197.5/+240.5%  fee -9.1%  unreal -480.9%   (0.0s)
+                             worst: ANCUSDT -17.8%, SKLUSDT -14.3%, KSMUSDT -11.2%, APEUSDT -11.1%, GMTUSDT -9.4%, SUSHIUSDT -9.2%
+                             counts: {'entries': 2739, 'adds': 14789, 'tps': 13421, 'flip_exits': 0, 'stops': 0, 'delist': 74, 'timeouts': 43, 'be_exits': 2525}  npos avg 97 full grids avg 16.1 max 63
+Как в идее, путь внутри свечи Б [2023] final   0.000  CAGR -100.0%  DD  -86.7% (intrabar  -91.5%)  Sh -9.46  gross avg 2.99 max 39.24  L/S 0.08/2.91  BLOWN 2023-01-14T06:00
+                             2023:-86%
+                             fund L/S +0.2/+0.3%  real L/S +2.4/+9.9%  fee -0.3%  unreal -115.4%   (0.0s)
+                             worst: GALAUSDT -7.7%, LDOUSDT -4.6%, APTUSDT -3.8%, MANAUSDT -2.9%, OPUSDT -2.5%, COMPUSDT -2.3%
+                             counts: {'entries': 254, 'adds': 1522, 'tps': 715, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 155}  npos avg 99 full grids avg 5.9 max 59
+Как в идее, путь внутри свечи Б [2024] final   0.000  CAGR -100.0%  DD  -99.8% (intrabar  -99.8%)  Sh -3.38  gross avg 4.18 max 2571.78  L/S 0.03/4.15  BLOWN 2024-03-03T00:00
+                             2024:-100%
+                             fund L/S +0.1/+14.4%  real L/S +2.6/+104.0%  fee -1.6%  unreal -203.7%   (0.0s)
+                             worst: 1000PEPEUSDT -20.0%, 1000SHIBUSDT -5.9%, FETUSDT -5.9%, BCHUSDT -5.0%, PYTHUSDT -4.9%, GALAUSDT -3.9%
+                             counts: {'entries': 393, 'adds': 6801, 'tps': 5981, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 6, 'be_exits': 261}  npos avg 101 full grids avg 11.9 max 61
+Как в идее, путь внутри свечи Б [2025] final   0.000  CAGR -100.0%  DD  -98.4% (intrabar  -98.4%)  Sh  2.38  gross avg 2.61 max 155.01  L/S 1.12/1.49  BLOWN 2025-08-05T21:00
+                             2025:-90%
+                             fund L/S +28.4/-112.9%  real L/S +127.4/+521.4%  fee -15.6%  unreal -607.4%   (0.1s)
+                             worst: MYXUSDT -541.6%, FARTCOINUSDT -20.2%, NEIROETHUSDT -18.9%, BANUSDT -10.5%, NEIROUSDT -9.3%, BNXUSDT -9.1%
+                             counts: {'entries': 4652, 'adds': 24302, 'tps': 23088, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 133, 'be_exits': 4401}  npos avg 102 full grids avg 31.2 max 66
+Контроль: против фандинга [2021] final   0.000  CAGR -100.0%  DD  -44.1% (intrabar  -61.2%)  Sh  3.46  gross avg 1.04 max 3.11  L/S 0.86/0.18  BLOWN 2021-05-19T12:00
+                             2021:+83%
+                             fund L/S -47.2/+4.8%  real L/S +365.3/-79.9%  fee -4.2%  unreal -353.7%   (0.0s)
+                             worst: CHZUSDT -25.4%, BNBUSDT -12.7%, BZRXUSDT -9.6%, DENTUSDT -9.5%, OGNUSDT -8.5%, FTMUSDT -8.4%
+                             counts: {'entries': 594, 'adds': 10683, 'tps': 9901, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 28, 'be_exits': 466}  npos avg 85 full grids avg 4.3 max 47
+Контроль: против фандинга [2022] final   0.000  CAGR -100.0%  DD  -88.3% (intrabar  -94.7%)  Sh -4.43  gross avg 2.09 max 23.58  L/S 2.03/0.06  BLOWN 2022-01-22T07:00
+                             2022:-87%
+                             fund L/S -0.5/-0.0%  real L/S +28.8/+2.5%  fee -0.6%  unreal -128.0%   (0.0s)
+                             worst: LRCUSDT -2.7%, ENSUSDT -2.5%, GALAUSDT -2.5%, SFPUSDT -2.3%, KEEPUSDT -2.2%, MASKUSDT -2.1%
+                             counts: {'entries': 267, 'adds': 2684, 'tps': 1901, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 2, 'be_exits': 167}  npos avg 98 full grids avg 8.4 max 70
+Контроль: против фандинга [2023] final   0.000  CAGR -100.0%  DD  -78.2% (intrabar  -80.6%)  Sh -0.94  gross avg 2.68 max 6.91  L/S 1.98/0.70  BLOWN 2023-06-10T04:00
+                             2023:-76%
+                             fund L/S -3.3/-3.8%  real L/S +51.1/-63.5%  fee -1.3%  unreal -74.7%   (0.1s)
+                             worst: APTUSDT -10.3%, SOLUSDT -6.3%, MANAUSDT -5.7%, GALAUSDT -5.0%, OCEANUSDT -3.7%, GMTUSDT -3.7%
+                             counts: {'entries': 1242, 'adds': 9012, 'tps': 7644, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 133, 'be_exits': 1009}  npos avg 102 full grids avg 20.0 max 64
+Контроль: против фандинга [2024] final   0.000  CAGR -100.0%  DD  -98.5% (intrabar  -98.5%)  Sh  0.60  gross avg 1.81 max 143.76  L/S 1.74/0.07  BLOWN 2024-06-18T01:00
+                             2024:-97%
+                             fund L/S -17.1/-0.5%  real L/S +165.3/+3.5%  fee -4.0%  unreal -210.6%   (0.1s)
+                             worst: STRKUSDT -7.0%, WAVESUSDT -6.4%, CRVUSDT -6.0%, 1000BONKUSDT -5.8%, YGGUSDT -5.5%, MYROUSDT -5.0%
+                             counts: {'entries': 939, 'adds': 12851, 'tps': 11613, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 90, 'be_exits': 749}  npos avg 103 full grids avg 17.8 max 77
+Контроль: против фандинга [2025] final   0.000  CAGR -100.0%  DD  -87.4% (intrabar  -92.2%)  Sh -1.66  gross avg 2.13 max 21.94  L/S 1.97/0.16  BLOWN 2025-02-02T22:00
+                             2025:-84%
+                             fund L/S -0.8/-1.0%  real L/S +45.0/+7.0%  fee -0.9%  unreal -135.0%   (0.0s)
+                             worst: TROYUSDT -3.5%, GOATUSDT -3.4%, MOODENGUSDT -3.3%, CHILLGUYUSDT -3.2%, THEUSDT -3.2%, RUNEUSDT -3.0%
+                             counts: {'entries': 460, 'adds': 3902, 'tps': 3047, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 5, 'be_exits': 335}  npos avg 101 full grids avg 16.8 max 69
+Контроль: всегда шорт [2021] final   0.000  CAGR -100.0%  DD  -99.9% (intrabar  -99.9%)  Sh -3.12  gross avg 39.42 max 7130.35  L/S 0.00/39.42  BLOWN 2021-01-09T18:00
+                             2021:-100%
+                             fund L/S +0.0/+6.5%  real L/S +0.0/+30.1%  fee -0.5%  unreal -130.0%   (0.0s)
+                             worst: MKRUSDT -5.1%, RSRUSDT -5.1%, LRCUSDT -5.1%, XLMUSDT -5.1%, SOLUSDT -4.9%, ALPHAUSDT -4.9%
+                             counts: {'entries': 76, 'adds': 2649, 'tps': 2069, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 0}  npos avg 76 full grids avg 21.1 max 56
+Контроль: всегда шорт [2022] final   0.000  CAGR -100.0%  DD  -98.7% (intrabar  -98.7%)  Sh  0.51  gross avg 1.37 max 175.84  L/S 0.00/1.37  BLOWN 2023-11-09T15:00
+                             2022:+164% 2023:-99%
+                             fund L/S +0.0/-69.3%  real L/S +0.0/+270.0%  fee -5.3%  unreal -258.8%   (0.3s)
+                             worst: TRBUSDT -155.2%, INJUSDT -20.2%, BLZUSDT -17.2%, RUNEUSDT -15.3%, WAVESUSDT -12.6%, OPUSDT -12.1%
+                             counts: {'entries': 507, 'adds': 14587, 'tps': 13773, 'flip_exits': 0, 'stops': 0, 'delist': 77, 'timeouts': 52, 'be_exits': 278}  npos avg 99 full grids avg 7.6 max 31
+Контроль: всегда шорт [2023] final   0.000  CAGR -100.0%  DD  -86.1% (intrabar  -91.3%)  Sh -13.07  gross avg 4.07 max 37.51  L/S 0.00/4.07  BLOWN 2023-01-14T00:00
+                             2023:-86%
+                             fund L/S +0.0/-0.7%  real L/S +0.0/+10.0%  fee -0.2%  unreal -104.8%   (0.0s)
+                             worst: GALAUSDT -8.4%, LDOUSDT -5.2%, SOLUSDT -4.0%, APTUSDT -3.6%, MANAUSDT -3.1%, OPUSDT -2.5%
+                             counts: {'entries': 99, 'adds': 1509, 'tps': 689, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 0}  npos avg 99 full grids avg 9.2 max 45
+Контроль: всегда шорт [2024] final   0.000  CAGR -100.0%  DD  -96.1% (intrabar  -96.1%)  Sh -3.94  gross avg 2.30 max 118.84  L/S 0.00/2.30  BLOWN 2024-03-04T08:00
+                             2024:-95%
+                             fund L/S +0.0/+12.7%  real L/S +0.0/+72.1%  fee -1.1%  unreal -171.0%   (0.0s)
+                             worst: 1000PEPEUSDT -19.5%, FETUSDT -6.2%, 1000SHIBUSDT -6.2%, PEOPLEUSDT -5.6%, 1000BONKUSDT -5.3%, WLDUSDT -4.3%
+                             counts: {'entries': 153, 'adds': 5287, 'tps': 4537, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 34}  npos avg 101 full grids avg 11.1 max 53
+Контроль: всегда шорт [2025] final   0.000  CAGR -100.0%  DD  -94.6% (intrabar  -95.9%)  Sh  1.80  gross avg 0.87 max 29.96  L/S 0.00/0.87  BLOWN 2025-08-05T21:00
+                             2025:-85%
+                             fund L/S +0.0/-72.0%  real L/S +0.0/+196.3%  fee -2.8%  unreal -217.8%   (0.1s)
+                             worst: MYXUSDT -254.5%, NEIROETHUSDT -12.5%, MAGICUSDT -9.0%, ALCHUSDT -7.2%, PENGUUSDT -5.9%, BNXUSDT -2.8%
+                             counts: {'entries': 286, 'adds': 9089, 'tps': 8906, 'flip_exits': 0, 'stops': 0, 'delist': 1, 'timeouts': 6, 'be_exits': 175}  npos avg 100 full grids avg 4.6 max 17
+Контроль: всегда лонг [2021] final   0.000  CAGR -100.0%  DD  -97.3% (intrabar  -99.1%)  Sh  1.29  gross avg 1.77 max 25.00  L/S 1.77/0.00  BLOWN 2022-04-30T23:00
+                             2021:+526% 2022:-92%
+                             fund L/S -72.2/+0.0%  real L/S +397.2/+0.0%  fee -9.1%  unreal -404.2%   (0.1s)
+                             worst: SFPUSDT -21.9%, OCEANUSDT -19.4%, OGNUSDT -17.6%, DYDXUSDT -15.8%, LITUSDT -15.5%, DENTUSDT -15.0%
+                             counts: {'entries': 279, 'adds': 12845, 'tps': 11789, 'flip_exits': 0, 'stops': 0, 'delist': 75, 'timeouts': 44, 'be_exits': 62}  npos avg 95 full grids avg 12.1 max 57
+Контроль: всегда лонг [2022] final   0.000  CAGR -100.0%  DD  -89.3% (intrabar  -92.9%)  Sh -4.50  gross avg 2.09 max 28.67  L/S 2.09/0.00  BLOWN 2022-01-22T06:00
+                             2022:-88%
+                             fund L/S -0.3/+0.0%  real L/S +30.6/+0.0%  fee -0.5%  unreal -122.4%   (0.0s)
+                             worst: LRCUSDT -2.7%, ENSUSDT -2.4%, GALAUSDT -2.4%, SFPUSDT -2.2%, MASKUSDT -2.0%, SUSHIUSDT -1.8%
+                             counts: {'entries': 98, 'adds': 2824, 'tps': 1978, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 0}  npos avg 98 full grids avg 8.4 max 84
+Контроль: всегда лонг [2023] final   0.000  CAGR -100.0%  DD  -90.4% (intrabar  -92.2%)  Sh  0.58  gross avg 1.61 max 15.03  L/S 1.61/0.00  BLOWN 2024-07-05T00:00
+                             2023:+83% 2024:-84%
+                             fund L/S -30.2/+0.0%  real L/S +153.1/+0.0%  fee -5.1%  unreal -202.9%   (0.2s)
+                             worst: STRKUSDT -10.9%, MYROUSDT -9.0%, BLURUSDT -8.9%, YGGUSDT -8.8%, ZRXUSDT -8.4%, LUNA2USDT -8.4%
+                             counts: {'entries': 472, 'adds': 15430, 'tps': 13940, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 145, 'be_exits': 211}  npos avg 102 full grids avg 13.6 max 52
+Контроль: всегда лонг [2024] final   0.000  CAGR -100.0%  DD  -92.1% (intrabar  -94.1%)  Sh  0.27  gross avg 1.76 max 20.77  L/S 1.76/0.00  BLOWN 2024-07-05T00:00
+                             2024:-83%
+                             fund L/S -15.7/+0.0%  real L/S +123.6/+0.0%  fee -3.0%  unreal -199.3%   (0.1s)
+                             worst: STRKUSDT -7.8%, YGGUSDT -6.7%, MYROUSDT -6.4%, WAVESUSDT -6.1%, POLYXUSDT -5.7%, RSRUSDT -5.6%
+                             counts: {'entries': 237, 'adds': 11595, 'tps': 10440, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 64, 'be_exits': 57}  npos avg 103 full grids avg 19.1 max 66
+Контроль: всегда лонг [2025] final   0.000  CAGR -100.0%  DD  -97.4% (intrabar  -97.4%)  Sh -1.92  gross avg 2.14 max 108.42  L/S 2.14/0.00  BLOWN 2025-02-02T19:00
+                             2025:-97%
+                             fund L/S -0.4/+0.0%  real L/S +39.2/+0.0%  fee -0.6%  unreal -119.5%   (0.0s)
+                             worst: TROYUSDT -3.5%, GOATUSDT -3.4%, MOODENGUSDT -3.3%, CHILLGUYUSDT -3.1%, THEUSDT -3.1%, RUNEUSDT -3.0%
+                             counts: {'entries': 121, 'adds': 3359, 'tps': 2542, 'flip_exits': 0, 'stops': 0, 'delist': 0, 'timeouts': 0, 'be_exits': 1}  npos avg 101 full grids avg 16.4 max 70
+Контроль к /5 + стоп + 1x: против фандинга [2021] final   0.404  CAGR  -14.6%  DD  -76.1% (intrabar  -76.3%)  Sh -0.28  gross avg 0.42 max 0.85  L/S 0.37/0.05  
+                             2021:+30% 2022:-43% 2023:+21% 2024:-10% 2025:-49% 2026:-4%
+                             fund L/S -18.7/-8.6%  real L/S -27.3/+3.1%  fee -7.1%  unreal -0.9%   (1.2s)
+                             worst: RUNEUSDT -3.2%, RSRUSDT -2.8%, GALAUSDT -2.3%, FILUSDT -2.1%, XLMUSDT -1.7%, SRMUSDT -1.6%
+                             counts: {'entries': 22719, 'adds': 168086, 'tps': 152841, 'flip_exits': 0, 'stops': 1083, 'delist': 70, 'timeouts': 1122, 'be_exits': 20345}  npos avg 97 full grids avg 20.6 max 70
+Контроль к /5 + стоп + 1x: против фандинга [2022] final   0.320  CAGR  -21.3%  DD  -73.5% (intrabar  -73.7%)  Sh -0.56  gross avg 0.44 max 0.85  L/S 0.39/0.06  
+                             2022:-41% 2023:+21% 2024:-10% 2025:-49% 2026:-4%
+                             fund L/S -6.0/-6.2%  real L/S -57.5/+6.6%  fee -4.2%  unreal -0.7%   (0.9s)
+                             worst: RSRUSDT -1.8%, RUNEUSDT -1.7%, WAVESUSDT -1.4%, FILUSDT -1.4%, ARUSDT -1.2%, UNIUSDT -1.2%
+                             counts: {'entries': 20632, 'adds': 134256, 'tps': 121032, 'flip_exits': 0, 'stops': 904, 'delist': 69, 'timeouts': 1036, 'be_exits': 18524}  npos avg 99 full grids avg 22.2 max 70
+Контроль к /5 + стоп + 1x: против фандинга [2023] final   0.443  CAGR  -19.5%  DD  -67.7% (intrabar  -67.9%)  Sh -0.51  gross avg 0.43 max 0.85  L/S 0.37/0.05  
+                             2023:-1% 2024:-10% 2025:-49% 2026:-4%
+                             fund L/S -7.6/-7.6%  real L/S -27.3/-8.0%  fee -4.2%  unreal -1.0%   (0.8s)
+                             worst: UXLINKUSDT -1.5%, TRBUSDT -1.4%, RUNEUSDT -1.3%, NEIROUSDT -1.2%, GMTUSDT -1.2%, RIVERUSDT -1.1%
+                             counts: {'entries': 16357, 'adds': 105869, 'tps': 95703, 'flip_exits': 0, 'stops': 682, 'delist': 3, 'timeouts': 882, 'be_exits': 14691}  npos avg 100 full grids avg 20.2 max 70
+Контроль к /5 + стоп + 1x: против фандинга [2024] final   0.474  CAGR  -23.8%  DD  -67.3% (intrabar  -67.5%)  Sh -0.60  gross avg 0.43 max 0.86  L/S 0.37/0.05  
+                             2024:-4% 2025:-49% 2026:-4%
+                             fund L/S -5.2/-6.3%  real L/S -42.0/+5.5%  fee -3.5%  unreal -1.0%   (0.6s)
+                             worst: UXLINKUSDT -1.6%, NEIROUSDT -1.2%, RIVERUSDT -1.2%, RUNEUSDT -1.2%, VINEUSDT -1.2%, 1000FLOKIUSDT -1.2%
+                             counts: {'entries': 13651, 'adds': 88770, 'tps': 80346, 'flip_exits': 0, 'stops': 602, 'delist': 3, 'timeouts': 636, 'be_exits': 12311}  npos avg 99 full grids avg 20.4 max 69
+Контроль к /5 + стоп + 1x: против фандинга [2025] final   0.501  CAGR  -32.7%  DD  -58.7% (intrabar  -59.0%)  Sh -0.95  gross avg 0.44 max 0.76  L/S 0.37/0.06  
+                             2025:-48% 2026:-4%
+                             fund L/S -0.9/-6.1%  real L/S -47.6/+8.0%  fee -2.2%  unreal -1.1%   (0.4s)
+                             worst: RIVERUSDT -1.3%, VINEUSDT -1.3%, THEUSDT -1.1%, VIRTUALUSDT -1.1%, PIPPINUSDT -1.1%, ARIAUSDT -0.9%
+                             counts: {'entries': 10729, 'adds': 59165, 'tps': 53096, 'flip_exits': 0, 'stops': 425, 'delist': 1, 'timeouts': 460, 'be_exits': 9744}  npos avg 99 full grids avg 21.5 max 56
+Контроль к /5 + стоп + 1x: всегда шорт [2021] final   0.534  CAGR  -10.3%  DD  -55.0% (intrabar  -55.1%)  Sh -0.68  gross avg 0.14 max 0.65  L/S 0.00/0.14  
+                             2021:-43% 2022:+10% 2023:-19% 2024:-1% 2025:+14% 2026:-7%
+                             fund L/S +0.0/+6.9%  real L/S +0.0/-51.3%  fee -2.4%  unreal +0.3%   (1.0s)
+                             worst: TRBUSDT -2.6%, RIVERUSDT -1.8%, EGLDUSDT -1.8%, MATICUSDT -1.7%, TRXUSDT -1.6%, BLZUSDT -1.6%
+                             counts: {'entries': 2175, 'adds': 87849, 'tps': 81017, 'flip_exits': 0, 'stops': 692, 'delist': 77, 'timeouts': 99, 'be_exits': 1208}  npos avg 97 full grids avg 2.8 max 35
+Контроль к /5 + стоп + 1x: всегда шорт [2022] final   0.982  CAGR   -0.4%  DD  -27.9% (intrabar  -28.2%)  Sh  0.03  gross avg 0.14 max 0.52  L/S 0.00/0.14  
+                             2022:+14% 2023:-19% 2024:-1% 2025:+15% 2026:-7%
+                             fund L/S +0.0/-3.6%  real L/S +0.0/+4.0%  fee -2.7%  unreal +0.6%   (0.9s)
+                             worst: TRBUSDT -3.4%, RIVERUSDT -3.4%, PIPPINUSDT -2.7%, LABUSDT -1.9%, MYXUSDT -1.6%, RNDRUSDT -1.6%
+                             counts: {'entries': 1781, 'adds': 60203, 'tps': 56222, 'flip_exits': 0, 'stops': 378, 'delist': 76, 'timeouts': 94, 'be_exits': 1134}  npos avg 98 full grids avg 2.5 max 21
+Контроль к /5 + стоп + 1x: всегда шорт [2023] final   0.674  CAGR  -10.0%  DD  -46.2% (intrabar  -46.4%)  Sh -0.53  gross avg 0.19 max 1.08  L/S 0.00/0.19  
+                             2023:-36% 2024:-2% 2025:+16% 2026:-7%
+                             fund L/S +0.0/-1.5%  real L/S +0.0/-29.5%  fee -2.0%  unreal +0.3%   (0.8s)
+                             worst: RIVERUSDT -2.3%, TRBUSDT -2.1%, PIPPINUSDT -1.8%, LABUSDT -1.3%, TRXUSDT -1.1%, MYXUSDT -1.1%
+                             counts: {'entries': 1644, 'adds': 60764, 'tps': 56223, 'flip_exits': 0, 'stops': 458, 'delist': 3, 'timeouts': 90, 'be_exits': 994}  npos avg 98 full grids avg 4.0 max 50
+Контроль к /5 + стоп + 1x: всегда шорт [2024] final   1.081  CAGR   +2.9%  DD  -20.6% (intrabar  -21.0%)  Sh  0.28  gross avg 0.16 max 0.80  L/S 0.00/0.16  
+                             2024:+1% 2025:+15% 2026:-7%
+                             fund L/S +0.0/-2.9%  real L/S +0.0/+12.6%  fee -2.1%  unreal +0.5%   (0.6s)
+                             worst: RIVERUSDT -3.7%, PIPPINUSDT -2.9%, LABUSDT -2.1%, MYXUSDT -1.8%, BRUSDT -1.6%, SOONUSDT -1.5%
+                             counts: {'entries': 1227, 'adds': 45088, 'tps': 42396, 'flip_exits': 0, 'stops': 270, 'delist': 3, 'timeouts': 49, 'be_exits': 806}  npos avg 99 full grids avg 3.1 max 30
+Контроль к /5 + стоп + 1x: всегда шорт [2025] final   1.153  CAGR   +8.5%  DD  -10.1% (intrabar  -10.3%)  Sh  0.78  gross avg 0.14 max 0.72  L/S 0.00/0.14  
+                             2025:+24% 2026:-7%
+                             fund L/S +0.0/-7.6%  real L/S +0.0/+24.1%  fee -1.4%  unreal +0.3%   (0.4s)
+                             worst: RIVERUSDT -4.0%, PIPPINUSDT -3.1%, LABUSDT -2.3%, MYXUSDT -1.9%, BRUSDT -1.7%, SOONUSDT -1.6%
+                             counts: {'entries': 864, 'adds': 27774, 'tps': 26275, 'flip_exits': 0, 'stops': 143, 'delist': 1, 'timeouts': 30, 'be_exits': 591}  npos avg 99 full grids avg 2.5 max 15
+Контроль к /5 + стоп + 1x: всегда лонг [2021] final   0.671  CAGR   -6.7%  DD  -72.4% (intrabar  -73.9%)  Sh  0.06  gross avg 0.45 max 0.77  L/S 0.45/0.00  
+                             2021:+79% 2022:-54% 2023:+37% 2024:-1% 2025:-40% 2026:-0%
+                             fund L/S +6.4/+0.0%  real L/S -41.7/+0.0%  fee -4.1%  unreal +6.5%   (1.0s)
+                             worst: HBARUSDT -1.5%, WAVESUSDT -1.5%, MANAUSDT -1.3%, LUNA2USDT -1.3%, RSRUSDT -1.3%, STRKUSDT -1.3%
+                             counts: {'entries': 2059, 'adds': 99105, 'tps': 90063, 'flip_exits': 0, 'stops': 634, 'delist': 74, 'timeouts': 604, 'be_exits': 647}  npos avg 99 full grids avg 12.5 max 56
+Контроль к /5 + стоп + 1x: всегда лонг [2022] final   0.498  CAGR  -13.7%  DD  -58.7% (intrabar  -60.8%)  Sh -0.25  gross avg 0.37 max 0.82  L/S 0.37/0.00  
+                             2022:-44% 2023:+37% 2024:+1% 2025:-36% 2026:+1%
+                             fund L/S +14.3/+0.0%  real L/S -63.4/+0.0%  fee -2.7%  unreal +1.6%   (1.0s)
+                             worst: FILUSDT -1.3%, RSRUSDT -1.1%, GALAUSDT -1.1%, ZILUSDT -1.0%, MANAUSDT -1.0%, STRKUSDT -0.9%
+                             counts: {'entries': 1986, 'adds': 97842, 'tps': 88530, 'flip_exits': 0, 'stops': 644, 'delist': 71, 'timeouts': 604, 'be_exits': 567}  npos avg 100 full grids avg 17.0 max 82
+Контроль к /5 + стоп + 1x: всегда лонг [2023] final   0.777  CAGR   -6.5%  DD  -51.5% (intrabar  -54.0%)  Sh -0.05  gross avg 0.36 max 0.71  L/S 0.36/0.00  
+                             2023:+19% 2024:-0% 2025:-34% 2026:-0%
+                             fund L/S +21.1/+0.0%  real L/S -43.9/+0.0%  fee -2.9%  unreal +3.3%   (0.9s)
+                             worst: STRKUSDT -1.4%, BTRUSDT -1.4%, NEIROUSDT -1.1%, ARIAUSDT -1.1%, GRIFFAINUSDT -1.1%, DOLOUSDT -1.0%
+                             counts: {'entries': 1548, 'adds': 68803, 'tps': 62354, 'flip_exits': 0, 'stops': 406, 'delist': 3, 'timeouts': 511, 'be_exits': 528}  npos avg 101 full grids avg 12.9 max 46
+Контроль к /5 + стоп + 1x: всегда лонг [2024] final   0.702  CAGR  -12.1%  DD  -50.9% (intrabar  -53.3%)  Sh -0.18  gross avg 0.38 max 0.75  L/S 0.38/0.00  
+                             2024:+10% 2025:-36% 2026:+1%
+                             fund L/S +20.5/+0.0%  real L/S -48.9/+0.0%  fee -2.5%  unreal +1.1%   (0.8s)
+                             worst: STRKUSDT -1.3%, BTRUSDT -1.3%, NEIROUSDT -1.0%, ARIAUSDT -1.0%, GRIFFAINUSDT -1.0%, DOLOUSDT -0.9%
+                             counts: {'entries': 1326, 'adds': 66978, 'tps': 60734, 'flip_exits': 0, 'stops': 423, 'delist': 3, 'timeouts': 437, 'be_exits': 363}  npos avg 101 full grids avg 17.0 max 57
+Контроль к /5 + стоп + 1x: всегда лонг [2025] final   0.612  CAGR  -24.5%  DD  -50.4% (intrabar  -52.8%)  Sh -0.52  gross avg 0.42 max 0.77  L/S 0.42/0.00  
+                             2025:-40% 2026:+1%
+                             fund L/S +20.3/+0.0%  real L/S -57.9/+0.0%  fee -1.4%  unreal +0.1%   (0.4s)
+                             worst: BTRUSDT -1.1%, THEUSDT -1.0%, FETUSDT -1.0%, TIAUSDT -0.9%, MOODENGUSDT -0.9%, OPUSDT -0.9%
+                             counts: {'entries': 1041, 'adds': 48278, 'tps': 43074, 'flip_exits': 0, 'stops': 365, 'delist': 1, 'timeouts': 334, 'be_exits': 241}  npos avg 101 full grids avg 21.5 max 60
