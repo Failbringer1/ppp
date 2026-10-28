@@ -114,7 +114,7 @@ series.filter(s => s.normalized).forEach((s, i) => datasets.push({
 }));
 const xAxis = {type: 'logarithmic', title: {display: true, text: 'время после публикации'}, min: 0.4,
   ticks: {autoSkip: false, maxRotation: 0, callback: v => {
-    const nice = {0.5: '30с', 1: '1м', 3: '3м', 10: '10м', 30: '30м', 60: '1ч', 180: '3ч', 360: '6ч', 720: '12ч', 1440: '24ч', 2880: '48ч'};
+    const nice = {0.5: '30с', 1: '1м', 2: '2м', 3: '3м', 4: '4м', 5: '5м', 10: '10м', 30: '30м', 60: '1ч', 180: '3ч', 360: '6ч', 720: '12ч', 1440: '24ч', 2880: '48ч'};
     return nice[v] || '';
   }}};
 new Chart(document.getElementById('raw'), {
@@ -138,7 +138,7 @@ new Chart(document.getElementById('curves'), {
     maintainAspectRatio: false, parsing: false, animation: false,
     scales: {x: {type: 'logarithmic', title: {display: true, text: 'время после публикации'}, min: 0.4,
                  ticks: {autoSkip: false, maxRotation: 0, callback: v => {
-                   const nice = {0.5: '30с', 1: '1м', 3: '3м', 10: '10м', 30: '30м', 60: '1ч', 180: '3ч', 360: '6ч', 720: '12ч', 1440: '24ч', 2880: '48ч'};
+                   const nice = {0.5: '30с', 1: '1м', 2: '2м', 3: '3м', 4: '4м', 5: '5м', 10: '10м', 30: '30м', 60: '1ч', 180: '3ч', 360: '6ч', 720: '12ч', 1440: '24ч', 2880: '48ч'};
                    return nice[v] || '';
                  }}},
              y: {title: {display: true, text: 'доля от прогноза на сутки'}, min: 0}},

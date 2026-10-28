@@ -18,7 +18,7 @@ DAY = 86_400
 # Median share of 24h views reached at each checkpoint for a typical channel.
 # Only a starting point: build_curve() replaces it with medians from real data.
 PRIOR_MEDIAN: dict[int, float] = {
-    30: 0.010, 60: 0.020, 120: 0.035, 180: 0.048, 300: 0.070, 600: 0.110,
+    30: 0.010, 60: 0.020, 120: 0.035, 180: 0.048, 240: 0.059, 300: 0.070, 600: 0.110,
     900: 0.140, 1800: 0.200, 2700: 0.240, 3600: 0.280, 7200: 0.380,
     10800: 0.450, 14400: 0.510, 21600: 0.600, 28800: 0.675, 43200: 0.780,
     57600: 0.860, 86400: 1.000, 172800: 1.120,

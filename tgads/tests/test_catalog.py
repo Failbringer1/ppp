@@ -125,7 +125,7 @@ async def test_empty_filters_and_channel_page_with_partial_tgstat():
         p = Post(channel_id=ch.id, msg_id=1, date=utcnow() - timedelta(days=2), views=900, tracked=True)
         s.add(p)
         await s.flush()
-        for t, v in ((30, 10), (60, 40), (300, 120), (900, 250), (3600, 500), (86400, 880), (172800, 900)):
+        for t, v in ((30, 10), (60, 40), (120, 60), (180, 80), (240, 100), (300, 120), (900, 250), (3600, 500), (86400, 880), (172800, 900)):
             s.add(ViewSample(post_id=p.id, t_sec=t, views=v))
         await s.commit()
         ch_id = ch.id
@@ -137,6 +137,6 @@ async def test_empty_filters_and_channel_page_with_partial_tgstat():
         r = await c.post("/catalog/top", data={"n": "5", "min_subs": "", "max_subs": ""})
         assert r.status_code == 303
         page = (await c.get(f"/channels/{ch_id}")).text
-        assert "Просмотры по минутам" in page and "15 мин" in page and "880" in page
+        assert "Просмотры по минутам" in page and "4 мин" in page and "880" in page
         vet = (await c.get("/vetting")).text
         assert "Partial" in vet and "250" in vet and "500" in vet

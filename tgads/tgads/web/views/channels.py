@@ -123,7 +123,8 @@ async def _recollect(ids: list[int]) -> str:
     return f"Обновлено: {len(ids)}"
 
 
-MARKS = ((60, "1 мин"), (300, "5 мин"), (900, "15 мин"), (3600, "1 ч"), (86400, "24 ч"))
+MARKS = ((60, "1 мин"), (120, "2 мин"), (180, "3 мин"), (240, "4 мин"), (300, "5 мин"), (900, "15 мин"), (3600, "1 ч"),
+         (86400, "24 ч"))
 
 
 async def _post_marks(s, post_ids: list[int]) -> dict[int, list[float | None]]:
