@@ -41,6 +41,9 @@
 <p class="small muted">Ось Y — просмотры, делённые на прогноз суточных просмотров по первым 30 минутам. Чистый пост идёт вдоль серой полосы эталона и к 24 ч (1440 мин) выходит примерно на 1.
 Линия, которая уходит заметно выше полосы, означает, что просмотры добавили позже: это накрутка. Эталон обучен на {{ curve_posts[0] }} дневных / {{ curve_posts[1] }} ночных постах (при нуле используется априорная кривая).</p>
 <div class="chart-box"><canvas id="curves"></canvas></div>
+<h3>Просмотры по минутам</h3>
+<p class="small muted">Те же посты в абсолютных просмотрах: сколько просмотров набрал каждый пост к каждой минуте после публикации.</p>
+<div class="chart-box"><canvas id="raw"></canvas></div>
 {% else %}
 <p class="muted">Нет отслеженных постов. Отправьте канал на проверку: монитор вступит в него и начнёт замерять каждый новый пост с 30-й секунды.</p>
 {% endif %}
@@ -67,13 +70,15 @@
 <h2>Посты</h2>
 <div class="table-wrap">
 <table>
-  <thead><tr><th>Дата</th><th>Текст</th><th>Просмотры</th><th>Пересылки</th><th>Реакции</th><th>Реклама</th><th>Анализ</th></tr></thead>
+  <thead><tr><th>Дата</th><th>Текст</th><th>Просмотры</th>{% for n in mark_names %}<th>{{ n }}</th>{% endfor %}<th>Пересылки</th><th>Реакции</th><th>Реклама</th><th>Анализ</th></tr></thead>
   <tbody>
   {% for p in posts %}
   <tr>
     <td class="small">{{ p.date|local }}{% if p.tracked %}<br><span class="badge warn">замер</span>{% endif %}</td>
     <td style="max-width: 520px"><a href="{{ ch.link }}/{{ p.msg_id }}" target="_blank" rel="noopener" class="small">{{ (p.text or '[' ~ (p.media_type or 'медиа') ~ ']')|short(160) }}</a></td>
-    <td>{{ p.views|num }}</td><td>{{ p.forwards|num }}</td><td>{{ p.reactions|num }}</td>
+    <td>{{ p.views|num }}</td>
+    {% for v in marks.get(p.id) or [none] * mark_names|length %}<td>{{ v|num }}</td>{% endfor %}
+    <td>{{ p.forwards|num }}</td><td>{{ p.reactions|num }}</td>
     <td>{% if p.promotes_channel %}<span class="badge">канал</span>{% elif p.is_ad %}<span class="badge">реклама</span>{% endif %}</td>
     <td class="small">
       {% if p.analysis %}
@@ -107,6 +112,26 @@ series.filter(s => s.normalized).forEach((s, i) => datasets.push({
   data: s.points, borderColor: s.flags.some(f => f !== 'rate_spike') ? '#d64545' : palette[i % palette.length],
   borderWidth: s.flags.length ? 2.5 : 1.5, pointRadius: 2, tension: .2,
 }));
+const xAxis = {type: 'logarithmic', title: {display: true, text: 'время после публикации'}, min: 0.4,
+  ticks: {autoSkip: false, maxRotation: 0, callback: v => {
+    const nice = {0.5: '30с', 1: '1м', 3: '3м', 10: '10м', 30: '30м', 60: '1ч', 180: '3ч', 360: '6ч', 720: '12ч', 1440: '24ч', 2880: '48ч'};
+    return nice[v] || '';
+  }}};
+new Chart(document.getElementById('raw'), {
+  type: 'line',
+  data: {datasets: series.map((s, i) => ({
+    label: s.label + (s.flags.length ? ' ⚠ ' + s.flags.join(',') : '') + (s.night ? ' (ночь)' : ''),
+    data: s.raw, borderColor: s.flags.some(f => f !== 'rate_spike') ? '#d64545' : palette[i % palette.length],
+    borderWidth: s.flags.length ? 2.5 : 1.5, pointRadius: 2, tension: .2,
+  }))},
+  options: {
+    maintainAspectRatio: false, parsing: false, animation: false,
+    scales: {x: xAxis, y: {title: {display: true, text: 'просмотры'}, min: 0}},
+    interaction: {mode: 'nearest', intersect: false},
+    plugins: {legend: {labels: {boxWidth: 12, font: {size: 11}}},
+              tooltip: {callbacks: {label: c => `${c.dataset.label}: ${Math.round(c.parsed.y).toLocaleString('ru')} просм. на ${c.parsed.x < 60 ? c.parsed.x + ' мин' : (c.parsed.x / 60).toFixed(1) + ' ч'}`}}},
+  },
+});
 new Chart(document.getElementById('curves'), {
   type: 'line', data: {datasets},
   options: {

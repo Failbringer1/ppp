@@ -3,12 +3,12 @@ from __future__ import annotations
 from fastapi import APIRouter, Form, Request
 from sqlalchemy import func, or_, select
 
-from ...analysis.views import CHECKPOINTS, Curve, is_night
+from ...analysis.views import CHECKPOINTS, Curve, is_night, views_at
 from ...db import get_settings, session
 from ...models import Channel, ChannelContact, Contact, Conversation, MyChannel, Post, ViewSample
 from ...services import contacts as contacts_svc
 from ...services import catalog, content, monitor, outreach, research, tasks, tgstat
-from ..app import back, render
+from ..app import as_int, back, render
 
 router = APIRouter()
 PAGE = 100
@@ -25,8 +25,9 @@ STATUSES = ["new", "queued", "collected", "monitoring", "checked", "approved", "
 
 @router.get("/channels")
 async def channels(request: Request, status: str = "", topic: str = "", verdict: str = "", source: str = "",
-                   q: str = "", min_subs: int = 0, country: str = "", language: int = -1, sort: str = "subs",
+                   q: str = "", min_subs: str = "", country: str = "", language: int = -1, sort: str = "subs",
                    page: int = 1):
+    min_subs = as_int(min_subs)
     async with session() as s:
         stmt = select(Channel)
         if country:
@@ -122,6 +123,28 @@ async def _recollect(ids: list[int]) -> str:
     return f"Обновлено: {len(ids)}"
 
 
+MARKS = ((60, "1 мин"), (300, "5 мин"), (900, "15 мин"), (3600, "1 ч"), (86400, "24 ч"))
+
+
+async def _post_marks(s, post_ids: list[int]) -> dict[int, list[float | None]]:
+    """Views of each tracked post at 1, 5, 15, 60 min and 24 h (interpolated between samples)."""
+    samples: dict[int, list] = {}
+    for i in range(0, len(post_ids), 500):
+        rows = (await s.execute(select(ViewSample.post_id, ViewSample.t_sec, ViewSample.views)
+                                .where(ViewSample.post_id.in_(post_ids[i:i + 500])))).all()
+        for pid, t, v in rows:
+            samples.setdefault(pid, []).append((t, v))
+    return {pid: [views_at(pts, t) for t, _ in MARKS] for pid, pts in samples.items()}
+
+
+def _median(values: list[float]) -> float | None:
+    values = sorted(values)
+    if not values:
+        return None
+    m = len(values) // 2
+    return values[m] if len(values) % 2 else (values[m - 1] + values[m]) / 2
+
+
 @router.get("/channels/{ch_id}")
 async def channel(request: Request, ch_id: int):
     async with session() as s:
@@ -146,8 +169,10 @@ async def channel(request: Request, ch_id: int):
                 "flags": (p.analysis or {}).get("flags", []),
                 "night": is_night(p.date),
                 "points": [{"x": round(t / 60, 2), "y": round(v / est, 3) if norm else v} for t, v in samples if t > 0],
+                "raw": [{"x": round(t / 60, 2), "y": v} for t, v in samples if t > 0],
                 "normalized": norm,
             })
+        marks = await _post_marks(s, [p.id for p in posts if p.tracked or p.analysis])
         my_channels = (await s.scalars(select(MyChannel))).all()
     ref = {"p25": [], "p50": [], "p75": []}
     for t in CHECKPOINTS:
@@ -156,7 +181,8 @@ async def channel(request: Request, ch_id: int):
             ref[k].append({"x": round(t / 60, 2), "y": round(v, 3)})
     fair_price = (ch.honest_reach or ch.avg_views or 0) * settings["target_cpm_uzs"] / 1000
     return render(request, "channel.html", ch=ch, posts=posts, links=links, convs=convs, series=series, ref=ref,
-                  curve_posts=(day.n_posts, night.n_posts), fair_price=fair_price, my_channels=my_channels)
+                  curve_posts=(day.n_posts, night.n_posts), fair_price=fair_price, my_channels=my_channels,
+                  marks=marks, mark_names=[n for _, n in MARKS])
 
 
 @router.get("/vetting")
@@ -167,11 +193,21 @@ async def vetting(request: Request, show: str = "active"):
         rows = (await s.scalars(select(Channel).where(Channel.status.in_(statuses))
                                 .order_by(Channel.verdict, Channel.honest_reach.desc().nullslast()))).all()
         stats = {ch.id: await monitor.tracked_stats(s, ch.id) for ch in rows}
+        tracked = (await s.execute(select(Post.id, Post.channel_id).where(
+            Post.channel_id.in_([ch.id for ch in rows]), or_(Post.tracked, Post.analysis.is_not(None))))).all()
+        post_marks = await _post_marks(s, [pid for pid, _ in tracked])
+        per_channel: dict[int, list[list[float]]] = {}
+        for pid, cid in tracked:
+            for i, v in enumerate(post_marks.get(pid, [])):
+                if v is not None:
+                    per_channel.setdefault(cid, [[] for _ in MARKS])[i].append(v)
+        marks = {cid: [_median(vals) for vals in cols] for cid, cols in per_channel.items()}
         settings = await get_settings(s)
         my_channels = (await s.scalars(select(MyChannel))).all()
         day = Curve.from_json(settings.get("curve_day"))
     return render(request, "vetting.html", rows=rows, stats=stats, target_cpm=settings["target_cpm_uzs"],
-                  my_channels=my_channels, curve_posts=day.n_posts, show=show)
+                  my_channels=my_channels, curve_posts=day.n_posts, show=show, marks=marks,
+                  mark_names=[n for _, n in MARKS])
 
 
 @router.post("/vetting/curves")

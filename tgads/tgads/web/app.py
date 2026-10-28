@@ -13,6 +13,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from jinja2 import Undefined
 
 from .. import worker
 from ..ai.provider import resolve_mode
@@ -28,7 +29,7 @@ LOCAL_OFFSET = timedelta(hours=5)  # Asia/Tashkent, no DST
 
 
 def _num(v, digits: int = 0) -> str:
-    if v is None or v == "":
+    if v is None or isinstance(v, Undefined) or v == "":
         return "—"
     try:
         return f"{float(v):,.{digits}f}".replace(",", " ")
@@ -37,7 +38,20 @@ def _num(v, digits: int = 0) -> str:
 
 
 def _pct(v, digits: int = 1) -> str:
-    return "—" if v is None else f"{v * 100:.{digits}f}%"
+    if v is None or isinstance(v, Undefined):
+        return "—"
+    try:
+        return f"{float(v) * 100:.{digits}f}%"
+    except (TypeError, ValueError):
+        return str(v)
+
+
+def as_int(v: str | None) -> int:
+    """A number filter field: the form sends "" when it is empty."""
+    try:
+        return max(0, int(str(v or "").replace(" ", "")))
+    except ValueError:
+        return 0
 
 
 def _local(dt: datetime | None, fmt: str = "%d.%m %H:%M") -> str:

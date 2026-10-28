@@ -8,7 +8,7 @@ from ...analysis.tgstat import CATALOG_CATEGORIES, COUNTRY_NAMES
 from ...db import session
 from ...models import CatalogChannel
 from ...services import catalog
-from ..app import back, render
+from ..app import as_int, back, render
 
 router = APIRouter(prefix="/catalog")
 PAGE = 100
@@ -23,7 +23,8 @@ SORTS = {
 
 @router.get("")
 async def index(request: Request, category: int = 0, language: int = -1, kind: str = "", q: str = "",
-                min_subs: int = 0, max_subs: int = 0, country: str = "", sort: str = "subs", page: int = 1):
+                min_subs: str = "", max_subs: str = "", country: str = "", sort: str = "subs", page: int = 1):
+    min_subs, max_subs = as_int(min_subs), as_int(max_subs)
     stmt = catalog.filtered(category, language, kind, q, min_subs, max_subs, country)
     stats = await catalog.breakdown(stmt)
     async with session() as s:
@@ -54,9 +55,10 @@ async def to_work(ids: list[int] = Form([]), action: str = Form("work"), back_ur
 
 @router.post("/top")
 async def top(n: int = Form(100), category: int = Form(0), language: int = Form(-1), kind: str = Form(""),
-              q: str = Form(""), min_subs: int = Form(0), max_subs: int = Form(0), country: str = Form(""),
+              q: str = Form(""), min_subs: str = Form(""), max_subs: str = Form(""), country: str = Form(""),
               back_url: str = Form("/catalog")):
     """The n biggest public channels of the current filter -> join and bot check."""
+    min_subs, max_subs = as_int(min_subs), as_int(max_subs)
     stmt = catalog.filtered(category, language, kind, q, min_subs, max_subs, country)
     ids = await catalog.top_ids(stmt, max(1, min(n, 2000)))
     done = await catalog.to_work(ids, monitor=True)
