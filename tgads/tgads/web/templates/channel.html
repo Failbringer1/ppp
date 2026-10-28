@@ -81,7 +81,10 @@
     <td>{{ p.forwards|num }}</td><td>{{ p.reactions|num }}</td>
     <td>{% if p.promotes_channel %}<span class="badge">канал</span>{% elif p.is_ad %}<span class="badge">реклама</span>{% endif %}</td>
     <td class="small">
-      {% if p.analysis %}
+      {% if p.analysis and p.analysis.night %}
+        <span class="badge">ночь — без выводов</span>
+        {% if p.analysis.actual_24h %} · факт 24ч {{ p.analysis.actual_24h|num }}{% endif %}
+      {% elif p.analysis %}
         {% set fc = p.analysis.forecast %}
         {% if fc %}прогноз {{ fc.est|num }} ({{ fc.low|num }}–{{ fc.high|num }}){% endif %}
         {% if p.analysis.actual_24h %} · факт 24ч {{ p.analysis.actual_24h|num }}{% endif %}

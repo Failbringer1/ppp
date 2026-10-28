@@ -27,7 +27,9 @@ PRIOR_MEDIAN: dict[int, float] = {
 CHECKPOINTS: tuple[int, ...] = tuple(sorted(PRIOR_MEDIAN))
 
 TASHKENT = timezone(timedelta(hours=5))
-NIGHT_HOURS = range(0, 8)  # local hours with a slow start
+# Local hours with a slow start: a post from 22:00 to 08:00 waits for the morning, so its first
+# minutes say nothing about its day. Such posts are sampled for stats but never judged.
+NIGHT_HOURS = frozenset((22, 23, 0, 1, 2, 3, 4, 5, 6, 7))
 
 
 Sample = tuple[int, int] | tuple[int, int, int]  # (t_sec, views[, forwards])
@@ -201,6 +203,7 @@ class PostAnalysis:
     flags: list[str] = field(default_factory=list)
     details: list[str] = field(default_factory=list)
     notes: dict[str, str] = field(default_factory=dict)  # first detail per flag
+    night: bool = False      # published at night: stats only, no forecast, flags or verdict
 
     def flag(self, name: str, detail: str) -> None:
         if name not in self.flags:
@@ -234,6 +237,8 @@ def analyze_post(samples: list[Sample], subscribers: int, curve: Curve,
                  th: Thresholds | None = None, published_at: datetime | None = None) -> PostAnalysis:
     th = th or Thresholds()
     pts = _norm(samples)
+    if published_at is not None and is_night(published_at):
+        return PostAnalysis(forecast=None, actual_24h=views_at(pts, DAY), night=True)
     fc = forecast_24h(pts, curve)
     actual = views_at(pts, DAY)
     res = PostAnalysis(forecast=fc, actual_24h=actual)
@@ -368,6 +373,9 @@ def channel_verdict(analyses: list[PostAnalysis], static: StaticMetrics | None, 
             if hits:
                 example = hits[0].notes.get(flag, "")
                 reasons.append(f"{FLAG_TEXT[flag]} — {len(hits)} из {n} постов" + (f" (пример: {example})" if example else ""))
+    nights = sum(1 for a in analyses if a.night)
+    if nights:
+        reasons.append(f"Ночных постов (22:00–08:00): {nights} — только статистика, в вердикт не входят")
     if static:
         for f, d in zip(static.flags, static.details):
             score -= STATIC_PENALTY.get(f, 10)

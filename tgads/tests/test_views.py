@@ -139,3 +139,19 @@ def test_next_checkpoint():
     assert next_checkpoint(0) == 30
     assert next_checkpoint(31) == 60
     assert next_checkpoint(200_000) is None
+
+
+def test_night_posts_are_stats_only():
+    night = datetime(2026, 10, 27, 21, 30, tzinfo=timezone.utc)   # 02:30 Tashkent
+    evening = datetime(2026, 10, 27, 17, 30, tzinfo=timezone.utc)  # 22:30 Tashkent
+    for at in (night, evening):
+        res = analyze_post(boosted_late(3_000, 9_000), subscribers=40_000, curve=PRIOR, published_at=at)
+        assert res.night and res.forecast is None and not res.flags
+        assert res.actual_24h is not None                         # the numbers are still kept
+    nights = [analyze_post(boosted_late(3_000, 9_000), 30_000, PRIOR, published_at=night) for _ in range(5)]
+    days = [analyze_post(organic(8_000 + i * 50), 30_000, PRIOR, published_at=NOON_UTC) for i in range(3)]
+    v = channel_verdict(nights + days, None)
+    assert v.verdict == "clean" and v.n_dynamic == 3
+    assert any("Ночных постов" in r for r in v.reasons)
+    only_night = channel_verdict(nights, None)
+    assert only_night.verdict == "unknown"

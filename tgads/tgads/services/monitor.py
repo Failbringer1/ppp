@@ -243,7 +243,7 @@ async def analyze_channel(s: AsyncSession, ch: Channel) -> None:
     v = channel_verdict(analyses, static, int(settings.get("min_posts_for_verdict") or 3))
     ch.verdict, ch.score, ch.reasons, ch.honest_reach = v.verdict, v.score, v.reasons, v.honest_reach
     ch.checked_at = utcnow()
-    complete = sum(1 for a in analyses if a.complete)
+    complete = sum(1 for a in analyses if a.complete and not a.night)
     if ch.status == "monitoring" and complete >= int(settings.get("posts_to_track_per_channel") or 5):
         ch.status = "checked"
 
