@@ -107,7 +107,7 @@ def parse_prices(text: str) -> list[PriceOption]:
                 num = float(re.sub(r"[.,]", "", digits))
             else:
                 num = float(digits.replace(",", "."))
-            amount = num * _mult(m.group("mult"))
+            amount = num * (_mult(m.group("mult")) if num < 100_000 else 1)
             cur = _currency(m.group("cur"), m.group("pre"))
             if cur is None:
                 if m.group("mult") and amount >= 1000:
@@ -123,7 +123,9 @@ def parse_prices(text: str) -> list[PriceOption]:
     return out
 
 
-AD_TEXT_RE = re.compile(r"(реклам|reklam|рекл\.|\bads\b|прайс|прейскурант|price.?list|tarif|тариф)", re.I)
+AD_TEXT_RE = re.compile(r"(реклам|reklam|рекл\.|\bads\b|прайс|прейскурант|price.?list)", re.I)
+PHONE_LIKE_RE = re.compile(r"(?:\+?998[\s\-()]*)?\(?\d{2}\)?[\s\-]\d{3}[\s\-]\d{2}[\s\-]\d{2}(?!\d)")
+AD_PRICE_UZS = (20_000, 300_000_000)  # an ad post in an Uzbek channel; outside is a misread number
 
 
 def ad_prices(text: str, source: str) -> list[dict]:
@@ -131,8 +133,19 @@ def ad_prices(text: str, source: str) -> list[dict]:
     count: a shop channel's pinned post lists product prices, not ad prices."""
     if not text or not AD_TEXT_RE.search(text):
         return []
+    # phones ("+998 78 113 77 33") read as amounts; a bare number without a currency is not trusted here
+    text = PHONE_LIKE_RE.sub(lambda m: " " * len(m.group()), text)
+    lo, hi = AD_PRICE_UZS
     return [{"amount": p.amount, "currency": p.currency, "fmt": p.fmt, "line": p.line[:200], "source": source}
-            for p in parse_prices(text)]
+            for p in parse_prices(text)
+            if _explicit_currency(p.line) and lo <= to_uzs(p.amount, p.currency, 12_700, 150) <= hi]
+
+
+_CURRENCY_RE = re.compile(r"(\$|usd|долл|dollar|у\.?\s?е|сум|so['ʻ’`]?m\b|sum\b|сўм|uzs|руб|₽|rub\b|ming\b|минг|млн|mln|тыс|\d\s?k\b|\d\s?к\b)", re.I)
+
+
+def _explicit_currency(line: str) -> bool:
+    return bool(_CURRENCY_RE.search(line))
 
 
 def min_price_uzs(prices: list[dict] | None, usd_uzs: float, rub_uzs: float) -> float | None:

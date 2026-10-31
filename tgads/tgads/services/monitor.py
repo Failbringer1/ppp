@@ -13,6 +13,7 @@ import random
 from datetime import timedelta
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from telethon import TelegramClient, errors, events, functions, types, utils
 
@@ -79,7 +80,10 @@ class Monitor:
             post.tracked = nxt is not None
             post.next_sample_at = post.date + timedelta(seconds=nxt) if nxt else None
             ch.last_msg_id = max(ch.last_msg_id or 0, msg.id)
-            await s.commit()
+            try:
+                await s.commit()
+            except IntegrityError:
+                return  # the update event and the poll loop saw the same post at once: the other one stored it
             log.info("tracking new post %s/%s (age %.0fs)", ch.ref, msg.id, age)
 
     async def poll_loop(self) -> None:

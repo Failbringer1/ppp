@@ -155,6 +155,7 @@ async def check_prices(channel_id: int) -> None:
         rows = (await s.execute(select(Contact.id, Contact.value)
                                 .join(ChannelContact, ChannelContact.contact_id == Contact.id)
                                 .where(ChannelContact.channel_id == channel_id, Contact.kind == "username",
+                                       ChannelContact.ad_context.is_(True),
                                        Contact.entity_type.is_(None) | (Contact.entity_type == "channel"))
                                 .order_by(ChannelContact.ad_context.desc(), ChannelContact.priority.desc())
                                 .limit(PRICE_CHANNELS_PER_CHANNEL))).all()

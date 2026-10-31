@@ -132,3 +132,11 @@ def test_ad_prices_only_from_ad_texts():
     assert {(p["amount"], p["fmt"]) for p in found} >= {(250_000, "1/24"), (350_000, "1/48")}
     assert min_price_uzs(found, 12_700, 150) == 250_000
     assert min_price_uzs([], 12_700, 150) is None
+
+
+def test_ad_prices_skip_phones_bare_numbers_and_absurd_amounts():
+    from tgads.analysis.pricing import ad_prices
+    assert ad_prices("По вопросам рекламы 👉🏻 +998 78 113 77 33", "about") == []
+    assert ad_prices("Реклама. Тарифы на воду: до 500 кубометров — 1 100 сумов", "x") == []   # below an ad price
+    assert [p["amount"] for p in ad_prices("Маҳсулот рекламаси: 1.500.000 млн сўм", "x")] == [1_500_000]
+    assert [p["amount"] for p in ad_prices("Реклама: (90) 123-45-67, 15 000 000 сум", "x")] == [15_000_000]
