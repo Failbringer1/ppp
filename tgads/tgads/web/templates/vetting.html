@@ -22,7 +22,7 @@
 <table>
   <thead><tr><th><input type="checkbox" data-check-all></th><th>Канал</th><th>Статус</th><th>Вступил</th><th>Постов: замер / анализ</th>
     {% for n in mark_names %}<th title="Медиана просмотров по замеренным постам">{{ n }}</th>{% endfor %}
-    <th>Вердикт</th><th>Подписчики</th><th>Охват (номинал)</th><th>Честный охват</th><th>Справедливая цена</th><th>Причины</th></tr></thead>
+    <th>Вердикт</th><th>Подписчики</th><th>Охват (номинал)</th><th>Честный охват</th><th>Справедливая цена</th><th title="Самая низкая цена из описания, закрепа, прайс-канала или переписки">Цена у админа</th><th>Причины</th></tr></thead>
   <tbody>
   {% for ch in rows %}
   {% set st = stats[ch.id] %}
@@ -37,10 +37,11 @@
     <td>{{ verdict(ch) }}</td>
     <td>{{ ch.subscribers|num }}</td><td>{{ ch.avg_views|num }}</td><td><b>{{ ch.honest_reach|num }}</b></td>
     <td class="small">{{ ((ch.honest_reach or 0) * target_cpm / 1000)|num if ch.honest_reach else '—' }}</td>
+    <td class="small">{{ prices[ch.id]|num }}</td>
     <td class="small">{% for r in (ch.reasons or [])[:2] %}{{ r|short(110) }}<br>{% endfor %}</td>
   </tr>
   {% else %}
-  <tr><td colspan="19" class="muted">Нет каналов на проверке. Выберите каналы на странице <a href="/channels">Каналы</a> → «Отправить на проверку накрутки».</td></tr>
+  <tr><td colspan="20" class="muted">Нет каналов на проверке. Выберите каналы на странице <a href="/channels">Каналы</a> → «Отправить на проверку накрутки».</td></tr>
   {% endfor %}
   </tbody>
 </table>

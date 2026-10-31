@@ -5,7 +5,7 @@ import asyncio
 import logging
 
 from .ai import jobs
-from .services import content, monitor, outreach, research, tracking
+from .services import contacts, content, monitor, outreach, research, tracking
 from .tg.pool import pool
 
 log = logging.getLogger(__name__)
@@ -36,6 +36,7 @@ async def start() -> None:
         monitor.monitor.poll_loop(),
         monitor.monitor.sample_loop(),
         monitor.join_loop(),
+        contacts.price_loop(),
         outreach.sender_loop(),
         content.publisher_loop(),
         tracking.tracking_loop(),

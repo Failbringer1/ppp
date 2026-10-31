@@ -121,3 +121,14 @@ def test_message_urls_reads_button_links_of_any_telethon_layer():
              reply_markup=NS(rows=[NS(buttons=[NS(text="Obuna", url="https://t.me/+AbCdEf123"),
                                               NS(text="callback", data=b"x")])]))
     assert message_urls(msg) == ["https://t.me/+AbCdEf123"]
+
+
+def test_ad_prices_only_from_ad_texts():
+    from tgads.analysis.pricing import ad_prices, min_price_uzs
+    shop = "Krossovka Nike — 450 000 so'm\nYetkazib berish bepul"
+    assert ad_prices(shop, "pinned") == []
+    ads = "Reklama narxi:\n1/24 — 250 000 so'm\n1/48 — 350 000 so'm\nТоп — 30$"
+    found = ad_prices(ads, "about")
+    assert {(p["amount"], p["fmt"]) for p in found} >= {(250_000, "1/24"), (350_000, "1/48")}
+    assert min_price_uzs(found, 12_700, 150) == 250_000
+    assert min_price_uzs([], 12_700, 150) is None

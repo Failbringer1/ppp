@@ -298,3 +298,48 @@ async def test_join_read_contacts_leave_cycle():
         assert 2001 in fake.joined
     finally:
         pool.clients.pop(acc_id, None)
+
+
+async def test_price_channel_contacts_and_prices():
+    """The description points to a price-list channel: its manager and prices end up on the channel."""
+    await init_db()
+    fake = FakeClient()
+    fake.add_channel(3001, "news_uz", "News", 120_000, about="Yangiliklar\nReklama: @news_price")
+    fake.add_channel(3002, "news_price", "News prays", 300,
+                     about="Reklama narxlari\n1/24 — 300 000 so'm\n1/48 — 450 000 so'm\nMurojaat: @news_manager")
+    fake.users["news_manager"] = types.User(id=777, access_hash=7, first_name="Ali", bot=False)
+    async with session() as s:
+        acc = Account(phone="+998002", status="active", roles="outreach")
+        ch = Channel(username="news_uz", subscribers=120_000, status="checked", about=fake.about[3001],
+                     collected_at=utcnow())
+        s.add_all([acc, ch])
+        await s.commit()
+        acc_id, ch_id = acc.id, ch.id
+    pool.clients[acc_id] = fake
+    try:
+        await contacts.extract_for_channels([ch_id])
+        await contacts.check_prices(ch_id)
+        async with session() as s:
+            ch = await s.get(Channel, ch_id)
+            assert ch.prices_checked_at
+            assert sorted((p["amount"], p["fmt"]) for p in ch.prices) == [(300_000, "1/24"), (450_000, "1/48")]
+            assert all(p["source"] == "@news_price" for p in ch.prices)
+            assert "Reklama narxlari" in ch.price_text
+            best = await contacts.best_contact(s, ch_id)
+            assert best.value == "news_manager"            # the real manager behind the price list
+    finally:
+        pool.clients.pop(acc_id, None)
+
+
+async def test_join_queue_refills_from_catalog():
+    from tgads.models import CatalogChannel
+    await init_db()
+    async with session() as s:
+        s.add_all([CatalogChannel(ref="@refill_big", title="Big", subscribers=800_000, country="uz"),
+                   CatalogChannel(ref="@refill_ru", title="Ru", subscribers=900_000, country="ru")])
+        await s.commit()
+    await monitor._refill_queue({})
+    async with session() as s:
+        ch = (await s.scalars(select(Channel).where(Channel.username == "refill_big"))).one()
+        assert ch.status == "monitoring" and not ch.joined
+        assert (await s.scalars(select(Channel).where(Channel.username == "refill_ru"))).first() is None

@@ -21,10 +21,10 @@ from ..analysis.views import (
     channel_verdict, is_night, next_checkpoint,
 )
 from ..db import get_setting, get_settings, session, set_setting
-from ..models import Account, Channel, Post, ViewSample, utcnow
+from ..models import Account, CatalogChannel, Channel, Post, ViewSample, utcnow
 from ..tg.parse import is_content_message
 from ..tg.pool import FloodWait, NoAccount, bump, call, counter, pool
-from . import contacts
+from . import catalog, contacts
 from .research import collect_channel, resolve_entity, upsert_post
 
 log = logging.getLogger(__name__)
@@ -166,6 +166,9 @@ class Monitor:
                 views = await self._fetch_views(ch, [m for _, m in items])
             except FloodWait as e:
                 retry = min(e.seconds, 120)
+            except NO_ACCESS:
+                await _lost_access(ch_id)
+                continue
             except Exception as e:
                 log.warning("sampling %s failed: %s", ch.ref, e)
                 retry = 60
@@ -291,6 +294,7 @@ async def _join_next() -> int:
                                   .order_by(Channel.subscribers.desc().nullslast()).limit(1))).first()
     if unread:
         await _read_channel(*unread)
+    await _refill_queue(settings)
     async with session() as s:
         # the biggest channels first: join slots are scarce (daily limit, 500 channels per account)
         ch = (await s.scalars(select(Channel).where(Channel.status == "monitoring", Channel.joined.is_(False))
@@ -345,6 +349,46 @@ async def _join_next() -> int:
     if joined_id:
         await _read_channel(joined_id, acc_id)
     return random.randint(40, 120)
+
+
+NO_ACCESS = (errors.ChannelPrivateError, errors.UserNotParticipantError, errors.ChannelInvalidError)
+
+
+async def _lost_access(channel_id: int) -> None:
+    """The channel banned the monitor account or went private: stop sampling it and free the slot."""
+    async with session() as s:
+        ch = await s.get(Channel, channel_id)
+        ref = ch.ref
+        ch.joined = False
+        if ch.status == "monitoring":
+            await analyze_channel(s, ch)
+            ch.status = "checked"
+            ch.reasons = (ch.reasons or []) + ["Монитор потерял доступ к каналу (бан или канал закрыт)"]
+        for p in (await s.scalars(select(Post).where(Post.channel_id == channel_id, Post.tracked.is_(True)))).all():
+            p.tracked, p.next_sample_at = False, None
+        await s.commit()
+    log.info("lost access to %s", ref)
+    await monitor.refresh_watch()
+
+
+async def _refill_queue(settings: dict) -> None:
+    """The join queue ran dry: take the next biggest public Uzbekistan channels of the TGStat catalog
+    (any language) that are not in work yet."""
+    if not settings.get("auto_queue_catalog", True):
+        return
+    async with session() as s:
+        waiting = await s.scalar(select(func.count(Channel.id)).where(Channel.status == "monitoring",
+                                                                      Channel.joined.is_(False)))
+        if waiting:
+            return
+        known = select(func.lower(Channel.username)).where(Channel.username.is_not(None))
+        ids = (await s.scalars(select(CatalogChannel.id)
+                               .where(CatalogChannel.country == "uz", CatalogChannel.ref.like("@%"),
+                                      func.lower(func.substr(CatalogChannel.ref, 2)).not_in(known))
+                               .order_by(CatalogChannel.subscribers.desc().nullslast()).limit(10))).all()
+    if ids:
+        n = await catalog.to_work(list(ids), monitor=True)
+        log.info("join queue refilled from the catalog: %s channels", n)
 
 
 async def _read_channel(channel_id: int, account_id: int) -> None:
@@ -411,6 +455,8 @@ async def _leave_checked(s: AsyncSession, settings: dict) -> None:
             entity = await resolve_entity(client, ch)
             await call(lambda: client(functions.channels.LeaveChannelRequest(channel=entity)))
             ch.joined = False
+        except NO_ACCESS:
+            ch.joined = False  # banned, gone private or already left: nothing to leave
         except Exception as e:
             log.info("leave %s failed: %s", ch.ref, e)
 

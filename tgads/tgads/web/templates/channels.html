@@ -34,7 +34,7 @@
 <div class="table-wrap">
 <table>
   <thead><tr><th><input type="checkbox" data-check-all></th><th>Канал</th><th>Тема</th><th>Страна / язык</th><th>Подписчики</th><th>Охват 24–72ч</th><th>ERR</th>
-    <th>Постов/день</th><th>Реклама</th><th>Статус</th><th>Проверка</th><th>Честный охват</th><th>Цена при целевом CPM</th></tr></thead>
+    <th>Постов/день</th><th>Реклама</th><th>Статус</th><th>Проверка</th><th>Честный охват</th><th>Цена при целевом CPM</th><th title="Самая низкая цена из описания, закрепа, прайс-канала или переписки">Цена у админа</th></tr></thead>
   <tbody>
   {% for ch in rows %}
   <tr>
@@ -48,9 +48,10 @@
     <td>{{ status(ch.status) }}</td><td>{{ verdict(ch) }}</td>
     <td>{{ ch.honest_reach|num }}</td>
     <td class="small">{{ ((ch.honest_reach or ch.avg_views or 0) * target_cpm / 1000)|num if (ch.honest_reach or ch.avg_views) else '—' }}</td>
+    <td class="small">{{ prices[ch.id]|num }}</td>
   </tr>
   {% else %}
-  <tr><td colspan="13" class="muted">Пусто. Добавьте каналы на странице <a href="/research">Ниши</a>.</td></tr>
+  <tr><td colspan="14" class="muted">Пусто. Добавьте каналы на странице <a href="/research">Ниши</a>.</td></tr>
   {% endfor %}
   </tbody>
 </table>

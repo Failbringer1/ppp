@@ -62,6 +62,18 @@
       <td>{% if link.ad_context %}<span class="badge ok">реклама</span>{% endif %}</td><td class="small muted">{{ link.source }}</td></tr>
     {% else %}<tr><td class="muted">Не искали или не найдено.</td></tr>{% endfor %}
   </table>
+  <h3>Цены на рекламу</h3>
+  {% if ch.prices %}
+  <table>
+    {% for p in ch.prices %}
+    <tr><td><b>{{ p.amount|num }}</b> {{ p.currency or '' }}</td><td>{{ p.fmt or '' }}</td>
+      <td class="small muted">{{ p.source }}</td><td class="small">{{ p.line|short(90) }}</td></tr>
+    {% endfor %}
+  </table>
+  {% if ch.price_text %}<details><summary class="small">Прайс как есть</summary><pre class="text">{{ ch.price_text }}</pre></details>{% endif %}
+  {% else %}
+  <p class="small muted">{% if ch.prices_checked_at %}В описании, закрепе и прайс-канале цен не нашли. Уточним в личке.{% else %}Ещё не проверяли.{% endif %}</p>
+  {% endif %}
   {% if convs %}<h3>Переписка</h3>
   <ul>{% for c in convs %}<li><a href="/outreach/{{ c.id }}">диалог #{{ c.id }}</a> {{ status(c.status) }}</li>{% endfor %}</ul>{% endif %}
 </section>

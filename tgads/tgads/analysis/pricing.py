@@ -123,6 +123,26 @@ def parse_prices(text: str) -> list[PriceOption]:
     return out
 
 
+AD_TEXT_RE = re.compile(r"(реклам|reklam|рекл\.|\bads\b|прайс|прейскурант|price.?list|tarif|тариф)", re.I)
+
+
+def ad_prices(text: str, source: str) -> list[dict]:
+    """Ad prices from a description, pinned post or price-list post. Only texts that talk about ads
+    count: a shop channel's pinned post lists product prices, not ad prices."""
+    if not text or not AD_TEXT_RE.search(text):
+        return []
+    return [{"amount": p.amount, "currency": p.currency, "fmt": p.fmt, "line": p.line[:200], "source": source}
+            for p in parse_prices(text)]
+
+
+def min_price_uzs(prices: list[dict] | None, usd_uzs: float, rub_uzs: float) -> float | None:
+    """The cheapest ad price in UZS, preferring the 1/24 format when it is known."""
+    vals = [(p.get("fmt") in (None, "1/24"), to_uzs(p["amount"], p.get("currency"), usd_uzs, rub_uzs))
+            for p in prices or [] if p.get("amount")]
+    best = [v for ok, v in vals if ok] or [v for _, v in vals]
+    return min(best) if best else None
+
+
 def to_uzs(amount: float | None, currency: str | None, usd_uzs: float, rub_uzs: float) -> float | None:
     if amount is None:
         return None

@@ -106,6 +106,10 @@ class Channel(Base):
     score: Mapped[float | None] = mapped_column(Float)
     reasons: Mapped[list | None] = mapped_column(JSONN)
     honest_reach: Mapped[float | None] = mapped_column(Float)
+    # ad prices: [{amount, currency, fmt, line, source}] from the description, pinned post, price-list channel, DMs
+    prices: Mapped[list | None] = mapped_column(JSONN)
+    price_text: Mapped[str | None] = mapped_column(Text)  # the price list as the admins wrote it
+    prices_checked_at: Mapped[datetime | None] = mapped_column(DateTime)
     monitor_account_id: Mapped[int | None] = mapped_column(ForeignKey("accounts.id"))
     joined: Mapped[bool] = mapped_column(Boolean, default=False)
     joined_at: Mapped[datetime | None] = mapped_column(DateTime)

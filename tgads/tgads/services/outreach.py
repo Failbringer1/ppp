@@ -171,6 +171,10 @@ async def make_offer(s: AsyncSession, conv: Conversation, amount: float | None, 
                   price_uzs=price, fmt=fmt, notes=notes, expected_views=views, cpm_uzs=c,
                   recommendation=recommend(c, float(settings["target_cpm_uzs"])), source=source)
     s.add(offer)
+    if ch is not None and amount:
+        # the admin's own answer is more precise than a price list: shown first on the channel
+        item = {"amount": amount, "currency": currency, "fmt": fmt, "line": (notes or "")[:200], "source": "личка"}
+        ch.prices = [item] + [p for p in ch.prices or [] if p != item]
     return offer
 
 
