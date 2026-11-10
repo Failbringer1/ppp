@@ -2,13 +2,32 @@
 {% from "_macros.html" import status %}
 {% block title %}{{ mc.title or mc.ref }}{% endblock %}
 {% block content %}
-<h1>{{ mc.title or mc.ref }} <span class="small muted">{{ mc.subscribers|num }} подписчиков</span></h1>
+<h1>{% if mc.avatar_path %}<img src="/content/{{ mc.id }}/avatar" alt="" width="48" height="48" style="border-radius: 50%; vertical-align: middle"> {% endif %}{{ mc.title or mc.ref }}
+  {% if mc.is_live %}<span class="small muted">{{ mc.handle or mc.ref }} · {{ mc.subscribers|num }} подписчиков</span>{% else %}<span class="badge warn">черновик</span>{% endif %}</h1>
+
+{% if not mc.is_live %}
+<article>
+  <b>Канал ещё не создан в Telegram.</b>
+  <span class="small muted">Проверьте название, описание, адрес и посты ниже. Кнопка создаст канал от аккаунта-публикатора,
+  поставит аватар и опубликует стартовые посты с паузами по 20–40 секунд.</span>
+  <form method="post" action="/content/{{ mc.id }}/launch"
+        onsubmit="return confirm('Создать канал «{{ mc.title }}» в Telegram? Он станет публичным.')">
+    <button type="submit">Создать в Telegram и опубликовать стартовые посты</button>
+  </form>
+</article>
+{% endif %}
+{% if mc.about %}<p><b>Описание:</b> {{ mc.about }}</p>{% endif %}
 
 <details>
   <summary>Настройки канала</summary>
   <form method="post" action="/content/{{ mc.id }}/settings">
+    {% if not mc.is_live %}
+    <label>Название<input name="title" value="{{ mc.title }}" maxlength="128"></label>
+    <label>Описание в Telegram (до 255 знаков)<textarea name="about" rows="3" maxlength="255">{{ mc.about or '' }}</textarea></label>
+    <label>Желаемый адрес: варианты через запятую, берётся первый свободный (пусто — закрытый канал)<input name="username_wanted" value="{{ mc.username_wanted or '' }}"></label>
+    {% endif %}
     <div class="row">
-      <label>Канал<input name="ref" value="{{ mc.ref }}" required></label>
+      <label>Канал{% if not mc.is_live %} (пусто, пока черновик){% endif %}<input name="ref" value="{{ mc.ref }}" {{ 'required' if mc.is_live }}></label>
       <label>Язык<select name="language">
         {% for k, v in [('uz', 'узбекский (латиница)'), ('uz_cyrl', 'узбекский (кириллица)'), ('ru', 'русский')] %}
         <option value="{{ k }}" {{ 'selected' if mc.language == k }}>{{ v }}</option>{% endfor %}</select></label>
@@ -18,6 +37,7 @@
         {% for a in accounts %}<option value="{{ a.id }}" {{ 'selected' if a.id == mc.publisher_account_id }}>{{ a.title or a.phone }}</option>{% endfor %}</select></label>
     </div>
     <label>Позиционирование и тон<textarea name="positioning" rows="2">{{ mc.positioning }}</textarea></label>
+    <label>Подпись под каждым постом ({channel} — адрес канала; пусто — без подписи)<input name="signature" value="{{ mc.signature or '' }}"></label>
     <button type="submit">Сохранить</button>
   </form>
 </details>
@@ -60,15 +80,19 @@
       {% if it.scheduled_at %}<span>выйдет {{ it.scheduled_at|local }}</span>{% endif %}
       {% if it.published_at %}<span>опубликован {{ it.published_at|local }}</span>{% endif %}
       {% if it.media_paths %}<span class="badge">медиа: {{ it.media_paths|length }}</span>{% endif %}
+      {% if it.pin %}<span class="badge">закрепить</span>{% endif %}
       {% if it.error %}<span style="color: var(--bad)">{{ it.error }}</span>{% endif %}
     </div>
-    <textarea name="text" rows="5">{{ it.text }}</textarea>
+    {% if it.note %}<p class="small"><b>О чём:</b> {{ it.note }}</p>{% endif %}
+    <textarea name="text" rows="{{ 12 if it.source == 'starter' else 5 }}">{{ it.text }}</textarea>
     {% if it.status not in ('published',) %}
     <div class="actions">
       <button name="action" value="save" class="sm secondary">Сохранить</button>
+      {% if mc.is_live %}
       <input type="datetime-local" name="when" class="sm" title="Пусто — ближайший свободный слот">
       <button name="action" value="schedule" class="sm">В очередь</button>
       <button name="action" value="now" class="sm outline">Опубликовать сейчас</button>
+      {% endif %}
       {% if it.status == 'queued' %}<button name="action" value="unschedule" class="sm outline">Снять с очереди</button>{% endif %}
       <button name="action" value="reject" class="sm outline">Удалить</button>
     </div>
@@ -111,6 +135,7 @@
 <article>
   <div class="row small"><b>{{ cr.title or ('#' ~ cr.id) }}</b> <span class="muted">{{ cr.source }} · {{ cr.created_at|local }}</span>
     <form method="post" action="/content/creatives/{{ cr.id }}/delete" class="inline"><button class="sm outline">удалить</button></form></div>
+  {% if cr.note %}<p class="small"><b>Идея:</b> {{ cr.note }}</p>{% endif %}
   <pre class="text">{{ cr.text }}</pre>
 </article>
 {% endfor %}

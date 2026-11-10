@@ -1,7 +1,11 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Form, Request
-from sqlalchemy import select
+import json
+from pathlib import Path
+
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse
+from sqlalchemy import func, select
 
 from ...db import session
 from ...models import Account, Channel, ContentItem, Donor, MyChannel, MyCreative
@@ -16,7 +20,43 @@ async def index(request: Request):
     async with session() as s:
         chans = (await s.scalars(select(MyChannel).order_by(MyChannel.id))).all()
         accounts = (await s.scalars(select(Account).where(Account.status == "active"))).all()
-    return render(request, "content_index.html", chans=chans, accounts=accounts)
+        # starter posts that still wait for the launch, and ad posts, per channel
+        waiting = dict((await s.execute(select(ContentItem.my_channel_id, func.count()).where(
+            ContentItem.source == "starter", ContentItem.status.in_(("draft", "failed")))
+            .group_by(ContentItem.my_channel_id))).all())
+        posted = dict((await s.execute(select(ContentItem.my_channel_id, func.count()).where(
+            ContentItem.status == "published").group_by(ContentItem.my_channel_id))).all())
+        ads = dict((await s.execute(select(MyCreative.my_channel_id, func.count())
+                                    .group_by(MyCreative.my_channel_id))).all())
+    pending = [m for m in chans if not m.is_live or waiting.get(m.id)]
+    return render(request, "content_index.html", chans=chans, accounts=accounts, waiting=waiting, posted=posted,
+                  ads=ads, pending=pending)
+
+
+@router.post("/import")
+async def import_packs(file: UploadFile = File(...)):
+    """Ready channels from a JSON file: one pack or a list of packs (see content.import_pack)."""
+    try:
+        data = json.loads((await file.read()).decode("utf-8-sig"))
+        packs = data if isinstance(data, list) else [data]
+        for pack in packs:
+            await content.import_pack(pack)
+    except Exception as e:
+        return back("/content", err=f"Пакет не загружен: {e}"[:300])
+    return back("/content", msg=f"Загружено каналов: {len(packs)}. Проверьте их и создайте в Telegram.")
+
+
+@router.post("/launch-pending")
+async def launch_pending(account_id: int = Form(0)):
+    """Create every draft channel in Telegram, one after another (a background task)."""
+    if account_id:
+        async with session() as s:
+            for m in (await s.scalars(select(MyChannel))).all():
+                if not m.is_live:
+                    m.publisher_account_id = account_id
+            await s.commit()
+    tasks.spawn(content.launch_pending(), "Создание своих каналов в Telegram")
+    return back("/content", msg="Создание каналов запущено: по одному, с паузами. Ход виден на главной странице.")
 
 
 @router.post("")
@@ -44,6 +84,8 @@ async def channel(request: Request, mc_id: int, days: int = 30):
                                                            ContentItem.status.not_in(("rejected",)))
                                  .order_by(ContentItem.status, ContentItem.scheduled_at, ContentItem.id.desc())
                                  .limit(100))).all()
+        # starter posts are read in the order they will be published; other drafts — newest first
+        items.sort(key=lambda it: (it.status, it.source != "starter", it.id if it.source == "starter" else -it.id))
         creatives = (await s.scalars(select(MyCreative).where(MyCreative.my_channel_id == mc_id)
                                      .order_by(MyCreative.id.desc()))).all()
         accounts = (await s.scalars(select(Account).where(Account.status == "active"))).all()
@@ -52,18 +94,46 @@ async def channel(request: Request, mc_id: int, days: int = 30):
 
 
 @router.post("/{mc_id}/settings")
-async def save_settings(mc_id: int, ref: str = Form(...), language: str = Form("uz"), topic: str = Form(""),
-                        positioning: str = Form(""), post_times: str = Form(""), publisher_account_id: int = Form(0)):
+async def save_settings(mc_id: int, ref: str = Form(""), language: str = Form("uz"), topic: str = Form(""),
+                        positioning: str = Form(""), post_times: str = Form(""), publisher_account_id: int = Form(0),
+                        title: str = Form(""), about: str = Form(""), username_wanted: str = Form(""),
+                        signature: str = Form("")):
     async with session() as s:
         mc = await s.get(MyChannel, mc_id)
+        was_draft = not mc.is_live
         if mc.ref != ref.strip():
             mc.tg_id = None
         mc.ref, mc.language, mc.topic, mc.positioning = ref.strip(), language, topic, positioning
         mc.post_times = post_times
         mc.publisher_account_id = publisher_account_id or None
+        mc.signature = signature.strip() or None
+        if was_draft:  # what the channel will be created with
+            mc.title = title.strip() or mc.title
+            mc.about, mc.username_wanted = about.strip() or None, username_wanted.strip() or None
+        live = mc.is_live
         await s.commit()
-    tasks.spawn(content.refresh_my_channel(mc_id), "Проверка своего канала")
+    if live:
+        tasks.spawn(content.refresh_my_channel(mc_id), "Проверка своего канала")
     return back(f"/content/{mc_id}", msg="Сохранено")
+
+
+@router.post("/{mc_id}/launch")
+async def launch(mc_id: int):
+    async with session() as s:
+        mc = await s.get(MyChannel, mc_id)
+        title = mc.title
+    tasks.spawn(content.launch(mc_id), f"Создание канала «{title}» в Telegram")
+    return back(f"/content/{mc_id}", msg="Создание запущено: канал, адрес, аватар и стартовые посты. "
+                                         "Ход виден на главной странице, это займёт несколько минут.")
+
+
+@router.get("/{mc_id}/avatar")
+async def avatar(mc_id: int):
+    async with session() as s:
+        mc = await s.get(MyChannel, mc_id)
+    if mc is None or not mc.avatar_path or not Path(mc.avatar_path).is_file():
+        raise HTTPException(404)
+    return FileResponse(mc.avatar_path)
 
 
 @router.post("/{mc_id}/donors")

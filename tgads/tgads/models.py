@@ -56,9 +56,30 @@ class MyChannel(Base):
     publisher_account_id: Mapped[int | None] = mapped_column(ForeignKey("accounts.id"))
     post_times: Mapped[str] = mapped_column(String(128), default="09:00,13:00,19:00")  # Tashkent time
     subscribers: Mapped[int | None] = mapped_column(Integer)
+    # a draft (empty ref, no tg_id) is created in Telegram by the panel from the fields below
+    about: Mapped[str | None] = mapped_column(Text)                    # channel description in Telegram
+    username_wanted: Mapped[str | None] = mapped_column(String(256))   # @username candidates, comma-separated
+    avatar_path: Mapped[str | None] = mapped_column(String(256))
+    signature: Mapped[str | None] = mapped_column(Text)   # added to every post; {channel} = @username or link
+    invite_link: Mapped[str | None] = mapped_column(String(128))       # permanent link of a private channel
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
     donors: Mapped[list[Donor]] = relationship(back_populates="my_channel", cascade="all, delete-orphan")
+
+    @property
+    def is_live(self) -> bool:
+        """Exists in Telegram (a draft does not yet)."""
+        return bool(self.tg_id or (self.ref or "").strip())
+
+    @property
+    def handle(self) -> str:
+        """What a reader can open: @username, else the invite link."""
+        ref = (self.ref or "").strip()
+        if ref.startswith("@"):
+            return ref
+        if ref.startswith("http") or "t.me/" in ref:
+            return ref
+        return self.invite_link or ""
 
 
 class Donor(Base):
@@ -333,7 +354,8 @@ class MyCreative(Base):
     my_channel_id: Mapped[int] = mapped_column(ForeignKey("my_channels.id"), index=True)
     title: Mapped[str] = mapped_column(String(128), default="")
     text: Mapped[str] = mapped_column(Text)
-    source: Mapped[str] = mapped_column(String(16), default="manual")  # manual | ai
+    source: Mapped[str] = mapped_column(String(16), default="manual")  # manual | ai | pack
+    note: Mapped[str | None] = mapped_column(Text)  # for the owner: the idea of the ad, in Russian
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
 
@@ -396,9 +418,11 @@ class ContentItem(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     my_channel_id: Mapped[int] = mapped_column(ForeignKey("my_channels.id"), index=True)
-    source: Mapped[str] = mapped_column(String(16), default="manual")  # copy | rewrite | ai | manual
+    source: Mapped[str] = mapped_column(String(16), default="manual")  # copy | rewrite | ai | manual | starter
     source_post_id: Mapped[int | None] = mapped_column(ForeignKey("posts.id"))
     text: Mapped[str] = mapped_column(Text, default="")
+    note: Mapped[str | None] = mapped_column(Text)   # for the owner: what the post is about, in Russian
+    pin: Mapped[bool | None] = mapped_column(Boolean)  # pin in the channel after publishing
     media_paths: Mapped[list] = mapped_column(JSON, default=list)
     # draft | generating | queued | published | failed | rejected
     status: Mapped[str] = mapped_column(String(16), default="draft")

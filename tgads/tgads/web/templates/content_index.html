@@ -2,17 +2,47 @@
 {% block title %}Свои каналы{% endblock %}
 {% block content %}
 <h1>2 · Свои каналы и контент</h1>
+{% if pending %}
+<article>
+  <b>Ждут создания в Telegram: {{ pending|length }}.</b>
+  <span class="small muted">Панель создаст каждый канал от выбранного аккаунта: название, описание, адрес, аватар,
+  затем опубликует стартовые посты. Каналы создаются по одному, с паузами в несколько минут.</span>
+  <form method="post" action="/content/launch-pending" class="row"
+        onsubmit="return confirm('Создать в Telegram каналов: {{ pending|length }}? Они станут публичными.')">
+    <label>Аккаунт-владелец<select name="account_id"><option value="0">как указано у канала / авто</option>
+      {% for a in accounts %}<option value="{{ a.id }}">{{ a.title or a.phone }}</option>{% endfor %}</select></label>
+    <button type="submit">Создать все в Telegram</button>
+  </form>
+</article>
+{% endif %}
+<div class="table-wrap">
 <table>
-  <thead><tr><th>Канал</th><th>Язык</th><th>Тема</th><th>Подписчики</th></tr></thead>
+  <thead><tr><th></th><th>Канал</th><th>Состояние</th><th>Язык</th><th>Тема</th><th>Посты: готово к запуску / вышло</th><th>Рекламных постов</th><th>Подписчики</th></tr></thead>
   <tbody>
   {% for m in chans %}
-  <tr><td><a href="/content/{{ m.id }}">{{ m.title or m.ref }}</a> <span class="small muted">{{ m.ref }}</span></td>
-    <td>{{ m.language }}</td><td>{{ m.topic }}</td><td>{{ m.subscribers|num }}</td></tr>
-  {% else %}<tr><td colspan="4" class="muted">Своих каналов пока нет.</td></tr>{% endfor %}
+  <tr><td>{% if m.avatar_path %}<img src="/content/{{ m.id }}/avatar" alt="" width="40" height="40" style="border-radius: 50%">{% endif %}</td>
+    <td><a href="/content/{{ m.id }}">{{ m.title or m.ref }}</a><br><span class="small muted">{{ m.handle or m.ref or ('@' ~ (m.username_wanted or '').split(',')[0] if m.username_wanted else '') }}</span></td>
+    <td>{% if m.is_live %}<span class="badge ok">в Telegram</span>{% else %}<span class="badge warn">черновик</span>{% endif %}</td>
+    <td>{{ m.language }}</td><td class="small">{{ m.topic }}</td>
+    <td>{{ waiting.get(m.id, 0) }} / {{ posted.get(m.id, 0) }}</td><td>{{ ads.get(m.id, 0) }}</td>
+    <td>{{ m.subscribers|num }}</td></tr>
+  {% else %}<tr><td colspan="8" class="muted">Своих каналов пока нет.</td></tr>{% endfor %}
   </tbody>
 </table>
+</div>
 
-<h2>Добавить свой канал</h2>
+<details>
+  <summary>Загрузить готовые каналы из файла</summary>
+  <p class="small muted">JSON-файл с одним каналом или списком каналов: название, описание, варианты адреса, аватар,
+  стартовые посты и рекламные посты. Каналы появятся здесь как черновики; повторная загрузка заменяет посты,
+  пока они не опубликованы.</p>
+  <form method="post" action="/content/import" enctype="multipart/form-data" class="row">
+    <input type="file" name="file" accept=".json,application/json" required>
+    <button type="submit" class="secondary">Загрузить</button>
+  </form>
+</details>
+
+<h2>Добавить уже существующий канал</h2>
 <form method="post" action="/content" style="max-width: 720px">
   <label>Канал (@username, t.me-ссылка или числовой id -100…)<input name="ref" required></label>
   <div class="row">

@@ -7,7 +7,8 @@ from telethon import functions, types, utils
 
 from tgads.db import init_db, session, set_setting
 from tgads.models import (
-    Account, Channel, Contact, ContentItem, Conversation, InviteLink, Join, MyChannel, Offer, Post, Purchase,
+    Account, Channel, Contact, ContentItem, Conversation, InviteLink, Join, MyChannel, MyCreative, Offer, Post,
+    Purchase,
     ViewSample, utcnow,
 )
 from tgads.services import content, contacts, monitor, outreach, research, tracking
@@ -29,6 +30,10 @@ class FakeClient:
         self.sent: list[tuple[object, str]] = []
         self.joined: set[int] = set()
         self.about: dict[int, str] = {}
+        self.created: list[str] = []
+        self.photos: set[int] = set()
+        self.pinned: list[tuple[int, int]] = []
+        self.deleted: list[int] = []
 
     def is_connected(self):
         return True
@@ -95,6 +100,15 @@ class FakeClient:
     async def download_media(self, m, file=None):
         return None
 
+    async def upload_file(self, path):
+        return NS(name=str(path))
+
+    async def pin_message(self, entity, msg_id, notify=False):
+        self.pinned.append((self._cid(entity), msg_id))
+
+    async def delete_messages(self, entity, ids):
+        self.deleted += list(ids)
+
     async def __call__(self, req):
         if isinstance(req, functions.contacts.SearchRequest):
             return NS(chats=list(self.channels.values()))
@@ -105,6 +119,22 @@ class FakeClient:
                                    pinned_msg_id=None), chats=[ch])
         if isinstance(req, functions.channels.JoinChannelRequest):
             self.joined.add(self._cid(req.channel))
+            return NS()
+        if isinstance(req, functions.channels.CreateChannelRequest):
+            cid = 9000 + len(self.created)
+            self.created.append(req.title)
+            ch = self.add_channel(cid, f"private{cid}", req.title, 1, about=req.about)
+            ch.username = None
+            return NS(chats=[ch])
+        if isinstance(req, functions.channels.CheckUsernameRequest):
+            return req.username.lower() not in self.channels
+        if isinstance(req, functions.channels.UpdateUsernameRequest):
+            ch = self._channel(self._cid(req.channel))
+            ch.username = req.username
+            self.channels[req.username.lower()] = ch
+            return True
+        if isinstance(req, functions.channels.EditPhotoRequest):
+            self.photos.add(self._cid(req.channel))
             return NS()
         if isinstance(req, (functions.folders.EditPeerFoldersRequest, functions.account.UpdateNotifySettingsRequest,
                             functions.channels.LeaveChannelRequest)):
@@ -343,3 +373,114 @@ async def test_join_queue_refills_from_catalog():
         ch = (await s.scalars(select(Channel).where(Channel.username == "refill_big"))).one()
         assert ch.status == "monitoring" and not ch.joined
         assert (await s.scalars(select(Channel).where(Channel.username == "refill_ru"))).first() is None
+
+
+PACK = {"title": "Bir hikoya — bir saboq", "language": "uz", "topic": "истории", "about": "Har kuni bitta hikoya",
+        "usernames": ["taken_name", "bir_hikoya_test"], "signature": "👉 {channel}",
+        "posts": [{"ru": "первая история", "text": "**Birinchi**\n\nMatn"},
+                  {"ru": "вторая история", "text": "**Ikkinchi**\n\nMatn", "pin": True}],
+        "ads": [{"title": "1 · Интрига", "ru": "крючок-вопрос", "text": "Savol?\n👇\n{link}\n{link}"}]}
+
+
+async def test_pack_becomes_a_telegram_channel_with_posts(tmp_path, monkeypatch):
+    """A ready channel: import the pack as a draft, create it in Telegram, publish the starter posts once."""
+    import httpx
+
+    from tgads.web.app import create_app
+    await init_db()
+    monkeypatch.setattr(content, "STARTER_PAUSE", (0, 0))
+    fake = FakeClient()
+    fake.add_channel(4001, "taken_name", "Someone else", 10)
+    avatar = tmp_path / "avatar.png"
+    avatar.write_bytes(b"png")
+    mc_id = await content.import_pack({**PACK, "avatar_path": str(avatar)})
+    assert await content.import_pack({**PACK, "avatar_path": str(avatar)}) == mc_id   # again: nothing is doubled
+    async with session() as s:
+        acc = Account(phone="+998003", status="active", roles="publisher")
+        s.add(acc)
+        await s.commit()
+        acc_id = acc.id
+        mc = await s.get(MyChannel, mc_id)
+        items = (await s.scalars(select(ContentItem).where(ContentItem.my_channel_id == mc_id)
+                                 .order_by(ContentItem.id))).all()
+        assert not mc.is_live and [it.note for it in items] == ["первая история", "вторая история"]
+        assert len((await s.scalars(select(MyCreative).where(MyCreative.my_channel_id == mc_id))).all()) == 1
+        first_id = items[0].id
+    pool.clients[acc_id] = fake
+    try:
+        await content.publish(first_id)                      # a draft channel cannot be posted to
+        async with session() as s:
+            assert (await s.get(ContentItem, first_id)).status == "failed"
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app()), base_url="http://test") as c:
+            page = (await c.get("/content")).text
+            assert "черновик" in page and "Создать все в Telegram" in page
+            page = (await c.get(f"/content/{mc_id}")).text
+            # the posts themselves, not empty blocks: the menu list of the layout once shadowed "items"
+            assert "первая история" in page and "**Ikkinchi**" in page and 'action="/content/items/"' not in page
+            assert "крючок-вопрос" in page and "Создать в Telegram" in page
+            assert (await c.get(f"/content/{mc_id}/avatar")).status_code == 200
+        res = await content.launch(mc_id)
+        assert "@bir_hikoya_test" in res and "постов: 2" in res
+        async with session() as s:
+            mc = await s.get(MyChannel, mc_id)
+            assert mc.is_live and mc.ref == "@bir_hikoya_test" and mc.tg_id and mc.publisher_account_id == acc_id
+            items = (await s.scalars(select(ContentItem).where(ContentItem.my_channel_id == mc_id)
+                                     .order_by(ContentItem.id))).all()
+            assert [it.status for it in items] == ["published", "published"]
+            pinned_msg = items[1].tg_msg_id
+        assert fake.created == [PACK["title"]] and fake.photos == {mc.tg_id}
+        assert [t for _, t in fake.sent] == ["**Birinchi**\n\nMatn\n\n👉 @bir_hikoya_test",
+                                             "**Ikkinchi**\n\nMatn\n\n👉 @bir_hikoya_test"]
+        assert fake.pinned == [(mc.tg_id, pinned_msg)]
+        await content.launch(mc_id)                           # a second run repeats nothing
+        assert len(fake.created) == 1 and len(fake.sent) == 2
+        assert "Готово каналов: 0 из 0" in await content.launch_pending()
+    finally:
+        pool.clients.pop(acc_id, None)
+
+
+async def test_launch_keeps_the_channel_private_when_no_username_is_free(monkeypatch):
+    await init_db()
+    monkeypatch.setattr(content, "STARTER_PAUSE", (0, 0))
+    monkeypatch.setattr(content, "CHANNEL_PAUSE", (0, 0))
+    fake = FakeClient()
+    fake.add_channel(4001, "taken_name", "Someone else", 10)
+    mc_id = await content.import_pack({**PACK, "usernames": ["taken_name"]})
+    async with session() as s:
+        acc = Account(phone="+998004", status="active", roles="publisher")
+        s.add(acc)
+        await s.commit()
+        acc_id = acc.id
+    pool.clients[acc_id] = fake
+    try:
+        res = await content.launch_pending()
+        assert "Готово каналов: 1 из 1" in res and "канал закрытый" in res
+        async with session() as s:
+            mc = await s.get(MyChannel, mc_id)
+            assert mc.ref == f"-100{mc.tg_id}" and mc.invite_link == "https://t.me/+TrackHash123"
+        assert fake.sent[0][1].endswith("👉 https://t.me/+TrackHash123")   # the signature falls back to the link
+    finally:
+        pool.clients.pop(acc_id, None)
+
+
+async def test_packs_are_imported_from_an_uploaded_file():
+    import base64
+    import json
+    from pathlib import Path
+
+    import httpx
+
+    from tgads.web.app import create_app
+    await init_db()
+    bundle = [{**PACK, "avatar_b64": base64.b64encode(b"jpeg bytes").decode()}]
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app()), base_url="http://test") as c:
+        r = await c.post("/content/import", files={"file": ("bundle.json", json.dumps(bundle), "application/json")})
+        assert r.status_code == 303 and "msg=" in r.headers["location"]
+        r = await c.post("/content/import", files={"file": ("bad.json", "not json", "application/json")})
+        assert r.status_code == 303 and "err=" in r.headers["location"]
+        assert "Загрузить готовые каналы" in (await c.get("/content")).text
+    async with session() as s:
+        mc = (await s.scalars(select(MyChannel))).one()
+        assert mc.title == PACK["title"] and not mc.is_live and mc.username_wanted == "taken_name,bir_hikoya_test"
+        assert Path(mc.avatar_path).read_bytes() == b"jpeg bytes"
+        assert len((await s.scalars(select(ContentItem))).all()) == 2
