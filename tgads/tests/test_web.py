@@ -89,7 +89,7 @@ async def client_ids():
         yield c, ids
 
 
-async def test_pages_and_forms(client_ids):
+async def test_pages_and_forms(no_night, client_ids):
     c, ids = client_ids
     pages = ["/", "/accounts", "/catalog", "/research", "/channels", "/channels?status=monitoring&sort=reach",
              f"/channels/{ids['clean']}", f"/channels/{ids['boosted']}", "/vetting", "/vetting?show=all",

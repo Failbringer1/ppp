@@ -12,8 +12,10 @@ from pathlib import Path
 
 from sqlalchemy import case, func, select
 
+from ..analysis.niches import TopicRow, topic_table
+from ..analysis.pricing import min_price_uzs
 from ..analysis.tgstat import CATALOG_CATEGORIES, CATALOG_LANGUAGES, COUNTRY_NAMES, catalog_rows
-from ..db import get_setting, session, set_setting
+from ..db import get_setting, get_settings, session, set_setting
 from ..models import CatalogChannel, Channel, utcnow
 from .research import add_channel_ref
 
@@ -205,6 +207,30 @@ async def to_work(ids: list[int], monitor: bool = False) -> int:
             n += 1
         await s.commit()
     return n
+
+
+async def topics(country: str = "") -> list[TopicRow]:
+    """Categories of the catalog with the audience numbers and the results of our own checks."""
+    async with session() as s:
+        stmt = select(CatalogChannel.ref, CatalogChannel.category_id, CatalogChannel.subscribers,
+                      CatalogChannel.avg_reach)
+        if country:
+            stmt = stmt.where(CatalogChannel.country == country)
+        cat = (await s.execute(stmt)).all()
+        work = (await s.execute(select(Channel.username, Channel.verdict, Channel.subscribers, Channel.honest_reach,
+                                       Channel.avg_views, Channel.prices)
+                                .where(Channel.username.is_not(None)))).all()
+        settings = await get_settings(s)
+    def topic(cid: int | None) -> str:
+        return CATALOG_CATEGORIES[cid][0] if cid in CATALOG_CATEGORIES else "без тематики"
+
+    by_ref = {ref.lower(): topic(cid) for ref, cid, _, _ in cat}
+    rows = [{"category": by_ref.get("@" + u.lower()), "verdict": verdict, "subscribers": subs,
+             "honest_reach": honest, "avg_views": views,
+             "price_uzs": min_price_uzs(prices, settings["usd_uzs"], settings["rub_uzs"])}
+            for u, verdict, subs, honest, views, prices in work]
+    return topic_table([(topic(cid), subs, reach) for _, cid, subs, reach in cat],
+                       [r for r in rows if r["category"]])
 
 
 def collector_source(ingest_url: str) -> str:

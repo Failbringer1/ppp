@@ -140,3 +140,32 @@ async def test_empty_filters_and_channel_page_with_partial_tgstat():
         assert "Просмотры по минутам" in page and "4 мин" in page and "880" in page
         vet = (await c.get("/vetting")).text
         assert "Partial" in vet and "250" in vet and "500" in vet
+
+
+def test_topic_table_joins_catalog_numbers_with_our_checks():
+    from tgads.analysis.niches import topic_table
+    catalog_rows = [("Юмор", 20_000, 4_000), ("Юмор", 6_000, 600), ("Юмор", 900, 500),
+                    ("Экономика", 200_000, 50_000)]
+    work = [{"category": "Юмор", "verdict": "clean", "subscribers": 20_000, "honest_reach": 2_000,
+             "avg_views": 4_000, "price_uzs": 100_000},
+            {"category": "Юмор", "verdict": "boosted", "subscribers": 6_000, "honest_reach": 300, "avg_views": 600,
+             "price_uzs": None},
+            {"category": "Юмор", "verdict": "unknown", "subscribers": 900, "honest_reach": None, "avg_views": None,
+             "price_uzs": None},
+            {"category": "Нет в каталоге", "verdict": "clean", "subscribers": 1, "honest_reach": 1, "avg_views": 1,
+             "price_uzs": 1}]
+    eco, humor = topic_table(catalog_rows, work)          # the biggest audience first
+    assert (eco.name, eco.subscribers, eco.huge, eco.checked, eco.clean_share) == ("Экономика", 200_000, 1, 0, None)
+    assert (humor.channels, humor.subscribers, humor.big, humor.huge) == (3, 26_900, 1, 0)
+    assert humor.median_reach == 2_300 and round(humor.median_err, 2) == 0.15   # only the 5k+ channels count
+    assert (humor.checked, humor.clean_share, humor.priced) == (2, 0.5, 1)
+    assert round(humor.honest_share, 3) == 0.075 and humor.median_cpm == 50_000
+
+
+async def test_topics_page_renders():
+    await init_db()
+    await catalog.ingest({"items": ITEMS})
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app()), base_url="http://test") as c:
+        r = await c.get("/catalog/topics?sort=err")
+        assert r.status_code == 200 and "Тематики" in r.text and "Новости и СМИ" in r.text
+        assert "Сводка по тематикам" in (await c.get("/catalog")).text

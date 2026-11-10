@@ -3,6 +3,7 @@
 {% block content %}
 {% set qs = request.url.query %}
 <h1>Каталог TGStat <span class="muted small">{{ grand_total|num }} каналов</span></h1>
+<p><a href="/catalog/topics">Сводка по тематикам →</a> <span class="small muted">размер аудитории, вовлечённость, доля чистых каналов и цены рекламы в каждой тематике</span></p>
 
 {% if stats.last %}
 <p class="small muted">Последняя загрузка: {{ stats.last.at|replace('T', ' ') }} UTC, строк {{ stats.last.rows|num }}, новых {{ stats.last.added|num }}.

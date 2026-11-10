@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Тематики каталога{% endblock %}
+{% block content %}
+<h1>Тематики <span class="muted small">{{ total_channels|num }} каналов · {{ total_subs|num }} подписчиков в сумме</span></h1>
+<p class="small muted"><a href="/catalog">← Каталог</a> ·
+  Первые столбцы — данные TGStat по всем каналам каталога. «Проверено», «Чистых» и «Честный охват» — результаты наших
+  замеров просмотров (вкладка «Проверка»). Цена — самая низкая известная цена поста у канала, CPM — цена за 1000
+  честных просмотров. Один подписчик может быть подписан на много каналов, поэтому сумма подписчиков показывает спрос
+  на тему, а не число людей. Заголовок столбца сортирует таблицу.</p>
+{% macro th(key, label, title='') %}<th title="{{ title }}"><a href="?sort={{ key }}{% if country %}&country={{ country }}{% endif %}">{{ label }}{{ ' ↓' if sort == key }}</a></th>{% endmacro %}
+<div class="table-wrap">
+<table>
+  <thead><tr>
+    <th>Тематика</th>
+    {{ th('channels', 'Каналов') }}
+    {{ th('subs', 'Подписчиков всего') }}
+    {{ th('big', 'От 10 тыс.', 'Каналов с 10 000+ подписчиков, в скобках — со 100 000+') }}
+    {{ th('reach', 'Охват поста', 'Медиана охвата одного поста у каналов с 5 000+ подписчиков') }}
+    {{ th('err', 'ERR', 'Медиана: охват поста / подписчики, каналы с 5 000+ подписчиков') }}
+    <th title="Каналов этой тематики с вердиктом нашей проверки">Проверено</th>
+    {{ th('clean', 'Чистых', 'Доля каналов без признаков накрутки среди проверенных') }}
+    {{ th('honest', 'Честный охват', 'Медиана: честный охват / подписчики по нашим замерам') }}
+    {{ th('price', 'Цена поста', 'Медиана самой низкой известной цены, сум; в скобках — у скольких каналов цена известна') }}
+    {{ th('cpm', 'CPM', 'Медиана цены за 1000 честных просмотров, сум') }}
+  </tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr>
+    <td>{{ r.name }}</td>
+    <td>{{ r.channels|num }}</td>
+    <td><b>{{ r.subscribers|num }}</b> <span class="small muted">{{ (100 * r.subscribers / total_subs)|num(1) if total_subs else '' }}%</span></td>
+    <td>{{ r.big|num }} <span class="small muted">({{ r.huge|num }})</span></td>
+    <td>{{ r.median_reach|num }}</td>
+    <td>{{ r.median_err|pct }}</td>
+    <td>{{ r.checked|num if r.checked else '—' }}</td>
+    <td>{% if r.clean_share is not none %}<span class="badge {{ 'ok' if r.clean_share >= 0.75 else ('warn' if r.clean_share >= 0.5 else 'bad') }}">{{ r.clean_share|pct(0) }}</span>{% else %}—{% endif %}</td>
+    <td>{{ r.honest_share|pct }}</td>
+    <td>{{ r.median_price|num }}{% if r.priced %} <span class="small muted">({{ r.priced }})</span>{% endif %}</td>
+    <td>{{ r.median_cpm|num }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="11" class="muted">Каталог пуст.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

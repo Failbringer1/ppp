@@ -155,3 +155,69 @@ TOPICS = [
     "религия", "здоровье/красота", "мамы/дети", "путешествия", "психология/мотивация",
     "техника/IT", "недвижимость", "музыка", "игры", "женское", "мужское", "прочее",
 ]
+
+
+# ---------- topics of the TGStat catalog ----------
+
+@dataclass
+class TopicRow:
+    """One catalog category: how big and lively it is, and what our own checks say about its channels."""
+    name: str
+    channels: int = 0
+    subscribers: int = 0                # sum over the catalog
+    big: int = 0                        # channels with 10k+ subscribers
+    huge: int = 0                       # channels with 100k+ subscribers
+    median_reach: float | None = None   # reach of one post, channels with 5k+ subscribers
+    median_err: float | None = None     # reach / subscribers, the same channels
+    checked: int = 0                    # channels with a verdict of our bot check
+    clean_share: float | None = None
+    honest_share: float | None = None   # median honest reach / subscribers
+    priced: int = 0                     # channels whose ad price we know
+    median_price: float | None = None   # UZS
+    median_cpm: float | None = None     # UZS per 1000 honest views
+
+
+def topic_table(catalog: list[tuple[str, int | None, float | None]], work: list[dict]) -> list[TopicRow]:
+    """catalog: (category, subscribers, reach of a post) of every catalog channel.
+    work: channels we took to work: category, verdict, subscribers, honest_reach, avg_views, price_uzs.
+    Sorted by the total audience."""
+    rows: dict[str, TopicRow] = {}
+    reach: dict[str, list[float]] = {}
+    err: dict[str, list[float]] = {}
+    for name, subs, avg_reach in catalog:
+        r = rows.setdefault(name, TopicRow(name))
+        subs = subs or 0
+        r.channels += 1
+        r.subscribers += subs
+        r.big += subs >= 10_000
+        r.huge += subs >= 100_000
+        if subs >= 5_000 and avg_reach:
+            reach.setdefault(name, []).append(avg_reach)
+            err.setdefault(name, []).append(avg_reach / subs)
+    verdicts: dict[str, list[bool]] = {}
+    honest: dict[str, list[float]] = {}
+    prices: dict[str, list[float]] = {}
+    cpms: dict[str, list[float]] = {}
+    for w in work:
+        name = w["category"]
+        if name not in rows:
+            continue
+        if w.get("verdict") in ("clean", "suspicious", "boosted"):
+            verdicts.setdefault(name, []).append(w["verdict"] == "clean")
+            if w.get("honest_reach") and w.get("subscribers"):
+                honest.setdefault(name, []).append(w["honest_reach"] / w["subscribers"])
+        if w.get("price_uzs"):
+            prices.setdefault(name, []).append(w["price_uzs"])
+            views = w.get("honest_reach") or w.get("avg_views")
+            if views:
+                cpms.setdefault(name, []).append(w["price_uzs"] / views * 1000)
+    for name, r in rows.items():
+        r.median_reach = statistics.median(reach[name]) if name in reach else None
+        r.median_err = statistics.median(err[name]) if name in err else None
+        r.checked = len(verdicts.get(name, []))
+        r.clean_share = sum(verdicts[name]) / r.checked if r.checked else None
+        r.honest_share = statistics.median(honest[name]) if name in honest else None
+        r.priced = len(prices.get(name, []))
+        r.median_price = statistics.median(prices[name]) if name in prices else None
+        r.median_cpm = statistics.median(cpms[name]) if name in cpms else None
+    return sorted(rows.values(), key=lambda r: r.subscribers, reverse=True)

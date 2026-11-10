@@ -162,7 +162,7 @@ class FakeClient:
         raise NotImplementedError(type(req).__name__)
 
 
-async def test_full_flow():
+async def test_full_flow(no_night):
     await init_db()
     fake = FakeClient()
     fake.add_channel(1001, "kino_uz", "Kino UZ", 40_000, about="Eng zo'r kinolar\nReklama bo'yicha: @kino_admin")

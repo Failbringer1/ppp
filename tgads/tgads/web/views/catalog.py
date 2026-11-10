@@ -21,6 +21,23 @@ SORTS = {
 }
 
 
+TOPIC_SORTS = {
+    "subs": lambda r: r.subscribers, "channels": lambda r: r.channels, "big": lambda r: r.big,
+    "reach": lambda r: r.median_reach or 0, "err": lambda r: r.median_err or 0,
+    "clean": lambda r: r.clean_share if r.clean_share is not None else -1,
+    "honest": lambda r: r.honest_share or 0, "price": lambda r: r.median_price or 0,
+    "cpm": lambda r: r.median_cpm or 0,
+}
+
+
+@router.get("/topics")
+async def topics(request: Request, sort: str = "subs", country: str = ""):
+    rows = await catalog.topics(country)
+    rows.sort(key=TOPIC_SORTS.get(sort, TOPIC_SORTS["subs"]), reverse=True)
+    return render(request, "catalog_topics.html", rows=rows, sort=sort, country=country,
+                  total_subs=sum(r.subscribers for r in rows), total_channels=sum(r.channels for r in rows))
+
+
 @router.get("")
 async def index(request: Request, category: int = 0, language: int = -1, kind: str = "", q: str = "",
                 min_subs: str = "", max_subs: str = "", country: str = "", sort: str = "subs", page: int = 1):
