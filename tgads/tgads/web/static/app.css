@@ -51,6 +51,9 @@ pre.text { white-space: pre-wrap; word-break: break-word; font-size: 0.85rem; pa
 .ru-text, .show-ru .has-ru .orig-text { display: none; }
 .show-ru .ru-text { display: block; }
 pre.ru-text { max-height: none; font-family: inherit; font-size: 0.95rem; }
+/* like / dislike under an ad post: big enough for a thumb on a phone */
+.rate textarea { margin-bottom: 0.3rem; }
+.rate button { padding: 0.4rem 0.9rem; font-size: 0.95rem; }
 .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 0.5rem 0; }
 .actions button, .actions select, .actions input { width: auto; margin-bottom: 0; }
 button.sm, a.sm[role=button] { padding: 0.2rem 0.55rem; font-size: 0.82rem; }
