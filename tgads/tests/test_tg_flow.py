@@ -519,6 +519,7 @@ async def test_russian_translation_is_for_reading_only(monkeypatch):
             assert (await s.scalars(select(MyCreative))).one().text_ru.startswith("Вопрос?")
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app()), base_url="http://test") as c:
             page = (await c.get(f"/content/{mc_id}")).text
+            assert "/static/app.css?v=" in page                                # new styles reach the browser at once
             assert "По-русски" in page and "**Первый**" in page and "**Второй**" in page and "Вопрос?" in page
             assert "Перевести через ИИ" not in page                     # nothing is left without a translation
             # a post written in the panel has no translation yet: it is ordered from the AI

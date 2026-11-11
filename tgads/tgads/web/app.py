@@ -80,7 +80,8 @@ templates.env.filters.update(num=_num, pct=_pct, local=_local, ago=_ago, short=_
 
 VERDICTS = {"unknown": ("нет данных", "muted"), "clean": ("чистый", "ok"),
             "suspicious": ("подозрительный", "warn"), "boosted": ("накрутка", "bad")}
-templates.env.globals.update(VERDICTS=VERDICTS)
+# the address of the stylesheet changes with the file: a new page is never shown with the old styles
+templates.env.globals.update(VERDICTS=VERDICTS, STATIC_V=int((HERE / "static" / "app.css").stat().st_mtime))
 
 
 def to_utc(local_str: str | None) -> datetime | None:
