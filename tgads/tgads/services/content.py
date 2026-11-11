@@ -255,9 +255,11 @@ def _to_chat(event: dict) -> None:
         log.warning("chat outbox is not written: %s", e)
 
 
-async def ad_taste(s: AsyncSession, limit: int = 12) -> str:
-    """What the owner likes and dislikes in ad posts, as a block for an AI prompt ("" while there are no marks)."""
-    rows = (await s.scalars(select(AdFeedback).order_by(AdFeedback.id.desc()).limit(200))).all()
+async def ad_taste(s: AsyncSession, limit: int = 12, skip: int | None = None) -> str:
+    """What the owner likes and dislikes in ad posts, as a block for an AI prompt ("" while there are no marks).
+    skip: the mark of the post that the prompt is about, it is named there separately."""
+    rows = [r for r in (await s.scalars(select(AdFeedback).order_by(AdFeedback.id.desc()).limit(200))).all()
+            if r.id != skip]
     if not rows:
         return ""
 
@@ -280,10 +282,11 @@ async def rate_creative(cr_id: int, like: bool, comment: str = "") -> int | None
     async with session() as s:
         cr = await s.get(MyCreative, cr_id)
         mc = await s.get(MyChannel, cr.my_channel_id)
-        taste = await ad_taste(s)  # before this mark is stored: the prompt names the disliked post separately
         fb = (await s.scalars(select(AdFeedback).where(AdFeedback.creative_id == cr.id)
                               .order_by(AdFeedback.id.desc()))).first()
-        if fb is None or fb.text != cr.text:   # one mark per version of the text: pressing again updates it
+        same = fb is not None and fb.text == cr.text   # one mark per version of the text: pressing again updates it
+        taste = await ad_taste(s, skip=fb.id if same else None)  # without this very post, even if it was liked before
+        if not same:
             fb = AdFeedback(my_channel_id=mc.id, creative_id=cr.id, title=cr.title, text=cr.text, text_ru=cr.text_ru)
             s.add(fb)
         fb.rating, fb.comment = (1 if like else -1), comment or None

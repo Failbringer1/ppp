@@ -161,7 +161,7 @@
   </div>
   {% set job = replace_jobs.get(cr.id) %}
   {% if job and job.status in ('pending', 'running', 'manual') %}
-  <p class="small"><span class="badge warn">пишется замена</span> Новый вариант появится на месте этого поста, обновите страницу через несколько минут.{% if cr.feedback %} Ваш комментарий: «{{ cr.feedback }}»{% endif %}</p>
+  <p class="small"><span class="badge warn">пишется замена</span> Новый вариант появится на месте этого поста, обновите страницу через несколько минут.{% if job.status == 'manual' %} Замену пишет Claude из чата: если чат на компьютере закрыт, она появится, когда его откроют.{% endif %}{% if cr.feedback %} Ваш комментарий: «{{ cr.feedback }}»{% endif %}</p>
   {% else %}
   {% if job and job.status == 'error' %}<p class="small" style="color: var(--bad)">Замена не получилась ({{ (job.error or '')|short(160) }}). Нажмите «Не нравится» ещё раз.</p>{% endif %}
   <form method="post" action="/content/creatives/{{ cr.id }}/rate">

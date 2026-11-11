@@ -572,6 +572,7 @@ async def test_ad_marks_are_remembered_and_a_dislike_orders_a_replacement():
         assert f'action="/content/creatives/{ids[0]}/rate"' in page and "👎 Не нравится" in page
         r = await c.post(f"/content/creatives/{ids[1]}/rate", data={"rating": "like", "comment": "Коротко и по делу"})
         assert r.status_code == 303
+        await c.post(f"/content/creatives/{ids[0]}/rate", data={"rating": "like", "comment": "Сначала понравилось"})
         # a dislike: a replacement is ordered; its prompt carries the comment, the pinned post and the taste so far
         await c.post(f"/content/creatives/{ids[0]}/rate",
                      data={"rating": "dislike", "comment": "Слишком загадочно,\r\nскажи прямо"})
@@ -584,14 +585,15 @@ async def test_ad_marks_are_remembered_and_a_dislike_orders_a_replacement():
             assert cr.rating == -1 and cr.replace_job_id == job.id == marks[1].job_id
             for part in ("Savol?", "скажи прямо", "**Ikkinchi**", "Нравится:", "Коротко и по делу", "1 · Интрига"):
                 assert part in job.prompt, part
+            assert "Сначала понравилось" not in job.prompt      # the earlier like of this very post is not "taste"
             first_job = job.id
         page = (await c.get(f"/content/{mc_id}")).text
         assert "пишется замена" in page and "👍 нравится" in page
         # the same marks wait for the owner's chat as lines of a file
         lines = [json.loads(x) for x in
                  (get_config().data_dir / "chat_outbox.jsonl").read_text(encoding="utf-8").splitlines()]
-        assert [(e["rating"], e["job_id"]) for e in lines] == [(1, None), (-1, first_job)]
-        assert "Savol?" in lines[1]["prompt"] and lines[1]["comment"].endswith("скажи прямо")
+        assert [(e["rating"], e["job_id"]) for e in lines] == [(1, None), (1, None), (-1, first_job)]
+        assert "Savol?" in lines[2]["prompt"] and lines[2]["comment"].endswith("скажи прямо")
         # an answer without the link is refused and the post stays; the owner presses the button again
         await c.post(f"/ai/{first_job}/answer", data={"text": json.dumps({"text": "Yangi reklama"})})
         page = (await c.get(f"/content/{mc_id}")).text
