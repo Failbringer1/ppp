@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import hashlib
+import json
 import logging
 import random
 import re
@@ -16,10 +17,11 @@ from telethon import TelegramClient, errors, functions, types
 
 from ..ai import prompts
 from ..ai.jobs import enqueue, handler
+from ..ai.provider import parse_json
 from ..analysis.posts import ScoredPost, score_posts
 from ..config import get_config
 from ..db import session
-from ..models import AiJob, Channel, ContentItem, Donor, MyChannel, MyCreative, Post, utcnow
+from ..models import AdFeedback, AiJob, Channel, ContentItem, Donor, MyChannel, MyCreative, Post, utcnow
 from ..tg.pool import TASHKENT, FloodWait, call, pool
 from .research import add_channel_ref, collect_channel, resolve_entity
 
@@ -239,6 +241,93 @@ async def _apply_translation(s: AsyncSession, job: AiJob, text: str) -> None:
         row.text_ru = text.strip() or None
 
 
+# ----- the owner's marks of our ad posts: the taste is remembered, a disliked post is rewritten -----
+
+APOSTROPHES = re.compile("[‘’ʻʼ`´]")
+
+
+def _to_chat(event: dict) -> None:
+    """One line per mark in data/chat_outbox.jsonl: the owner's Claude chat reads the marks from this file."""
+    try:
+        with open(get_config().data_dir / "chat_outbox.jsonl", "a", encoding="utf-8") as f:
+            f.write(json.dumps(event, ensure_ascii=False) + "\n")
+    except OSError as e:
+        log.warning("chat outbox is not written: %s", e)
+
+
+async def ad_taste(s: AsyncSession, limit: int = 12) -> str:
+    """What the owner likes and dislikes in ad posts, as a block for an AI prompt ("" while there are no marks)."""
+    rows = (await s.scalars(select(AdFeedback).order_by(AdFeedback.id.desc()).limit(200))).all()
+    if not rows:
+        return ""
+
+    def line(r: AdFeedback) -> str:
+        body = " ".join((r.text_ru or r.text).split())[:280]
+        return f"- «{r.title or 'без названия'}»" + (f"; комментарий: {r.comment}" if r.comment else "") + f"; пост: {body}"
+
+    out = ["Вкус владельца по его оценкам прошлых рекламных постов (учитывай обязательно):"]
+    for label, sign in (("Нравится", 1), ("Не нравится", -1)):
+        part = [line(r) for r in rows if r.rating == sign][:limit]
+        if part:
+            out += [f"{label}:"] + part
+    return "\n".join(out)
+
+
+async def rate_creative(cr_id: int, like: bool, comment: str = "") -> int | None:
+    """The owner's mark of an ad post. A dislike orders a replacement that takes the comment into account.
+    Returns the id of the replacement job, if one is ordered."""
+    comment = comment.replace("\r\n", "\n").strip()
+    async with session() as s:
+        cr = await s.get(MyCreative, cr_id)
+        mc = await s.get(MyChannel, cr.my_channel_id)
+        taste = await ad_taste(s)  # before this mark is stored: the prompt names the disliked post separately
+        fb = (await s.scalars(select(AdFeedback).where(AdFeedback.creative_id == cr.id)
+                              .order_by(AdFeedback.id.desc()))).first()
+        if fb is None or fb.text != cr.text:   # one mark per version of the text: pressing again updates it
+            fb = AdFeedback(my_channel_id=mc.id, creative_id=cr.id, title=cr.title, text=cr.text, text_ru=cr.text_ru)
+            s.add(fb)
+        fb.rating, fb.comment = (1 if like else -1), comment or None
+        cr.rating, cr.feedback = fb.rating, comment or None
+        job = None
+        if not like:
+            starters = (await s.scalars(select(ContentItem).where(
+                ContentItem.my_channel_id == mc.id, ContentItem.source == "starter",
+                ContentItem.status != "rejected").order_by(ContentItem.id))).all()
+            job = await enqueue(
+                s, "replace_ad", f"Замена рекламного поста «{cr.title}» ({mc.title or mc.ref})",
+                prompts.replace_ad(channel_info(mc), {"title": cr.title, "text": cr.text, "text_ru": cr.text_ru},
+                                   comment, next((it.text for it in starters if it.pin), ""),
+                                   [it.note for it in starters if it.note], taste),
+                ref_id=cr.id, params={"digest": _digest(cr.text)})
+            cr.replace_job_id = fb.job_id = job.id
+        await s.flush()
+        event = {"id": fb.id, "at": utcnow().isoformat(timespec="seconds"), "channel": mc.title or mc.ref,
+                 "creative_id": cr.id, "title": cr.title, "rating": fb.rating, "comment": comment,
+                 "text": cr.text, "text_ru": cr.text_ru, "job_id": job.id if job else None,
+                 "prompt": job.prompt if job else None}
+        await s.commit()
+    _to_chat(event)
+    return event["job_id"]
+
+
+@handler("replace_ad")
+async def _apply_replacement(s: AsyncSession, job: AiJob, text: str) -> None:
+    data = parse_json(text)
+    new = (data.get("text") or "").strip() if isinstance(data, dict) else ""
+    if not new or "{link}" not in new:
+        raise ValueError("в ответе нет текста поста со ссылкой {link}")
+    cr = await s.get(MyCreative, job.ref_id)
+    if cr is None or _digest(cr.text) != job.params.get("digest"):
+        return  # the post was deleted or replaced while the job waited
+    mc = await s.get(MyChannel, cr.my_channel_id)
+    if mc is not None and mc.language == "uz":
+        new = APOSTROPHES.sub("'", new)   # one apostrophe everywhere, as in the rest of the channel
+    cr.text, cr.text_ru = new, (data.get("text_ru") or "").strip() or None
+    cr.note = (data.get("note") or "").strip() or cr.note
+    # a new text has no mark yet; "ai" keeps a later import of the pack from bringing the old text back
+    cr.source, cr.rating, cr.feedback, cr.replace_job_id = "ai", None, None, None
+
+
 # ----- ready channels: a pack with starter content, creating the channel in Telegram -----
 
 STARTER_PAUSE = (20, 40)     # seconds between starter posts
@@ -299,9 +388,11 @@ async def import_pack(data: dict) -> int:
                                   text_ru=p.get("text_ru") or None, pin=True if p.get("pin") else None))
                 await s.flush()  # keep the order of the pack
         old = {c.title: c for c in (await s.scalars(select(MyCreative).where(
-            MyCreative.my_channel_id == mc.id, MyCreative.source == "pack"))).all()}
+            MyCreative.my_channel_id == mc.id))).all()}
         for a in data.get("ads") or []:
             cr = old.get(a.get("title", ""))
+            if cr is not None and cr.source != "pack":
+                continue  # rewritten after the owner's dislike: the pack must not bring the old text back
             if cr is None:
                 cr = MyCreative(my_channel_id=mc.id, title=a.get("title", ""), text="", source="pack")
                 s.add(cr)

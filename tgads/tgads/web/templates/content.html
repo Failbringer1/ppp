@@ -146,9 +146,12 @@
 <h2 id="creatives">Рекламные посты канала</h2>
 <p class="small muted">Тексты для закупа. <code>{link}</code> заменяется трекинг-ссылкой конкретной площадки. Варианты ИИ создаются кнопкой «Сделать похожий» на странице <a href="/research">Ниши</a>.</p>
 {{ lang_switch() }}
+<p class="small">Под каждым постом можно поставить 👍 или 👎 и написать комментарий. Оценки запоминаются и учитываются
+  в следующих рекламных постах, а пост с 👎 заменяется новым. <a href="/content/taste">Мои оценки: {{ marks }}</a></p>
 {% for cr in creatives %}
 <article>
   <div class="row small"><b>{{ cr.title or ('#' ~ cr.id) }}</b> <span class="muted">{{ cr.source }} · {{ cr.created_at|local }}</span>
+    {% if cr.rating == 1 %}<span class="badge ok">👍 нравится</span>{% elif cr.rating == -1 %}<span class="badge bad">👎 не нравится</span>{% endif %}
     <form method="post" action="/content/creatives/{{ cr.id }}/delete" class="inline"><button class="sm outline">удалить</button></form></div>
   {% if cr.note %}<p class="small"><b>Идея:</b> {{ cr.note }}</p>{% endif %}
   <div class="{{ 'has-ru' if cr.text_ru }}">
@@ -156,6 +159,19 @@
     {% if cr.text_ru %}<pre class="text ru-text">{{ cr.text_ru }}</pre>
     {% elif mc.language != 'ru' %}<p class="small muted ru-text">Перевода пока нет, показан оригинал.</p>{% endif %}
   </div>
+  {% set job = replace_jobs.get(cr.id) %}
+  {% if job and job.status in ('pending', 'running', 'manual') %}
+  <p class="small"><span class="badge warn">пишется замена</span> Новый вариант появится на месте этого поста, обновите страницу через несколько минут.{% if cr.feedback %} Ваш комментарий: «{{ cr.feedback }}»{% endif %}</p>
+  {% else %}
+  {% if job and job.status == 'error' %}<p class="small" style="color: var(--bad)">Замена не получилась ({{ (job.error or '')|short(160) }}). Нажмите «Не нравится» ещё раз.</p>{% endif %}
+  <form method="post" action="/content/creatives/{{ cr.id }}/rate">
+    <textarea name="comment" rows="2" placeholder="Комментарий: что нравится или что не так. С ним замена получится точнее">{{ cr.feedback or '' }}</textarea>
+    <div class="actions">
+      <button name="rating" value="like" class="sm{{ '' if cr.rating == 1 else ' outline' }}">👍 Нравится</button>
+      <button name="rating" value="dislike" class="sm outline">👎 Не нравится, заменить</button>
+    </div>
+  </form>
+  {% endif %}
 </article>
 {% endfor %}
 <form method="post" action="/content/{{ mc.id }}/creatives">

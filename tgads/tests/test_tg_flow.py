@@ -549,3 +549,107 @@ async def test_russian_translation_is_for_reading_only(monkeypatch):
                 assert (await s.get(ContentItem, new_id)).text_ru is None
     finally:
         pool.clients.pop(acc_id, None)
+
+
+async def test_ad_marks_are_remembered_and_a_dislike_orders_a_replacement():
+    """The owner marks our ad posts: the taste goes into later AI prompts and to the owner's chat with Claude,
+    a disliked post is rewritten with the comment taken into account."""
+    import json
+
+    import httpx
+
+    from tgads.config import get_config
+    from tgads.models import AdFeedback
+    from tgads.web.app import create_app
+    await init_db()
+    pack = {**PACK, "ads": [{**PACK["ads"][0], "text_ru": "Вопрос?\n👇\n{link}\n{link}"},
+                            {"title": "2 · Боль → польза", "ru": "боль", "text": "Charchadingizmi?\n{link}\n{link}"}]}
+    mc_id = await content.import_pack(pack)
+    async with session() as s:
+        ids = [c.id for c in (await s.scalars(select(MyCreative).order_by(MyCreative.id))).all()]
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app()), base_url="http://test") as c:
+        page = (await c.get(f"/content/{mc_id}")).text
+        assert f'action="/content/creatives/{ids[0]}/rate"' in page and "👎 Не нравится" in page
+        r = await c.post(f"/content/creatives/{ids[1]}/rate", data={"rating": "like", "comment": "Коротко и по делу"})
+        assert r.status_code == 303
+        # a dislike: a replacement is ordered; its prompt carries the comment, the pinned post and the taste so far
+        await c.post(f"/content/creatives/{ids[0]}/rate",
+                     data={"rating": "dislike", "comment": "Слишком загадочно,\r\nскажи прямо"})
+        async with session() as s:
+            marks = (await s.scalars(select(AdFeedback).order_by(AdFeedback.id))).all()
+            assert [(m.creative_id, m.rating, m.comment) for m in marks] == [
+                (ids[1], 1, "Коротко и по делу"), (ids[0], -1, "Слишком загадочно,\nскажи прямо")]
+            job = (await s.scalars(select(AiJob).where(AiJob.kind == "replace_ad"))).one()
+            cr = await s.get(MyCreative, ids[0])
+            assert cr.rating == -1 and cr.replace_job_id == job.id == marks[1].job_id
+            for part in ("Savol?", "скажи прямо", "**Ikkinchi**", "Нравится:", "Коротко и по делу", "1 · Интрига"):
+                assert part in job.prompt, part
+            first_job = job.id
+        page = (await c.get(f"/content/{mc_id}")).text
+        assert "пишется замена" in page and "👍 нравится" in page
+        # the same marks wait for the owner's chat as lines of a file
+        lines = [json.loads(x) for x in
+                 (get_config().data_dir / "chat_outbox.jsonl").read_text(encoding="utf-8").splitlines()]
+        assert [(e["rating"], e["job_id"]) for e in lines] == [(1, None), (-1, first_job)]
+        assert "Savol?" in lines[1]["prompt"] and lines[1]["comment"].endswith("скажи прямо")
+        # an answer without the link is refused and the post stays; the owner presses the button again
+        await c.post(f"/ai/{first_job}/answer", data={"text": json.dumps({"text": "Yangi reklama"})})
+        page = (await c.get(f"/content/{mc_id}")).text
+        assert "Замена не получилась" in page and "Savol?" in page
+        await c.post(f"/content/creatives/{ids[0]}/rate", data={"rating": "dislike", "comment": "Скажи прямо"})
+        async with session() as s:
+            assert len((await s.scalars(select(AdFeedback))).all()) == 2       # the same text: the mark is updated
+            job = (await s.scalars(select(AiJob).where(AiJob.kind == "replace_ad", AiJob.status == "pending"))).one()
+        answer = {"text": "To‘g‘risi: «Bir hikoya — bir saboq»\n{link}\n{link}",
+                  "text_ru": "Прямо: «Bir hikoya — bir saboq»\n{link}\n{link}", "note": "без загадок"}
+        await c.post(f"/ai/{job.id}/answer", data={"text": "```json\n" + json.dumps(answer, ensure_ascii=False) + "\n```"})
+        async with session() as s:
+            cr = await s.get(MyCreative, ids[0])
+            assert cr.text == "To'g'risi: «Bir hikoya — bir saboq»\n{link}\n{link}"      # one apostrophe everywhere
+            assert cr.text_ru == answer["text_ru"] and cr.note == "без загадок"
+            assert (cr.source, cr.rating, cr.feedback, cr.replace_job_id) == ("ai", None, None, None)
+            new_text = cr.text
+        page = (await c.get(f"/content/{mc_id}")).text
+        assert "пишется замена" not in page and "без загадок" in page and "Savol?" not in page
+        # loading the pack again does not bring the disliked text back
+        await content.import_pack(pack)
+        async with session() as s:
+            ads = (await s.scalars(select(MyCreative).order_by(MyCreative.id))).all()
+            assert len(ads) == 2 and ads[0].text == new_text
+        # the owner sees what is remembered; new ad posts are written with it; a wrong mark can be removed
+        page = (await c.get("/content/taste")).text
+        assert "Скажи прямо" in page and "Коротко и по делу" in page and "Savol?" in page
+        await research.make_ad_variants(mc_id, "Chegirma! {link}")
+        async with session() as s:
+            job = (await s.scalars(select(AiJob).where(AiJob.kind == "ad_variants"))).one()
+            assert "Не нравится:" in job.prompt and "Скажи прямо" in job.prompt and "Коротко и по делу" in job.prompt
+            like_id = (await s.scalars(select(AdFeedback.id).where(AdFeedback.rating == 1))).one()
+        assert (await c.post(f"/content/taste/{like_id}/delete")).status_code == 303
+        async with session() as s:
+            assert "Нравится:" not in await content.ad_taste(s)
+
+
+async def test_cli_that_is_not_logged_in_leaves_the_job_for_an_answer_by_hand(monkeypatch):
+    """The claude CLI without a subscription login must not fail the jobs: they wait for an answer by hand."""
+    from tgads.ai import jobs, provider
+    await init_db()
+
+    class Proc:
+        returncode = 1
+
+        async def communicate(self, data):
+            return '{"is_error": true, "result": "Not logged in · Please run /login"}'.encode(), b""
+
+    async def spawn(*args, **kwargs):
+        return Proc()
+
+    monkeypatch.setattr(provider, "resolve_mode", lambda: "claude_cli")
+    monkeypatch.setattr(provider.asyncio, "create_subprocess_exec", spawn)
+    async with session() as s:
+        job = await jobs.enqueue(s, "translate_ru", "перевод", ("system", "prompt"))
+        await s.commit()
+        job_id = job.id
+    await jobs._run_one(job_id)
+    async with session() as s:
+        job = await s.get(AiJob, job_id)
+        assert job.status == "manual" and "не вошёл в аккаунт" in job.error

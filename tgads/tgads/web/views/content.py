@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy import func, select
 
 from ...db import session
-from ...models import Account, Channel, ContentItem, Donor, MyChannel, MyCreative
+from ...models import Account, AdFeedback, AiJob, Channel, ContentItem, Donor, MyChannel, MyCreative
 from ...services import content, tasks
 from ..app import back, render, to_utc
 
@@ -59,6 +59,25 @@ async def launch_pending(account_id: int = Form(0)):
     return back("/content", msg="Создание каналов запущено: по одному, с паузами. Ход виден на главной странице.")
 
 
+@router.get("/taste")
+async def taste(request: Request):
+    """The owner's marks of ad posts: what is remembered and goes into the prompts of new ad posts."""
+    async with session() as s:
+        rows = (await s.scalars(select(AdFeedback).order_by(AdFeedback.id.desc()).limit(300))).all()
+        chans = {m.id: m for m in (await s.scalars(select(MyChannel))).all()}
+    return render(request, "taste.html", rows=rows, chans=chans)
+
+
+@router.post("/taste/{fb_id}/delete")
+async def taste_delete(fb_id: int):
+    async with session() as s:
+        fb = await s.get(AdFeedback, fb_id)
+        if fb:
+            await s.delete(fb)
+            await s.commit()
+    return back("/content/taste", msg="Оценка удалена из памяти")
+
+
 @router.post("")
 async def create(ref: str = Form(...), language: str = Form("uz"), topic: str = Form(""), positioning: str = Form(""),
                  publisher_account_id: int = Form(0)):
@@ -90,8 +109,14 @@ async def channel(request: Request, mc_id: int, days: int = 30):
                                      .order_by(MyCreative.id.desc()))).all()
         accounts = (await s.scalars(select(Account).where(Account.status == "active"))).all()
         no_ru = sum(len(rows) for rows in await content.untranslated(s, mc_id))
+        # replacements ordered after a dislike, by the id of the ad post
+        waiting = {c.replace_job_id: c.id for c in creatives if c.replace_job_id}
+        replace_jobs = {waiting[j.id]: j for j in (await s.scalars(select(AiJob).where(
+            AiJob.id.in_(waiting)))).all()} if waiting else {}
+        marks = await s.scalar(select(func.count()).select_from(AdFeedback))
     return render(request, "content.html", mc=mc, donors=donors, top=top, donor_names=donor_names, items=items,
-                  creatives=creatives, accounts=accounts, days=days, untranslated=no_ru)
+                  creatives=creatives, accounts=accounts, days=days, untranslated=no_ru, replace_jobs=replace_jobs,
+                  marks=marks)
 
 
 @router.post("/{mc_id}/settings")
@@ -218,6 +243,18 @@ async def add_creative(mc_id: int, title: str = Form(""), text: str = Form(...))
         s.add(MyCreative(my_channel_id=mc_id, title=title, text=text.replace("\r\n", "\n")))
         await s.commit()
     return back(f"/content/{mc_id}#creatives", msg="Рекламный пост сохранён")
+
+
+@router.post("/creatives/{cr_id}/rate")
+async def rate_creative(cr_id: int, rating: str = Form(...), comment: str = Form("")):
+    """The owner's like or dislike with a comment; a dislike orders a new text instead of this one."""
+    async with session() as s:
+        cr = await s.get(MyCreative, cr_id)
+        mc_id = cr.my_channel_id
+    job_id = await content.rate_creative(cr_id, rating == "like", comment)
+    msg = ("Принято: пишется замена с учётом вашего комментария. Она появится на месте этого поста."
+           if job_id else "Оценка сохранена: она учтётся в следующих рекламных постах.")
+    return back(f"/content/{mc_id}#creatives", msg=msg)
 
 
 @router.post("/creatives/{cr_id}/delete")

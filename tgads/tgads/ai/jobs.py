@@ -57,10 +57,11 @@ async def _run_one(job_id: int) -> None:
         system, prompt = job.system, job.prompt
     try:
         text = await provider.complete(system, prompt)
-    except provider.ManualAnswerRequired:
+    except provider.ManualAnswerRequired as e:
         async with session() as s:
             job = await s.get(AiJob, job_id)
             job.status = "manual"
+            job.error = str(e) or None   # why it waits, e.g. the CLI is not logged in
             await s.commit()
         return
     except Exception as e:

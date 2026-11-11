@@ -357,6 +357,26 @@ class MyCreative(Base):
     source: Mapped[str] = mapped_column(String(16), default="manual")  # manual | ai | pack
     note: Mapped[str | None] = mapped_column(Text)  # for the owner: the idea of the ad, in Russian
     text_ru: Mapped[str | None] = mapped_column(Text)  # for the owner: Russian translation, never published
+    rating: Mapped[int | None] = mapped_column(Integer)   # the owner's mark: 1 like, -1 dislike
+    feedback: Mapped[str | None] = mapped_column(Text)    # the owner's comment to the mark
+    replace_job_id: Mapped[int | None] = mapped_column(Integer)  # the AI job that rewrites a disliked post
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class AdFeedback(Base):
+    """The owner's marks of our ad posts: the memory of what the owner likes and what not. Later ad posts are
+    written with these marks in the prompt. The text is kept as it was when it was marked."""
+    __tablename__ = "ad_feedback"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    my_channel_id: Mapped[int] = mapped_column(ForeignKey("my_channels.id"), index=True)
+    creative_id: Mapped[int | None] = mapped_column(Integer)  # not a foreign key: the mark outlives the post
+    title: Mapped[str] = mapped_column(String(128), default="")
+    text: Mapped[str] = mapped_column(Text, default="")
+    text_ru: Mapped[str | None] = mapped_column(Text)
+    rating: Mapped[int] = mapped_column(Integer)           # 1 like, -1 dislike
+    comment: Mapped[str | None] = mapped_column(Text)
+    job_id: Mapped[int | None] = mapped_column(Integer)    # the replacement job of a dislike
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
 

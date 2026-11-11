@@ -25,6 +25,11 @@ class AIError(Exception):
     pass
 
 
+# the CLI is installed but has no subscription login: its jobs wait for an answer by hand instead of failing
+NOT_LOGGED_IN = ("Claude на сервере не вошёл в аккаунт: вставьте токен (claude setup-token) в «Настройках» "
+                 "или ответьте на задачу вручную.")
+
+
 def resolve_mode() -> str:
     cfg = get_config()
     mode = cfg.ai_mode
@@ -85,12 +90,17 @@ async def _claude_cli(system: str, prompt: str, token: str = "", timeout: int = 
         proc.kill()
         raise AIError(f"claude CLI: нет ответа за {timeout} с") from None
     if proc.returncode != 0:
-        raise AIError(f"claude CLI завершился с кодом {proc.returncode}: {(err or out).decode()[-800:]}")
+        tail = (err or out).decode(errors="replace")[-800:]
+        if "Not logged in" in tail:
+            raise ManualAnswerRequired(NOT_LOGGED_IN)
+        raise AIError(f"claude CLI завершился с кодом {proc.returncode}: {tail}")
     try:
         data = json.loads(out.decode("utf-8"))
     except json.JSONDecodeError:
         return out.decode("utf-8").strip()
     if data.get("is_error"):
+        if "Not logged in" in str(data.get("result")):
+            raise ManualAnswerRequired(NOT_LOGGED_IN)
         raise AIError(f"claude CLI: {data.get('result') or data}")
     return str(data.get("result", "")).strip()
 

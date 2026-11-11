@@ -46,14 +46,15 @@ def channel_ideas(niches: list[dict], creatives: list[dict], wishes: str) -> tup
     return BASE_SYSTEM, prompt
 
 
-def ad_variants(creative_text: str, channel: dict, n: int = 4) -> tuple[str, str]:
+def ad_variants(creative_text: str, channel: dict, n: int = 4, taste: str = "") -> tuple[str, str]:
     lang = LANG_NAMES.get(channel.get("language", "uz"), "узбекский (латиница)")
     prompt = (
         f"Вот рекламный пост, который рекламодатели многократно покупают (значит, он конвертит):\n---\n"
         f"{creative_text}\n---\n\n"
         f"Мой канал: {channel.get('title') or channel.get('ref')}\n"
         f"Тематика: {channel.get('topic')}\nПозиционирование: {channel.get('positioning')}\n\n"
-        f"Напиши {n} разных рекламных поста для моего канала на языке: {lang}. "
+        + (f"{taste}\n\n" if taste else "")
+        + f"Напиши {n} разных рекламных поста для моего канала на языке: {lang}. "
         "Сохрани то, что делает исходный пост сильным (крючок в первой строке, выгода, срочность, призыв), "
         "но не копируй текст. Длина как у исходного. Вместо ссылки ставь {link}. Эмодзи уместны.\n"
         'Верни только JSON-массив строк: ["пост 1", "пост 2", ...]'
@@ -84,6 +85,37 @@ def generate_post(channel: dict, hint: str, examples: list[str]) -> tuple[str, s
         f"Язык: {lang}.\nТема/задание: {hint or 'на твой выбор, в духе канала'}\n"
         + (f"\nПримеры постов, которые хорошо зашли у похожих каналов:\n---\n{ex}\n---\n" if ex else "")
         + "\nНе выдумывай конкретные новости, цифры и даты, если их нет в задании. Верни только текст поста."
+    )
+    return BASE_SYSTEM, prompt
+
+
+def replace_ad(channel: dict, ad: dict, comment: str, pinned: str = "", topics: list[str] | None = None,
+               taste: str = "") -> tuple[str, str]:
+    """A new ad post instead of the one the owner disliked. ad: title, text, text_ru."""
+    lang = LANG_NAMES.get(channel.get("language", "uz"), "узбекский (латиница)")
+    prompt = (
+        "Владельцу канала не понравился рекламный пост, которым мы собирались закупать рекламу в других каналах. "
+        "Его нужно заменить новым.\n\n"
+        f"Канал: {channel.get('title') or channel.get('ref')}\nТематика: {channel.get('topic')}\n"
+        f"Позиционирование: {channel.get('positioning')}\nЯзык канала: {lang}\n\n"
+        f"Подход (так называется этот рекламный пост): {ad.get('title') or 'не задан'}\n"
+        f"Отклонённый пост:\n---\n{ad.get('text')}\n---\n"
+        + (f"Его русский перевод, который читал владелец:\n---\n{ad['text_ru']}\n---\n" if ad.get("text_ru") else "")
+        + "Комментарий владельца: "
+        + (comment or "комментария нет — сделай заметно иначе: другой заход и другая первая строка") + "\n\n"
+        + (f"Закреплённый пост канала (его первым видит тот, кто пришёл по рекламе):\n---\n{pinned}\n---\n\n"
+           if pinned else "")
+        + ("О чём посты канала: " + "; ".join(topics) + "\n\n" if topics else "")
+        + (f"{taste}\n\n" if taste else "")
+        + "Напиши один новый рекламный пост. Требования:\n"
+        "- комментарий владельца важнее всего; подход оставь прежним, если комментарий не просит другого;\n"
+        "- язык канала; обещай только то, что в канале действительно есть; без выдуманных цифр, отзывов, "
+        "обещаний дохода и лечения;\n"
+        "- название канала пиши в «кавычках», как в отклонённом посте; длина примерно как у него;\n"
+        "- оформление для Telegram: короткие абзацы, эмодзи по месту, **жирным** только заголовок, если он есть;\n"
+        "- в конце призыв перейти и ссылка {link} отдельной строкой — столько же раз, сколько в отклонённом посте.\n\n"
+        'Верни только JSON: {"text": "новый пост на языке канала", "text_ru": "его точный построчный перевод на '
+        'русский для владельца ({link} и название канала не переводи)", "note": "идея поста одной фразой по-русски"}'
     )
     return BASE_SYSTEM, prompt
 

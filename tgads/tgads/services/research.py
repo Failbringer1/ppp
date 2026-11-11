@@ -381,12 +381,13 @@ async def generate_ideas(wishes: str = "") -> int:
 # ---------- our ad posts (AI variants of a proven creative) ----------
 
 async def make_ad_variants(my_channel_id: int, source_text: str) -> int:
-    from .content import channel_info
+    from .content import ad_taste, channel_info
 
     async with session() as s:
         mc = await s.get(MyChannel, my_channel_id)
         job = await enqueue(s, "ad_variants", f"Рекламные посты для {mc.title or mc.ref}",
-                            prompts.ad_variants(source_text, channel_info(mc)), ref_id=my_channel_id)
+                            prompts.ad_variants(source_text, channel_info(mc), taste=await ad_taste(s)),
+                            ref_id=my_channel_id)
         await s.commit()
         return job.id
 

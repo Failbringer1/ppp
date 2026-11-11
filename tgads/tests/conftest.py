@@ -1,3 +1,4 @@
+import asyncio
 import os
 import tempfile
 
@@ -18,8 +19,13 @@ def fresh_db(monkeypatch):
     config.get_config.cache_clear()
     db._engine, db._sessionmaker = None, None
     yield
+    engine = db._engine
     config.get_config.cache_clear()
     db._engine, db._sessionmaker = None, None
+    if engine is not None:
+        # close the pooled connections now: left to the garbage collector, their threads report into an
+        # event loop that is already closed, and the warnings land on whatever test runs at that moment
+        asyncio.run(engine.dispose())
 
 
 @pytest.fixture
