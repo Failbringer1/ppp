@@ -459,6 +459,27 @@ async def _publish_starters(mc_id: int) -> int:
     return len(ids)
 
 
+async def strip_previews(mc_id: int) -> str:
+    """Remove the link preview card from the text posts already published in our channel."""
+    async with session() as s:
+        mc = await s.get(MyChannel, mc_id)
+        items = (await s.scalars(select(ContentItem).where(
+            ContentItem.my_channel_id == mc_id, ContentItem.status == "published",
+            ContentItem.tg_msg_id.is_not(None)).order_by(ContentItem.id))).all()
+        rows = [(i.tg_msg_id, post_text(mc, i.text)) for i in items if not i.media_paths]
+    _, client = await pool.pick("publisher", prefer=mc.publisher_account_id)
+    entity = await resolve_my_channel(client, mc)
+    done = 0
+    for msg_id, text in rows:
+        try:
+            await call(lambda: client.edit_message(entity, msg_id, text, link_preview=False))
+            done += 1
+        except errors.MessageNotModifiedError:
+            pass
+        await asyncio.sleep(random.uniform(2, 4))
+    return f"Предпросмотр ссылок убран: {done} из {len(rows)} постов"
+
+
 async def launch(mc_id: int) -> str:
     """Create a draft channel in Telegram (title, description, @username, avatar) and publish its starter posts.
 
@@ -587,9 +608,9 @@ async def publish(item_id: int) -> None:
             caption = text if len(text) <= 1024 else ""
             sent = await client.send_file(entity, paths if len(paths) > 1 else paths[0], caption=caption)
             if not caption and text:
-                sent = await client.send_message(entity, text)
+                sent = await client.send_message(entity, text, link_preview=False)
         else:
-            sent = await client.send_message(entity, text, link_preview=True)
+            sent = await client.send_message(entity, text, link_preview=False)
         msg_id = sent[0].id if isinstance(sent, list) else sent.id
         status, err = "published", None
         if pin:

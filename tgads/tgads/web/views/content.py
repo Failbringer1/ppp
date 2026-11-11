@@ -59,6 +59,12 @@ async def launch_pending(account_id: int = Form(0)):
     return back("/content", msg="Создание каналов запущено: по одному, с паузами. Ход виден на главной странице.")
 
 
+@router.post("/{mc_id}/nopreview")
+async def nopreview(mc_id: int):
+    tasks.spawn(content.strip_previews(mc_id), "Убрать предпросмотр ссылок в постах")
+    return back(f"/content/{mc_id}", msg="Убираю предпросмотр ссылок в опубликованных постах")
+
+
 @router.get("/taste")
 async def taste(request: Request):
     """The owner's marks of ad posts: what is remembered and goes into the prompts of new ad posts."""
