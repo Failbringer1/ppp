@@ -45,6 +45,12 @@ table td, table th { padding: 0.35rem 0.5rem; vertical-align: top; }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
 pre.text { white-space: pre-wrap; word-break: break-word; font-size: 0.85rem; padding: 0.6rem; max-height: 480px; overflow: auto; }
+/* my channel page: the original text or its Russian translation (the translation is for reading only) */
+.lang-switch { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; margin: 0.25rem 0 0.9rem; }
+.lang-switch button { width: auto; margin-bottom: 0; }
+.ru-text, .show-ru .has-ru .orig-text { display: none; }
+.show-ru .ru-text { display: block; }
+pre.ru-text { max-height: none; }
 .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 0.5rem 0; }
 .actions button, .actions select, .actions input { width: auto; margin-bottom: 0; }
 button.sm, a.sm[role=button] { padding: 0.2rem 0.55rem; font-size: 0.82rem; }

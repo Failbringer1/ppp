@@ -89,8 +89,9 @@ async def channel(request: Request, mc_id: int, days: int = 30):
         creatives = (await s.scalars(select(MyCreative).where(MyCreative.my_channel_id == mc_id)
                                      .order_by(MyCreative.id.desc()))).all()
         accounts = (await s.scalars(select(Account).where(Account.status == "active"))).all()
+        no_ru = sum(len(rows) for rows in await content.untranslated(s, mc_id))
     return render(request, "content.html", mc=mc, donors=donors, top=top, donor_names=donor_names, items=items,
-                  creatives=creatives, accounts=accounts, days=days)
+                  creatives=creatives, accounts=accounts, days=days, untranslated=no_ru)
 
 
 @router.post("/{mc_id}/settings")
@@ -109,7 +110,8 @@ async def save_settings(mc_id: int, ref: str = Form(""), language: str = Form("u
         mc.signature = signature.strip() or None
         if was_draft:  # what the channel will be created with
             mc.title = title.strip() or mc.title
-            mc.about, mc.username_wanted = about.strip() or None, username_wanted.strip() or None
+            mc.about = about.replace("\r\n", "\n").strip() or None
+            mc.username_wanted = username_wanted.strip() or None
         live = mc.is_live
         await s.commit()
     if live:
@@ -125,6 +127,16 @@ async def launch(mc_id: int):
     tasks.spawn(content.launch(mc_id), f"Создание канала «{title}» в Telegram")
     return back(f"/content/{mc_id}", msg="Создание запущено: канал, адрес, аватар и стартовые посты. "
                                          "Ход виден на главной странице, это займёт несколько минут.")
+
+
+@router.post("/{mc_id}/translate")
+async def translate(mc_id: int):
+    """Russian translations for the owner to read (they are never published): order the missing ones from the AI."""
+    n = await content.translate_missing(mc_id)
+    if not n:
+        return back(f"/content/{mc_id}", msg="Заказывать нечего: переводы уже есть или ждут в очереди ИИ.")
+    return back(f"/content/{mc_id}", msg=f"В очередь ИИ поставлено переводов: {n}. Готовые появятся на этой "
+                                         "странице, ход виден на странице «ИИ».")
 
 
 @router.get("/{mc_id}/avatar")
@@ -173,7 +185,7 @@ async def generate(mc_id: int, hint: str = Form("")):
 @router.post("/{mc_id}/manual")
 async def manual(mc_id: int, text: str = Form(...)):
     async with session() as s:
-        s.add(ContentItem(my_channel_id=mc_id, source="manual", text=text))
+        s.add(ContentItem(my_channel_id=mc_id, source="manual", text=text.replace("\r\n", "\n")))
         await s.commit()
     return back(f"/content/{mc_id}", msg="Черновик добавлен")
 
@@ -183,8 +195,9 @@ async def item_action(item_id: int, action: str = Form(...), text: str = Form(""
     async with session() as s:
         item = await s.get(ContentItem, item_id)
         mc_id = item.my_channel_id
-        if text:
-            item.text = text
+        text = text.replace("\r\n", "\n")  # a browser sends the lines of a textarea with CRLF
+        if text and text != item.text:
+            item.text, item.text_ru = text, None  # the translation was of the old text
         if action == "reject":
             item.status = "rejected"
         elif action == "unschedule":
@@ -202,7 +215,7 @@ async def item_action(item_id: int, action: str = Form(...), text: str = Form(""
 @router.post("/{mc_id}/creatives")
 async def add_creative(mc_id: int, title: str = Form(""), text: str = Form(...)):
     async with session() as s:
-        s.add(MyCreative(my_channel_id=mc_id, title=title, text=text))
+        s.add(MyCreative(my_channel_id=mc_id, title=title, text=text.replace("\r\n", "\n")))
         await s.commit()
     return back(f"/content/{mc_id}#creatives", msg="Рекламный пост сохранён")
 

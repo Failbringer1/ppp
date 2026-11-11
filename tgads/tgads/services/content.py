@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import hashlib
 import logging
 import random
 import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from telethon import TelegramClient, errors, functions, types
 
@@ -193,6 +194,51 @@ async def _apply_text(s: AsyncSession, job: AiJob, text: str) -> None:
             item.status = "draft"
 
 
+# ----- Russian translation for the owner: shown in the panel next to the original, never published -----
+
+def _digest(text: str) -> str:
+    return hashlib.md5(text.encode("utf-8")).hexdigest()
+
+
+async def untranslated(s: AsyncSession, mc_id: int) -> tuple[list[ContentItem], list[MyCreative]]:
+    """Posts that are still to be published and ad posts of the channel without a Russian translation."""
+    posts = (await s.scalars(select(ContentItem).where(
+        ContentItem.my_channel_id == mc_id, ContentItem.text != "",
+        ContentItem.status.in_(("draft", "queued", "failed")),
+        or_(ContentItem.text_ru.is_(None), ContentItem.text_ru == "")))).all()
+    ads = (await s.scalars(select(MyCreative).where(
+        MyCreative.my_channel_id == mc_id, or_(MyCreative.text_ru.is_(None), MyCreative.text_ru == "")))).all()
+    return list(posts), list(ads)
+
+
+async def translate_missing(mc_id: int) -> int:
+    """Order the missing Russian translations from the AI. Returns how many jobs were queued."""
+    async with session() as s:
+        mc = await s.get(MyChannel, mc_id)
+        posts, ads = await untranslated(s, mc_id)
+        waiting = {(j.params.get("what"), j.ref_id) for j in (await s.scalars(select(AiJob).where(
+            AiJob.kind == "translate_ru", AiJob.status.in_(("pending", "running", "manual"))))).all()}
+        n = 0
+        for what, label, rows in (("post", "пост", posts), ("ad", "рекламный пост", ads)):
+            for row in rows:
+                if (what, row.id) in waiting:
+                    continue
+                await enqueue(s, "translate_ru", f"Перевод на русский: {label} #{row.id} ({mc.title or mc.ref})",
+                              prompts.translate_ru(row.text, mc.language), ref_id=row.id,
+                              params={"what": what, "digest": _digest(row.text)})
+                n += 1
+        await s.commit()
+    return n
+
+
+@handler("translate_ru")
+async def _apply_translation(s: AsyncSession, job: AiJob, text: str) -> None:
+    row = await s.get(MyCreative if job.params.get("what") == "ad" else ContentItem, job.ref_id)
+    # the text may have been edited while the job waited: a translation of the old text would mislead
+    if row is not None and _digest(row.text) == job.params.get("digest"):
+        row.text_ru = text.strip() or None
+
+
 # ----- ready channels: a pack with starter content, creating the channel in Telegram -----
 
 STARTER_PAUSE = (20, 40)     # seconds between starter posts
@@ -211,8 +257,10 @@ def post_text(mc: MyChannel, text: str) -> str:
 async def import_pack(data: dict) -> int:
     """A ready channel from a JSON pack: the draft, its starter posts and its ad posts.
 
-    Importing a pack with the same title again replaces the starter posts while none of them is published,
-    so the texts can be corrected before the launch; ad posts are updated by their titles.
+    Importing a pack with the same title again: when the posts are the same, only what the owner reads is
+    refreshed (the notes and the Russian translations: "text_ru" of a post or an ad), which is safe after the
+    launch too; when they differ, the starter posts are replaced while none of them is published, so the texts
+    can be corrected before the launch. Ad posts are updated by their titles.
     The avatar comes as a path on this machine (avatar_path) or inside the pack (avatar_b64)."""
     title = (data.get("title") or "").strip()
     if not title:
@@ -236,11 +284,19 @@ async def import_pack(data: dict) -> int:
             mc.avatar_path = str(path.resolve())
         starters = (await s.scalars(select(ContentItem).where(ContentItem.my_channel_id == mc.id,
                                                               ContentItem.source == "starter"))).all()
-        if not any(it.status == "published" for it in starters):
+        posts = data.get("posts") or []
+        same = {it.text: it for it in starters}
+        if posts and all(p["text"].strip() in same for p in posts):
+            for p in posts:
+                it = same[p["text"].strip()]
+                it.note, it.text_ru = p.get("ru") or it.note, p.get("text_ru") or it.text_ru
+                if it.status != "published":
+                    it.pin = True if p.get("pin") else None
+        elif not any(it.status == "published" for it in starters):
             await s.execute(delete(ContentItem).where(ContentItem.id.in_([it.id for it in starters])))
-            for p in data.get("posts") or []:
+            for p in posts:
                 s.add(ContentItem(my_channel_id=mc.id, source="starter", text=p["text"].strip(), note=p.get("ru"),
-                                  pin=True if p.get("pin") else None))
+                                  text_ru=p.get("text_ru") or None, pin=True if p.get("pin") else None))
                 await s.flush()  # keep the order of the pack
         old = {c.title: c for c in (await s.scalars(select(MyCreative).where(
             MyCreative.my_channel_id == mc.id, MyCreative.source == "pack"))).all()}
@@ -249,7 +305,10 @@ async def import_pack(data: dict) -> int:
             if cr is None:
                 cr = MyCreative(my_channel_id=mc.id, title=a.get("title", ""), text="", source="pack")
                 s.add(cr)
-            cr.text, cr.note = a["text"].strip(), a.get("ru")
+            text = a["text"].strip()
+            # a translation belongs to its text: the old one is kept only while the text is the same
+            cr.text_ru = a.get("text_ru") or (cr.text_ru if cr.text == text else None)
+            cr.text, cr.note = text, a.get("ru")
             await s.flush()
         await s.commit()
         return mc.id

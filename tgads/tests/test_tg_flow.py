@@ -7,7 +7,7 @@ from telethon import functions, types, utils
 
 from tgads.db import init_db, session, set_setting
 from tgads.models import (
-    Account, Channel, Contact, ContentItem, Conversation, InviteLink, Join, MyChannel, MyCreative, Offer, Post,
+    Account, AiJob, Channel, Contact, ContentItem, Conversation, InviteLink, Join, MyChannel, MyCreative, Offer, Post,
     Purchase,
     ViewSample, utcnow,
 )
@@ -484,3 +484,67 @@ async def test_packs_are_imported_from_an_uploaded_file():
         assert mc.title == PACK["title"] and not mc.is_live and mc.username_wanted == "taken_name,bir_hikoya_test"
         assert Path(mc.avatar_path).read_bytes() == b"jpeg bytes"
         assert len((await s.scalars(select(ContentItem))).all()) == 2
+
+
+async def test_russian_translation_is_for_reading_only(monkeypatch):
+    """The owner does not read Uzbek: posts and ad posts carry a Russian translation that is never published."""
+    import httpx
+
+    from tgads.web.app import create_app
+    await init_db()
+    monkeypatch.setattr(content, "STARTER_PAUSE", (0, 0))
+    pack = {**PACK, "posts": [{**PACK["posts"][0], "text_ru": "**Первый**\n\nТекст"}, PACK["posts"][1]],
+            "ads": [{**PACK["ads"][0], "text_ru": "Вопрос?\n👇\n{link}\n{link}"}]}
+    mc_id = await content.import_pack(pack)
+    async with session() as s:
+        acc = Account(phone="+998005", status="active", roles="publisher")
+        s.add(acc)
+        await s.commit()
+        acc_id = acc.id
+        first, second = (await s.scalars(select(ContentItem).order_by(ContentItem.id))).all()
+        assert first.text_ru == "**Первый**\n\nТекст" and second.text_ru is None
+        ids = [first.id, second.id]
+    fake = FakeClient()
+    pool.clients[acc_id] = fake
+    try:
+        await content.launch(mc_id)
+        assert len(fake.sent) == 2 and not any("Первый" in t or "Текст" in t for _, t in fake.sent)
+        # the rest of the translations arrives after the launch: it is attached, nothing is recreated
+        late = {**pack, "posts": [pack["posts"][0], {**PACK["posts"][1], "text_ru": "**Второй**\n\nТекст"}]}
+        assert await content.import_pack(late) == mc_id
+        async with session() as s:
+            items = (await s.scalars(select(ContentItem).order_by(ContentItem.id))).all()
+            assert [(it.id, it.status) for it in items] == [(ids[0], "published"), (ids[1], "published")]
+            assert items[1].text_ru == "**Второй**\n\nТекст" and items[1].pin
+            assert (await s.scalars(select(MyCreative))).one().text_ru.startswith("Вопрос?")
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app()), base_url="http://test") as c:
+            page = (await c.get(f"/content/{mc_id}")).text
+            assert "По-русски" in page and "**Первый**" in page and "**Второй**" in page and "Вопрос?" in page
+            assert "Перевести через ИИ" not in page                     # nothing is left without a translation
+            # a post written in the panel has no translation yet: it is ordered from the AI
+            await c.post(f"/content/{mc_id}/manual", data={"text": "Yangi post\r\nIkkinchi qator"})
+            assert "Перевести через ИИ: 1 без перевода" in (await c.get(f"/content/{mc_id}")).text
+            r = await c.post(f"/content/{mc_id}/translate")
+            assert r.status_code == 303
+            await c.post(f"/content/{mc_id}/translate")                   # pressed twice: still one job
+            async with session() as s:
+                job = (await s.scalars(select(AiJob).where(AiJob.kind == "translate_ru"))).one()
+                new = (await s.scalars(select(ContentItem).where(ContentItem.source == "manual"))).one()
+                assert new.text == "Yangi post\nIkkinchi qator" and new.text in job.prompt
+                new_id, job_id = new.id, job.id
+            await c.post(f"/ai/{job_id}/answer", data={"text": "Новый пост\nВторая строка"})
+            async with session() as s:
+                assert (await s.get(ContentItem, new_id)).text_ru == "Новый пост\nВторая строка"
+            # saving the same text keeps the translation (a browser sends CRLF), a changed text drops it
+            await c.post(f"/content/items/{new_id}", data={"action": "save", "text": "Yangi post\r\nIkkinchi qator"})
+            async with session() as s:
+                assert (await s.get(ContentItem, new_id)).text_ru == "Новый пост\nВторая строка"
+            await c.post(f"/content/items/{new_id}", data={"action": "save", "text": "Butunlay boshqa matn"})
+            async with session() as s:
+                assert (await s.get(ContentItem, new_id)).text_ru is None
+            # an answer that comes for the old text is not attached to the new one
+            await c.post(f"/ai/{job_id}/answer", data={"text": "Новый пост\nВторая строка"})
+            async with session() as s:
+                assert (await s.get(ContentItem, new_id)).text_ru is None
+    finally:
+        pool.clients.pop(acc_id, None)

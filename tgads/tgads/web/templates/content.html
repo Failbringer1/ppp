@@ -2,6 +2,15 @@
 {% from "_macros.html" import status %}
 {% block title %}{{ mc.title or mc.ref }}{% endblock %}
 {% block content %}
+{# posts and ad posts of a channel that is not in Russian: the original or its translation, for reading only #}
+{% macro lang_switch() %}{% if mc.language != 'ru' %}
+<div class="lang-switch">
+  <button type="button" class="sm" data-lang="orig">Оригинал</button>
+  <button type="button" class="sm outline" data-lang="ru">По-русски</button>
+  {% if untranslated %}<form method="post" action="/content/{{ mc.id }}/translate" class="inline"><button class="sm secondary">Перевести через ИИ: {{ untranslated }} без перевода</button></form>{% endif %}
+  <span class="small muted">Перевод только для чтения, в канал уходит оригинал.</span>
+</div>
+{% endif %}{% endmacro %}
 <h1>{% if mc.avatar_path %}<img src="/content/{{ mc.id }}/avatar" alt="" width="48" height="48" style="border-radius: 50%; vertical-align: middle"> {% endif %}{{ mc.title or mc.ref }}
   {% if mc.is_live %}<span class="small muted">{{ mc.handle or mc.ref }} · {{ mc.subscribers|num }} подписчиков</span>{% else %}<span class="badge warn">черновик</span>{% endif %}</h1>
 
@@ -72,6 +81,7 @@
 </div>
 
 <h2>Очередь и черновики</h2>
+{{ lang_switch() }}
 {% for it in items %}
 <article>
   <form method="post" action="/content/items/{{ it.id }}">
@@ -84,7 +94,11 @@
       {% if it.error %}<span style="color: var(--bad)">{{ it.error }}</span>{% endif %}
     </div>
     {% if it.note %}<p class="small"><b>О чём:</b> {{ it.note }}</p>{% endif %}
-    <textarea name="text" rows="{{ 12 if it.source == 'starter' else 5 }}">{{ it.text }}</textarea>
+    <div class="{{ 'has-ru' if it.text_ru }}">
+      <textarea name="text" class="orig-text" rows="{{ 12 if it.source == 'starter' else 5 }}">{{ it.text }}</textarea>
+      {% if it.text_ru %}<pre class="text ru-text">{{ it.text_ru }}</pre>
+      {% elif mc.language != 'ru' and it.text %}<p class="small muted ru-text">Перевода пока нет, показан оригинал.</p>{% endif %}
+    </div>
     {% if it.status not in ('published',) %}
     <div class="actions">
       <button name="action" value="save" class="sm secondary">Сохранить</button>
@@ -131,12 +145,17 @@
 
 <h2 id="creatives">Рекламные посты канала</h2>
 <p class="small muted">Тексты для закупа. <code>{link}</code> заменяется трекинг-ссылкой конкретной площадки. Варианты ИИ создаются кнопкой «Сделать похожий» на странице <a href="/research">Ниши</a>.</p>
+{{ lang_switch() }}
 {% for cr in creatives %}
 <article>
   <div class="row small"><b>{{ cr.title or ('#' ~ cr.id) }}</b> <span class="muted">{{ cr.source }} · {{ cr.created_at|local }}</span>
     <form method="post" action="/content/creatives/{{ cr.id }}/delete" class="inline"><button class="sm outline">удалить</button></form></div>
   {% if cr.note %}<p class="small"><b>Идея:</b> {{ cr.note }}</p>{% endif %}
-  <pre class="text">{{ cr.text }}</pre>
+  <div class="{{ 'has-ru' if cr.text_ru }}">
+    <pre class="text orig-text">{{ cr.text }}</pre>
+    {% if cr.text_ru %}<pre class="text ru-text">{{ cr.text_ru }}</pre>
+    {% elif mc.language != 'ru' %}<p class="small muted ru-text">Перевода пока нет, показан оригинал.</p>{% endif %}
+  </div>
 </article>
 {% endfor %}
 <form method="post" action="/content/{{ mc.id }}/creatives">
@@ -145,3 +164,23 @@
   <button type="submit" class="secondary">Сохранить рекламный пост</button>
 </form>
 {% endblock %}
+{% block scripts %}{% if mc.language != 'ru' %}
+<script>
+(() => {
+  const KEY = 'tgads-text-lang';
+  const show = ru => {
+    document.body.classList.toggle('show-ru', ru);
+    document.querySelectorAll('.lang-switch [data-lang]').forEach(b => b.classList.toggle('outline', (b.dataset.lang === 'ru') !== ru));
+  };
+  let saved = '';
+  try { saved = localStorage.getItem(KEY) || ''; } catch (e) {}
+  show(saved === 'ru');
+  document.addEventListener('click', e => {
+    const b = e.target.closest('.lang-switch [data-lang]');
+    if (!b) return;
+    show(b.dataset.lang === 'ru');
+    try { localStorage.setItem(KEY, b.dataset.lang); } catch (e) {}
+  });
+})();
+</script>
+{% endif %}{% endblock %}

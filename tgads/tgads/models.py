@@ -356,6 +356,7 @@ class MyCreative(Base):
     text: Mapped[str] = mapped_column(Text)
     source: Mapped[str] = mapped_column(String(16), default="manual")  # manual | ai | pack
     note: Mapped[str | None] = mapped_column(Text)  # for the owner: the idea of the ad, in Russian
+    text_ru: Mapped[str | None] = mapped_column(Text)  # for the owner: Russian translation, never published
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
 
@@ -422,6 +423,7 @@ class ContentItem(Base):
     source_post_id: Mapped[int | None] = mapped_column(ForeignKey("posts.id"))
     text: Mapped[str] = mapped_column(Text, default="")
     note: Mapped[str | None] = mapped_column(Text)   # for the owner: what the post is about, in Russian
+    text_ru: Mapped[str | None] = mapped_column(Text)  # for the owner: Russian translation, never published
     pin: Mapped[bool | None] = mapped_column(Boolean)  # pin in the channel after publishing
     media_paths: Mapped[list] = mapped_column(JSON, default=list)
     # draft | generating | queued | published | failed | rejected

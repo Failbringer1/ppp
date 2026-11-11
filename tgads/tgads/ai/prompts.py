@@ -88,6 +88,20 @@ def generate_post(channel: dict, hint: str, examples: list[str]) -> tuple[str, s
     return BASE_SYSTEM, prompt
 
 
+def translate_ru(text: str, language: str) -> tuple[str, str]:
+    lang = LANG_NAMES.get(language, "узбекский (латиница)")
+    prompt = (
+        f"Переведи на русский язык текст для Telegram-канала (язык оригинала: {lang}).\n"
+        "Перевод читает владелец канала: он не знает языка оригинала и хочет понять, что именно будет "
+        "опубликовано. Поэтому переводи точно и полностью: ничего не добавляй, не сокращай и не улучшай.\n"
+        "Сохрани разбивку на строки, эмодзи, разметку (**жирный**), числа, ссылки, @упоминания и {link} как в "
+        "оригинале. Названия каналов, брендов и приложений, а также иностранные слова, которые приводятся "
+        "как примеры, оставь как есть.\n\nТекст:\n---\n"
+        f"{text}\n---\n\nВерни только перевод."
+    )
+    return BASE_SYSTEM, prompt
+
+
 def parse_offer(messages: list[dict], channels: list[str]) -> tuple[str, str]:
     prompt = (
         "Это переписка с админом/менеджером Telegram-канала о покупке рекламы "
