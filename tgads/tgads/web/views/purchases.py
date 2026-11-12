@@ -73,7 +73,8 @@ async def detail(request: Request, pid: int):
     view_points = [{"x": round(t / 3600, 2), "y": v} for t, v in samples]
     ad_text = (creative.text.replace("{link}", link.link) if creative and link else None)
     return render(request, "purchase.html", p=p, ch=ch, mc=mc, link=link, joins=joins, m=m, post=post,
-                  ad_text=ad_text, join_points=join_points, view_points=view_points,
+                  ad_text=ad_text, ad_image=(f"/content/creatives/{creative.id}/image"
+                                             if creative and creative.media_path else None), join_points=join_points, view_points=view_points,
                   expected=ch.honest_reach or ch.avg_views)
 
 

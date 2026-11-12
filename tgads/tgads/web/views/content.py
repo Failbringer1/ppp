@@ -7,6 +7,7 @@ from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 from sqlalchemy import func, select
 
+from ...config import get_config
 from ...db import session
 from ...models import Account, AdFeedback, AiJob, Channel, ContentItem, Donor, MyChannel, MyCreative
 from ...services import content, tasks
@@ -279,6 +280,40 @@ async def rate_creative(cr_id: int, rating: str = Form(...), comment: str = Form
     msg = ("Принято: пишется замена с учётом вашего комментария. Она появится на месте этого поста."
            if job_id else "Оценка сохранена: она учтётся в следующих рекламных постах.")
     return back(f"/content/{mc_id}#creatives", msg=msg)
+
+
+@router.get("/creatives/{cr_id}/image")
+async def creative_image(cr_id: int):
+    async with session() as s:
+        cr = await s.get(MyCreative, cr_id)
+    if cr is None or not cr.media_path or not Path(cr.media_path).is_file():
+        raise HTTPException(404)
+    return FileResponse(cr.media_path)
+
+
+@router.post("/creatives/{cr_id}/image")
+async def set_creative_image(cr_id: int, file: UploadFile = File(...)):
+    """Attach a picture to an ad post; an empty upload removes it."""
+    data = await file.read()
+    ext = Path(file.filename or "").suffix.lower()
+    async with session() as s:
+        cr = await s.get(MyCreative, cr_id)
+        if cr is None:
+            raise HTTPException(404)
+        mc_id = cr.my_channel_id
+        if not data:
+            cr.media_path = None
+            await s.commit()
+            return back(f"/content/{mc_id}#creatives", msg="Картинка убрана")
+        if ext not in (".jpg", ".jpeg", ".png", ".webp") or len(data) > 10 * 1024 * 1024:
+            return back(f"/content/{mc_id}#creatives", msg="Нужна картинка JPG, PNG или WebP до 10 МБ")
+        folder = get_config().media_dir / "ads"
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / f"{cr_id}{ext}"
+        path.write_bytes(data)
+        cr.media_path = str(path.resolve())
+        await s.commit()
+    return back(f"/content/{mc_id}#creatives", msg="Картинка прикреплена к рекламному посту")
 
 
 @router.post("/creatives/{cr_id}/delete")

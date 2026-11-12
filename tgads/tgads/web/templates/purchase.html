@@ -28,6 +28,9 @@
     <form method="post" action="/purchases/{{ p.id }}/link"><button>Создать трекинг-ссылку</button></form>
   {% endif %}
   {% if ad_text %}
+    {% if ad_image %}<h3>Картинка для админа</h3>
+    <p><a href="{{ ad_image }}" target="_blank"><img src="{{ ad_image }}" alt="Картинка к рекламному посту" style="max-width: 100%; max-height: 320px; border-radius: 8px"></a>
+      <br><a href="{{ ad_image }}" download class="small">Скачать картинку</a></p>{% endif %}
     <h3>Текст для админа</h3>
     <textarea id="adtext" rows="8" readonly>{{ ad_text }}</textarea>
     <button class="sm secondary" data-copy="#adtext" type="button">Копировать</button>

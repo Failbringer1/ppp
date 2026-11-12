@@ -360,6 +360,7 @@ class MyCreative(Base):
     rating: Mapped[int | None] = mapped_column(Integer)   # the owner's mark: 1 like, -1 dislike
     feedback: Mapped[str | None] = mapped_column(Text)    # the owner's comment to the mark
     replace_job_id: Mapped[int | None] = mapped_column(Integer)  # the AI job that rewrites a disliked post
+    media_path: Mapped[str | None] = mapped_column(String(512))  # the picture that goes with the ad post
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
 
