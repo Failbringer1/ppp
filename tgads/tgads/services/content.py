@@ -666,7 +666,9 @@ async def publish(item_id: int) -> None:
             acc_id, client = await pool.pick("publisher")
         entity = await resolve_my_channel(client, mc)
         if paths:
-            caption = text if len(text) <= 1024 else ""
+            # Telegram counts a caption in UTF-16 units (an emoji is two), without the markup characters
+            fits = len(text.replace("**", "").replace("__", "").encode("utf-16-le")) // 2 <= 1024
+            caption = text if fits else ""
             sent = await client.send_file(entity, paths if len(paths) > 1 else paths[0], caption=caption)
             if not caption and text:
                 sent = await client.send_message(entity, text, link_preview=False)
