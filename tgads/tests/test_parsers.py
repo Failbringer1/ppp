@@ -144,40 +144,20 @@ def test_ad_prices_skip_phones_bare_numbers_and_absurd_amounts():
 
 def test_package_prices_are_not_the_price_of_one_channel():
     from tgads.analysis.pricing import ad_prices, min_price_uzs, pack_price_uzs
-    seven = ("7 ta kanalga birdan olsangiz skidka narxi
-5 top/48 soat lenta 900 ming so'm
-
-1. @MEHRLI_KANAL
-"
-             "2. @MEHRLI_OQIBAT
-3. @KULGI_KANALI
-Reklama uchun adminlar
-👉 @Mehrli_qalbim")
+    seven = ("7 ta kanalga birdan olsangiz skidka narxi\n5 top/48 soat lenta 900 ming so'm\n\n1. @MEHRLI_KANAL\n"
+             "2. @MEHRLI_OQIBAT\n3. @KULGI_KANALI\nReklama uchun adminlar\n👉 @Mehrli_qalbim")
     found = ad_prices(seven, "@price_list", "kulgi_kanali")
     assert [(p["amount"], p["pack"]) for p in found] == [(900_000, 7)]
     assert min_price_uzs(found, 12_700, 150) is None
     assert pack_price_uzs(found, 12_700, 150) == (900_000, 7)
     # a list of channels that includes ours, no word "package"
-    four = "Reklama
-✅ @QITMIR_KAMPIRTV
-✅ @AUDIO_HAZLLAR
-✅ @Kulgu_hub
-✅ @UZBEKONA_LATIFA
-Топсиз 600 минг сум"
+    four = "Reklama\n✅ @QITMIR_KAMPIRTV\n✅ @AUDIO_HAZLLAR\n✅ @Kulgu_hub\n✅ @UZBEKONA_LATIFA\nТопсиз 600 минг сум"
     assert [p["pack"] for p in ad_prices(four, "@adverplus", "Uzbekona_latifa")] == [4]
     # the manager's other package, our channel is not in it; ads in bots
-    other = "«RUS TILI +» reklama
-01. @rus_yazik
-02. @rustilidarslari
-03. @rustili_pro
-75 000 so'm (1/0)"
+    other = "«RUS TILI +» reklama\n01. @rus_yazik\n02. @rustilidarslari\n03. @rustili_pro\n75 000 so'm (1/0)"
     assert ad_prices(other, "@reklama_servis", "audiokitoblar_uz") == []
-    assert ad_prices("#botda_reklama
-Botlarimiz foydalanuvchilari soni: 327835
-Narxi 121 000 so'm", "@ads", "x") == []
+    assert ad_prices("#botda_reklama\nBotlarimiz foydalanuvchilari soni: 327835\nNarxi 121 000 so'm", "@ads", "x") == []
     # one channel: its own price stays, and it wins over a package
-    single = ad_prices("Reklama narxlari
-0/24 - 90 000 сўм
-Мурожат учун 👉 @Umar_2000", "pinned", "rasmlar")
+    single = ad_prices("Reklama narxlari\n0/24 - 90 000 сўм\nМурожат учун 👉 @Umar_2000", "pinned", "rasmlar")
     assert [p.get("pack") for p in single] == [None]
     assert min_price_uzs(single + found, 12_700, 150) == 90_000

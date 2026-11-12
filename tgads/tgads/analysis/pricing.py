@@ -128,9 +128,8 @@ PHONE_LIKE_RE = re.compile(r"(?:\+?998[\s\-()]*)?\(?\d{2}\)?[\s\-]\d{3}[\s\-]\d{
 AD_PRICE_UZS = (20_000, 300_000_000)  # an ad post in an Uzbek channel; outside is a misread number
 
 
-_LISTED_RE = re.compile(r"(?m)^[^\w@
-]*(?:\d{1,2}\s*[.)]\s*)?@([A-Za-z]\w{3,31})\s*$")
-_PACK_RE = re.compile(r"(\d{1,2})\s*-?\s*(?:ta|та)\s+(?:kanal|канал)|(\d{1,2})\s+канал(?:а|ах|ов)|paket|пакет", re.I)
+_LISTED_RE = re.compile(r"(?m)^[^\w@\n]*(?:\d{1,2}\s*[.)]\s*)?@([A-Za-z]\w{3,31})\s*$")
+_PACK_RE = re.compile(r"(\d{1,2})\s*-?\s*(?:ta|та)\s+(?:kanal|канал)|(\d{1,2})\s+канал(?:а|ах|ов)\b|\bpaket|пакет", re.I)
 _BOT_AD_RE = re.compile(r"bot\w*da[ _]reklama|реклама\s+в\s+бот|bot\w*\s+foydalanuvchi", re.I)
 
 
