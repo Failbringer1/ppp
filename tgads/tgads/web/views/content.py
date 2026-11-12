@@ -59,6 +59,24 @@ async def launch_pending(account_id: int = Form(0)):
     return back("/content", msg="Создание каналов запущено: по одному, с паузами. Ход виден на главной странице.")
 
 
+@router.post("/public-channels")
+async def public_channels(account_id: int = Form(...)):
+    tasks.spawn(content.public_channels(account_id), "Публичные каналы аккаунта")
+    return back("/content", msg="Смотрю публичные каналы аккаунта: итог на главной странице")
+
+
+@router.post("/{mc_id}/go-public")
+async def go_public(mc_id: int, drop: str = Form("")):
+    tasks.spawn(content.go_public(mc_id, drop), "Публичный адрес канала")
+    return back(f"/content/{mc_id}", msg="Ставлю публичный адрес: итог на главной странице")
+
+
+@router.post("/{mc_id}/republish")
+async def republish(mc_id: int):
+    tasks.spawn(content.republish_starters(mc_id), "Перепубликация стартовых постов")
+    return back(f"/content/{mc_id}", msg="Публикую стартовые посты заново: итог на главной странице")
+
+
 @router.post("/{mc_id}/nopreview")
 async def nopreview(mc_id: int):
     tasks.spawn(content.strip_previews(mc_id), "Убрать предпросмотр ссылок в постах")

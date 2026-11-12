@@ -480,6 +480,64 @@ async def strip_previews(mc_id: int) -> str:
     return f"Предпросмотр ссылок убран: {done} из {len(rows)} постов"
 
 
+async def public_channels(account_id: int) -> str:
+    """Public channels and groups the account owns: Telegram allows only a few public @usernames per account."""
+    client = await pool.get(account_id)
+    res = await call(lambda: client(functions.channels.GetAdminedPublicChannelsRequest()))
+    rows = []
+    for c in res.chats:
+        kind = "канал" if getattr(c, "broadcast", False) else "группа"
+        rows.append(f"@{c.username} — {c.title} ({kind}, участников: {getattr(c, 'participants_count', None)}, "
+                    f"создатель: {'да' if getattr(c, 'creator', False) else 'нет'})")
+    return f"Публичных адресов у аккаунта: {len(rows)}. " + " | ".join(rows)
+
+
+async def go_public(mc_id: int, drop: str = "") -> str:
+    """Give our private channel its public @username. `drop`: the @username of another channel of the same
+    account that is made private first, when the account has no free public address left."""
+    async with session() as s:
+        mc = await s.get(MyChannel, mc_id)
+        names, acc_id = _usernames(mc), mc.publisher_account_id
+    client = await pool.get(acc_id)
+    note = ""
+    if drop.strip():
+        other = await call(lambda: client.get_input_entity(drop.strip().lstrip("@")))
+        await call(lambda: client(functions.channels.UpdateUsernameRequest(channel=other, username="")))
+        note = f"; @{drop.strip().lstrip('@')} стал закрытым"
+        await asyncio.sleep(3)
+    chat = await resolve_my_channel(client, mc)
+    username, why = await _take_username(client, chat, names)
+    if username is None:
+        return f"Адрес не поставлен: {why}{note}"
+    async with session() as s:
+        mc = await s.get(MyChannel, mc_id)
+        mc.ref = "@" + username
+        await s.commit()
+    return f"Канал стал публичным: @{username}{note}"
+
+
+async def republish_starters(mc_id: int) -> str:
+    """Delete the published starter posts from the channel and publish them again (with their pictures and the
+    current signature). For a channel that has just been launched and has no readers yet."""
+    async with session() as s:
+        mc = await s.get(MyChannel, mc_id)
+        items = (await s.scalars(select(ContentItem).where(
+            ContentItem.my_channel_id == mc_id, ContentItem.source == "starter",
+            ContentItem.status == "published").order_by(ContentItem.id))).all()
+        ids, old = [i.id for i in items], [i.tg_msg_id for i in items if i.tg_msg_id]
+    client = await pool.get(mc.publisher_account_id)
+    entity = await resolve_my_channel(client, mc)
+    if old:
+        await call(lambda: client.delete_messages(entity, old))
+    async with session() as s:
+        for item_id in ids:
+            item = await s.get(ContentItem, item_id)
+            item.status, item.tg_msg_id, item.published_at = "draft", None, None
+        await s.commit()
+    done = await _publish_starters(mc_id)
+    return f"Посты опубликованы заново: {done}"
+
+
 async def launch(mc_id: int) -> str:
     """Create a draft channel in Telegram (title, description, @username, avatar) and publish its starter posts.
 
@@ -602,7 +660,10 @@ async def publish(item_id: int) -> None:
     try:
         if not mc.is_live:
             raise RuntimeError("Канал ещё не создан в Telegram")
-        acc_id, client = await pool.pick("publisher", prefer=mc.publisher_account_id)
+        if mc.publisher_account_id:
+            acc_id, client = mc.publisher_account_id, await pool.get(mc.publisher_account_id)
+        else:
+            acc_id, client = await pool.pick("publisher")
         entity = await resolve_my_channel(client, mc)
         if paths:
             caption = text if len(text) <= 1024 else ""
