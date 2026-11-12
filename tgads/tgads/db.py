@@ -36,10 +36,8 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     # module 5 templates; {a|b} picks a random variant
     "outreach_templates": {
         "uz": "{Assalomu alaykum|Salom|Assalomu alaykum, yaxshimisiz}! {channel} kanalingizda reklama "
-              "{narxi qancha|qancha turadi}? {1/24 va 1/48 formatlar qiziq|Qaysi formatlar bor}. "
-              "{Rahmat|Oldindan rahmat}!",
-        "ru": "{Здравствуйте|Добрый день|Привет}! {Сколько стоит|Подскажите цену на} рекламу в {channel}? "
-              "{Интересуют форматы 1/24 и 1/48|Какие форматы есть}? {Спасибо|Заранее спасибо}!",
+              "{narxi qancha|qancha turadi}?",
+        "ru": "{Здравствуйте|Добрый день|Привет}! {Сколько стоит|Подскажите цену на} рекламу в {channel}?",
     },
     "outreach_language": "uz",
     "search_keywords": "yangiliklar, kino, futbol, ish, ielts, retsept, avto, uzum, biznes, kripto, islom, "
