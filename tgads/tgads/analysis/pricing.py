@@ -128,15 +128,51 @@ PHONE_LIKE_RE = re.compile(r"(?:\+?998[\s\-()]*)?\(?\d{2}\)?[\s\-]\d{3}[\s\-]\d{
 AD_PRICE_UZS = (20_000, 300_000_000)  # an ad post in an Uzbek channel; outside is a misread number
 
 
-def ad_prices(text: str, source: str) -> list[dict]:
+_LISTED_RE = re.compile(r"(?m)^[^\w@
+]*(?:\d{1,2}\s*[.)]\s*)?@([A-Za-z]\w{3,31})\s*$")
+_PACK_RE = re.compile(r"(\d{1,2})\s*-?\s*(?:ta|та)\s+(?:kanal|канал)|(\d{1,2})\s+канал(?:а|ах|ов)|paket|пакет", re.I)
+_BOT_AD_RE = re.compile(r"bot\w*da[ _]reklama|реклама\s+в\s+бот|bot\w*\s+foydalanuvchi", re.I)
+
+
+def package(text: str, own: str = "", foreign_list: bool = False) -> int | None:
+    """How many channels the prices of this text buy at once: 0 = one channel, N = a package of N channels,
+    None = a package that does not include the channel `own` (somebody else's price list).
+
+    Managers sell several channels together ("7 ta kanalga ... 900 ming", then the list of @channels): such a
+    price is not the price of one placement. `foreign_list`: the text comes from a price-list channel, so a list
+    of @channels without ours is another package of the same manager."""
+    listed = {u.lower() for u in _LISTED_RE.findall(text or "")}
+    own = (own or "").lower().lstrip("@")
+    m = _PACK_RE.search(text or "")
+    if m:
+        n = int(m.group(1) or m.group(2) or 0) or len(listed)
+        if n < 2 and len(listed) < 2:
+            return 0
+        if foreign_list and own and len(listed) >= 2 and own not in listed:
+            return None
+        return max(n, 2)
+    if len(listed) >= 3:
+        if own in listed:
+            return len(listed)
+        if foreign_list:
+            return None
+    return 0
+
+
+def ad_prices(text: str, source: str, own: str = "") -> list[dict]:
     """Ad prices from a description, pinned post or price-list post. Only texts that talk about ads
-    count: a shop channel's pinned post lists product prices, not ad prices."""
-    if not text or not AD_TEXT_RE.search(text):
+    count: a shop channel's pinned post lists product prices, not ad prices. A price of a package of
+    channels gets "pack": N; prices of ads in bots and of packages without the channel `own` are dropped."""
+    if not text or not AD_TEXT_RE.search(text) or _BOT_AD_RE.search(text):
+        return []
+    pack = package(text, own, foreign_list=source.startswith("@"))
+    if pack is None:
         return []
     # phones ("+998 78 113 77 33") read as amounts; a bare number without a currency is not trusted here
     text = PHONE_LIKE_RE.sub(lambda m: " " * len(m.group()), text)
     lo, hi = AD_PRICE_UZS
-    return [{"amount": p.amount, "currency": p.currency, "fmt": p.fmt, "line": p.line[:200], "source": source}
+    extra = {"pack": pack} if pack else {}
+    return [{"amount": p.amount, "currency": p.currency, "fmt": p.fmt, "line": p.line[:200], "source": source, **extra}
             for p in parse_prices(text)
             if _explicit_currency(p.line) and lo <= to_uzs(p.amount, p.currency, 12_700, 150) <= hi]
 
@@ -149,11 +185,19 @@ def _explicit_currency(line: str) -> bool:
 
 
 def min_price_uzs(prices: list[dict] | None, usd_uzs: float, rub_uzs: float) -> float | None:
-    """The cheapest ad price in UZS, preferring the 1/24 format when it is known."""
+    """The cheapest ad price of the channel alone in UZS, preferring the 1/24 format when it is known.
+    Package prices (several channels at once) are not the channel's price."""
     vals = [(p.get("fmt") in (None, "1/24"), to_uzs(p["amount"], p.get("currency"), usd_uzs, rub_uzs))
-            for p in prices or [] if p.get("amount")]
+            for p in prices or [] if p.get("amount") and not p.get("pack")]
     best = [v for ok, v in vals if ok] or [v for _, v in vals]
     return min(best) if best else None
+
+
+def pack_price_uzs(prices: list[dict] | None, usd_uzs: float, rub_uzs: float) -> tuple[float, int] | None:
+    """The cheapest package price in UZS and the number of channels in that package."""
+    vals = [(to_uzs(p["amount"], p.get("currency"), usd_uzs, rub_uzs), int(p["pack"]))
+            for p in prices or [] if p.get("amount") and p.get("pack")]
+    return min(vals) if vals else None
 
 
 def to_uzs(amount: float | None, currency: str | None, usd_uzs: float, rub_uzs: float) -> float | None:

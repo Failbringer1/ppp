@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Form, Request
 from sqlalchemy import func, or_, select
 
-from ...analysis.pricing import min_price_uzs
+from ...analysis.pricing import min_price_uzs, pack_price_uzs
 from ...analysis.views import CHECKPOINTS, Curve, is_night, views_at
 from ...db import get_settings, session
 from ...models import Channel, ChannelContact, Contact, Conversation, MyChannel, Post, ViewSample
@@ -22,6 +22,10 @@ SORTS = {
     "new": Channel.id.desc(),
 }
 STATUSES = ["new", "queued", "collected", "monitoring", "checked", "approved", "rejected", "error"]
+
+
+def _pack_prices(rows, settings: dict) -> dict[int, tuple[float, int] | None]:
+    return {ch.id: pack_price_uzs(ch.prices, settings["usd_uzs"], settings["rub_uzs"]) for ch in rows}
 
 
 def _min_prices(rows, settings: dict) -> dict[int, float | None]:
@@ -67,7 +71,7 @@ async def channels(request: Request, status: str = "", topic: str = "", verdict:
                   country=country, language=language, sort=sort)
     return render(request, "channels.html", rows=rows, total=total, page=page, pages=(total + PAGE - 1) // PAGE,
                   params=params, topics=sorted(topics), statuses=STATUSES, my_channels=my_channels,
-                  target_cpm=settings["target_cpm_uzs"], prices=_min_prices(rows, settings),
+                  target_cpm=settings["target_cpm_uzs"], prices=_min_prices(rows, settings), packs=_pack_prices(rows, settings),
                   countries=[(c, catalog.country_name(c)) for c in sorted(countries)],
                   languages=sorted(((i, catalog.language_name(i)) for i in lang_ids), key=lambda x: x[1]),
                   country_name=catalog.country_name, language_name=catalog.language_name)
@@ -213,7 +217,7 @@ async def vetting(request: Request, show: str = "active"):
         my_channels = (await s.scalars(select(MyChannel))).all()
         day = Curve.from_json(settings.get("curve_day"))
     return render(request, "vetting.html", rows=rows, stats=stats, target_cpm=settings["target_cpm_uzs"],
-                  prices=_min_prices(rows, settings),
+                  prices=_min_prices(rows, settings), packs=_pack_prices(rows, settings),
                   my_channels=my_channels, curve_posts=day.n_posts, show=show, marks=marks,
                   mark_names=[n for _, n in MARKS])
 

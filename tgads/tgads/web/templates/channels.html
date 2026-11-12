@@ -48,7 +48,7 @@
     <td>{{ status(ch.status) }}</td><td>{{ verdict(ch) }}</td>
     <td>{{ ch.honest_reach|num }}</td>
     <td class="small">{{ ((ch.honest_reach or ch.avg_views or 0) * target_cpm / 1000)|num if (ch.honest_reach or ch.avg_views) else '—' }}</td>
-    <td class="small">{{ prices[ch.id]|num }}</td>
+    <td class="small">{% if prices[ch.id] %}{{ prices[ch.id]|num }}{% elif packs[ch.id] %}<span class="muted" title="цена за несколько каналов сразу">пакет ×{{ packs[ch.id][1] }}: {{ packs[ch.id][0]|num }}</span>{% endif %}</td>
   </tr>
   {% else %}
   <tr><td colspan="14" class="muted">Пусто. Добавьте каналы на странице <a href="/research">Ниши</a>.</td></tr>

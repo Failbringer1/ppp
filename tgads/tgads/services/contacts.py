@@ -87,10 +87,10 @@ async def _apply_price_channel(s: AsyncSession, ch: Channel, value: str, texts: 
         for fc in extract_contacts(text, own_username=value):
             if fc.kind == "username" and fc.value.lower() != (ch.username or "").lower():
                 await _link(s, ch, fc.kind, fc.value, True, "price_channel", fc.priority + 1)
-    found = [p for t in texts for p in ad_prices(t, "@" + value)]
+    found = [p for t in texts for p in ad_prices(t, "@" + value, ch.username or "")]
     if found:
         ch.prices = [p for p in ch.prices or [] if p["source"] != "@" + value] + found
-        ch.price_text = ch.price_text or next(t for t in texts if ad_prices(t, ""))[:2000]
+        ch.price_text = ch.price_text or next(t for t in texts if ad_prices(t, "@" + value, ch.username or ""))[:2000]
 
 
 async def resolve_usernames(limit: int = 40) -> int:
@@ -137,7 +137,7 @@ async def resolve_usernames(limit: int = 40) -> int:
 def own_prices(ch: Channel) -> None:
     """Prices written right in the channel's description or pinned post."""
     keep = [p for p in ch.prices or [] if p["source"] not in ("about", "pinned")]
-    found = ad_prices(ch.about, "about") + ad_prices(ch.pinned_text, "pinned")
+    found = ad_prices(ch.about, "about", ch.username or "") + ad_prices(ch.pinned_text, "pinned", ch.username or "")
     ch.prices = keep + found
     if found and not ch.price_text:
         ch.price_text = (ch.pinned_text if ad_prices(ch.pinned_text, "") else ch.about)[:2000]

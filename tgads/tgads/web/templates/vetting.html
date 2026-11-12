@@ -37,7 +37,7 @@
     <td>{{ verdict(ch) }}</td>
     <td>{{ ch.subscribers|num }}</td><td>{{ ch.avg_views|num }}</td><td><b>{{ ch.honest_reach|num }}</b></td>
     <td class="small">{{ ((ch.honest_reach or 0) * target_cpm / 1000)|num if ch.honest_reach else '—' }}</td>
-    <td class="small">{{ prices[ch.id]|num }}</td>
+    <td class="small">{% if prices[ch.id] %}{{ prices[ch.id]|num }}{% elif packs[ch.id] %}<span class="muted" title="цена за несколько каналов сразу">пакет ×{{ packs[ch.id][1] }}: {{ packs[ch.id][0]|num }}</span>{% endif %}</td>
     <td class="small">{% for r in (ch.reasons or [])[:2] %}{{ r|short(110) }}<br>{% endfor %}</td>
   </tr>
   {% else %}

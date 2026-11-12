@@ -66,7 +66,7 @@
   {% if ch.prices %}
   <table>
     {% for p in ch.prices %}
-    <tr><td><b>{{ p.amount|num }}</b> {{ p.currency or '' }}</td><td>{{ p.fmt or '' }}</td>
+    <tr><td><b>{{ p.amount|num }}</b> {{ p.currency or '' }}</td><td>{{ p.fmt or '' }}{% if p.pack %} <span class="badge">пакет: {{ p.pack }} канал.</span>{% endif %}</td>
       <td class="small muted">{{ p.source }}</td><td class="small">{{ p.line|short(90) }}</td></tr>
     {% endfor %}
   </table>
