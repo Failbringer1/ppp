@@ -1,0 +1,21 @@
+# VPS add-on: Caddy in front of the panel with automatic HTTPS (Let's Encrypt).
+# PUBLIC_HOST comes from .env (a domain or <ip-with-dashes>.sslip.io).
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - tgads
+
+volumes:
+  caddy_data:
+  caddy_config:

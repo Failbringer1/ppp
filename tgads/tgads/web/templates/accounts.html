@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Аккаунты{% endblock %}
+{% block content %}
+<h1>Telegram-аккаунты</h1>
+<p class="small muted">Роли: <b>мониторинг</b> вступает в каналы-кандидаты, парсит посты и замеряет просмотры (до ~500 каналов на аккаунт);
+<b>переписка</b> пишет админам (лучше аккаунт с историей, не новый); <b>публикация</b> — админ ваших каналов: постит и создаёт ссылки.
+Один аккаунт может совмещать все роли.</p>
+
+<form method="post" action="/accounts/login" class="row">
+  <label>Номер телефона <input name="phone" placeholder="+998901234567" required></label>
+  <button type="submit">Получить код</button>
+</form>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>Аккаунт</th><th>Статус</th><th>Роли и включение</th><th>Сегодня</th><th>Пауза / ошибка</th><th></th></tr></thead>
+  <tbody>
+  {% for a, joins, dms in rows %}
+  <tr>
+    <td>{{ a.id }}</td>
+    <td>{{ a.title or a.phone }}<br><span class="small muted">{{ a.phone }}{% if a.username %} · @{{ a.username }}{% endif %}</span></td>
+    <td>
+      {% if a.id in online %}<span class="badge ok">онлайн</span>
+      {% elif a.status == 'code_sent' %}<a href="/accounts/{{ a.id }}/code" class="badge warn">ввести код</a>
+      {% else %}<span class="badge {{ 'bad' if a.status == 'error' else 'muted' }}">{{ a.status }}</span>{% endif %}
+    </td>
+    <td>
+      <form method="post" action="/accounts/{{ a.id }}/update" class="row">
+        {% for r, label in roles %}
+        <label class="small"><input type="checkbox" name="roles" value="{{ r }}" {{ 'checked' if a.has_role(r) }}> {{ label }}</label>
+        {% endfor %}
+        <label class="small"><input type="checkbox" name="enabled" value="1" {{ 'checked' if a.enabled }}> включён</label>
+        <button class="sm secondary">Сохранить</button>
+      </form>
+    </td>
+    <td class="small">вступлений: {{ joins }}<br>сообщений: {{ dms }}</td>
+    <td class="small">{% if a.cooldown_until %}до {{ a.cooldown_until|local }}
+        <form class="inline" method="post" action="/accounts/{{ a.id }}/clear-cooldown"><button class="sm outline">снять</button></form><br>{% endif %}
+        <span class="muted">{{ a.last_error or '' }}</span></td>
+    <td><form method="post" action="/accounts/{{ a.id }}/reconnect"><button class="sm outline">Переподключить</button></form></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

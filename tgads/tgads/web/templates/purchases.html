@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status %}
+{% block title %}Закупы{% endblock %}
+{% block content %}
+<h1>6 · Закупы и отдача</h1>
+<p class="small muted">На каждый закуп создаётся отдельная пригласительная ссылка вашего канала. Раз в 10 минут собираются вступления по каждой ссылке и отписки.
+Отписки берутся из лога канала, а Telegram хранит его 48 часов, поэтому процесс должен работать постоянно. <b>CPS</b> — цена подписчика, <b>CPS живого</b> — цена подписчика, который не отписался.</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>Площадка</th><th>Мой канал</th><th>Статус</th><th>Выход</th><th>Цена, сум</th><th>Просмотры</th><th>CPM</th>
+    <th>Подписалось</th><th>Отписались за 1 / 3 / 7 дн</th><th>CTR</th><th>CPS</th><th>CPS живого</th></tr></thead>
+  <tbody>
+  {% for p, ch, mc, m in rows %}
+  <tr>
+    <td><a href="/purchases/{{ p.id }}">#{{ p.id }}</a></td>
+    <td><a href="/channels/{{ ch.id }}">{{ ch.title or ch.ref }}</a><br><span class="small muted">{{ p.fmt }}</span></td>
+    <td class="small">{{ mc.title or mc.ref }}</td>
+    <td>{{ status(p.status) }}</td>
+    <td class="small">{{ p.scheduled_at|local }}</td>
+    <td>{{ p.price_uzs|num }}</td><td>{{ m.views|num }}</td><td>{{ m.cpm|num }}</td>
+    <td><b>{{ m.joins }}</b></td><td>{{ m.left_1d }} / {{ m.left_3d }} / {{ m.left_7d }}</td>
+    <td>{{ m.ctr|pct(2) }}</td><td>{{ m.cps|num }}</td><td><b>{{ m.cps_alive|num }}</b></td>
+  </tr>
+  {% else %}<tr><td colspan="13" class="muted">Закупов нет. Создаются из диалога с админом или формой ниже.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if by_creative %}
+<h2>Какой рекламный пост работает лучше</h2>
+<table>
+  <thead><tr><th>Рекламный пост</th><th>Закупов</th><th>Потрачено</th><th>Просмотров</th><th>Подписалось</th><th>Осталось</th><th>CTR</th><th>CPS живого</th></tr></thead>
+  {% for cid, a in by_creative.items() %}
+  <tr><td class="small">{{ (creatives[cid].title or creatives[cid].text|short(80)) if cid in creatives else '— без креатива —' }}</td>
+    <td>{{ a.n }}</td><td>{{ a.spent|num }}</td><td>{{ a.views|num }}</td><td>{{ a.joins }}</td><td>{{ a.alive }}</td>
+    <td>{{ (a.joins / a.views)|pct(2) if a.views else '—' }}</td><td><b>{{ (a.spent / a.alive)|num if a.alive else '—' }}</b></td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<h2>Новый закуп вручную</h2>
+<form method="post" action="/purchases">
+  <div class="row">
+    <label>Площадка<select name="channel_id" required>{% for ch in channels %}<option value="{{ ch.id }}">{{ ch.title or ch.ref }}</option>{% endfor %}</select></label>
+    <label>Мой канал<select name="my_channel_id" required>{% for m in my_channels %}<option value="{{ m.id }}">{{ m.title or m.ref }}</option>{% endfor %}</select></label>
+    <label>Сумма<input name="amount" type="number" step="any" required></label>
+    <label>Валюта<select name="currency"><option>UZS</option><option>USD</option><option>RUB</option></select></label>
+    <label>Формат<input name="fmt" value="1/24" style="width: 90px"></label>
+    <label>Выход (Ташкент)<input type="datetime-local" name="scheduled_at"></label>
+  </div>
+  <label class="small"><input type="checkbox" name="request_needed" value="1"> Ссылка с заявками на вступление</label>
+  <button type="submit" {{ 'disabled' if not (channels and my_channels) }}>Создать</button>
+  <small class="muted">В списке площадок только одобренные и проверенные каналы.</small>
+</form>
+{% endblock %}

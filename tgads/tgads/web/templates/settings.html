@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Настройки{% endblock %}
+{% block content %}
+<h1>Настройки</h1>
+<form method="post" action="/settings">
+  <h2>Деньги и лимиты</h2>
+  <div class="row">
+    {% for key, label, typ in numbers %}
+    <label style="width: 260px">{{ label }}<input name="{{ key }}" type="number" step="any" value="{{ st[key] }}"></label>
+    {% endfor %}
+    <label style="width: 260px">Писать админам с (час)<input name="dm_from" type="number" value="{{ st.dm_hours[0] }}"></label>
+    <label style="width: 260px">до (час, Ташкент)<input name="dm_to" type="number" value="{{ st.dm_hours[1] }}"></label>
+  </div>
+  <label><input type="checkbox" name="auto_leave_after_check" value="1" {{ 'checked' if st.auto_leave_after_check }}>
+    Выходить из проверенных и отклонённых каналов (освобождает лимит ~500 каналов на аккаунт)</label>
+
+  <h2>Пороги детектора накрутки</h2>
+  <div class="row">
+    {% for k, v in th.items() %}
+    <label style="width: 330px">{{ th_labels.get(k, k) }}<input name="th_{{ k }}" type="number" step="any" value="{{ v }}"></label>
+    {% endfor %}
+  </div>
+
+  <h2>Первое сообщение админу</h2>
+  <p class="small muted"><code>{channel}</code> заменяется списком каналов, а <code>{вариант 1|вариант 2}</code> выбирается случайно, чтобы сообщения не были одинаковыми (антиспам).</p>
+  <label>Узбекский<textarea name="tpl_uz" rows="3">{{ st.outreach_templates.uz }}</textarea></label>
+  <label>Русский<textarea name="tpl_ru" rows="3">{{ st.outreach_templates.ru }}</textarea></label>
+  <label>Язык черновиков ответа ИИ<select name="outreach_language">
+    {% for k in ['uz', 'ru'] %}<option {{ 'selected' if st.outreach_language == k }}>{{ k }}</option>{% endfor %}</select></label>
+
+  <h2>Поиск каналов</h2>
+  <label>Ключевые слова по умолчанию<textarea name="search_keywords" rows="3">{{ st.search_keywords }}</textarea></label>
+  <label>Сайт TGStat<input name="tgstat_base" value="{{ st.tgstat_base }}"></label>
+
+  <h2>Claude (ИИ без API-ключа)</h2>
+  <p class="small muted">Токен подписки для фонового режима: на сервере или своём компьютере выполните <code>claude setup-token</code>,
+    войдите в Claude и вставьте сюда выданный токен. {% if st.claude_oauth_token %}<b>Токен сохранён.</b>{% else %}Токен не задан.{% endif %}</p>
+  <div class="row">
+    <label>Токен<input name="claude_oauth_token" type="password" autocomplete="off"
+      placeholder="{{ '•••••••• (сохранён, вставьте новый, чтобы заменить)' if st.claude_oauth_token else 'sk-ant-oat…' }}"></label>
+    {% if st.claude_oauth_token %}<label class="small"><input type="checkbox" name="claude_token_clear" value="1"> удалить токен</label>{% endif %}
+  </div>
+
+  <button type="submit">Сохранить</button>
+</form>
+{% endblock %}

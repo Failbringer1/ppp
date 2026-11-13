@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Мои оценки рекламы{% endblock %}
+{% block content %}
+<h1>Мои оценки рекламных постов</h1>
+<p class="small muted">Всё, что вы отметили 👍 и 👎 под рекламными постами своих каналов. Эти оценки с комментариями
+  подставляются в задание каждый раз, когда пишется новый рекламный пост, и уходят в чат с Claude. Ошибочную оценку
+  можно удалить. <a href="/content">К своим каналам</a></p>
+{% for r in rows %}
+<article>
+  <div class="row small">
+    {% if r.rating > 0 %}<span class="badge ok">👍 нравится</span>{% else %}<span class="badge bad">👎 не нравится</span>{% endif %}
+    <b>{{ r.title or '—' }}</b>
+    {% set m = chans.get(r.my_channel_id) %}
+    <span class="muted">{% if m %}<a href="/content/{{ m.id }}#creatives">{{ m.title or m.ref }}</a> · {% endif %}{{ r.created_at|local }}</span>
+    <form method="post" action="/content/taste/{{ r.id }}/delete" class="inline"><button class="sm outline">удалить</button></form>
+  </div>
+  {% if r.comment %}<p><b>Комментарий:</b> {{ r.comment }}</p>{% endif %}
+  <details><summary class="small">Текст поста на момент оценки</summary>
+    {% if r.text_ru %}<pre class="text">{{ r.text_ru }}</pre>{% endif %}
+    <pre class="text">{{ r.text }}</pre>
+  </details>
+</article>
+{% else %}<p class="muted">Оценок пока нет. Поставьте 👍 или 👎 под рекламным постом на странице канала.</p>{% endfor %}
+{% endblock %}

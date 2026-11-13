@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Вход в аккаунт{% endblock %}
+{% block content %}
+<h1>Вход: {{ acc.phone }}</h1>
+<form method="post" action="/accounts/{{ acc.id }}/code" style="max-width: 420px">
+  {% if need_password %}
+    <label>Облачный пароль (2FA)<input type="password" name="password" required autofocus></label>
+  {% else %}
+    <label>Код из Telegram<input name="code" inputmode="numeric" autocomplete="one-time-code" required autofocus></label>
+    <p class="small muted">Код приходит в приложение Telegram (чат «Telegram»), не по SMS.</p>
+  {% endif %}
+  <button type="submit">Войти</button>
+</form>
+{% endblock %}
