@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Form, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy import select
 
 from ...db import session
 from ...models import Account
+from ...services import network, tasks
 from ...tg.pool import counter, pool
 from ..app import back, render
 
@@ -78,3 +80,23 @@ async def clear_cooldown(acc_id: int):
         acc.cooldown_until = None
         await s.commit()
     return back("/accounts", msg="Пауза снята")
+
+
+@router.post("/{acc_id}/network/survey")
+async def network_survey(acc_id: int, refs: str = Form(...)):
+    """Channels where the account is an admin: rights, description, number of posts, the oldest posts."""
+    return JSONResponse(await network.survey(acc_id, refs.split()))
+
+
+@router.post("/{acc_id}/network/about")
+async def network_about(acc_id: int, ref: str = Form(...), about: str = Form(...)):
+    try:
+        return JSONResponse({"ok": await network.set_about(acc_id, ref, about)})
+    except Exception as e:
+        return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=400)
+
+
+@router.post("/{acc_id}/network/purge")
+async def network_purge(acc_id: int, ref: str = Form(...), keep_id: int = Form(...)):
+    tasks.spawn(network.purge(acc_id, ref, keep_id), f"Очистка канала {ref}")
+    return JSONResponse({"ok": "started"})
