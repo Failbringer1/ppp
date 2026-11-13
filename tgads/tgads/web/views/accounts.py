@@ -100,3 +100,17 @@ async def network_about(acc_id: int, ref: str = Form(...), about: str = Form(...
 async def network_purge(acc_id: int, ref: str = Form(...), keep_id: int = Form(...)):
     tasks.spawn(network.purge(acc_id, ref, keep_id), f"Очистка канала {ref}")
     return JSONResponse({"ok": "started"})
+
+
+@router.post("/{acc_id}/network/post")
+async def network_post(acc_id: int, ref: str = Form(...), title: str = Form(...), text: str = Form(...), at: int = Form(0)):
+    """Publish a post in a network channel; `at` (unix time) schedules it inside Telegram."""
+    try:
+        return JSONResponse(await network.post(acc_id, ref, title, text, at or None))
+    except Exception as e:
+        return JSONResponse({"error": f"{type(e).__name__}: {e}"}, status_code=400)
+
+
+@router.post("/{acc_id}/network/scheduled")
+async def network_scheduled(acc_id: int, refs: str = Form(...)):
+    return JSONResponse(await network.scheduled(acc_id, refs.split()))

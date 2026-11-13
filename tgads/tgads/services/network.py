@@ -1,8 +1,9 @@
 """Housekeeping of existing channels where an account is an admin (an old network that is brought back to life):
-a survey, the description, and clearing old posts."""
+a survey, the description, clearing old posts, and posting (now or scheduled)."""
 from __future__ import annotations
 
 import asyncio
+from datetime import datetime, timezone
 
 from telethon import functions, types
 
@@ -63,3 +64,28 @@ async def purge(account_id: int, ref: str, keep_id: int) -> str:
         await asyncio.sleep(2)
     left = (await call(lambda: client.get_messages(chat, limit=0))).total
     return f"{ref}: удалено {done}, осталось сообщений {left}"
+
+
+async def post(account_id: int, ref: str, title: str, text: str, at: int | None = None) -> dict:
+    """Publish a post with a bold title; `at` (unix time) puts it into Telegram's own scheduled queue instead."""
+    client = await pool.get(account_id)
+    chat = await call(lambda: client.get_input_entity(_name(ref)))
+    bold = [types.MessageEntityBold(offset=0, length=len(title.encode("utf-16-le")) // 2)]
+    when = datetime.fromtimestamp(at, tz=timezone.utc) if at else None
+    msg = await call(lambda: client.send_message(
+        chat, f"{title}\n\n{text}", formatting_entities=bold, link_preview=False, schedule=when))
+    return {"ref": ref, "id": msg.id, "date": msg.date.isoformat()}
+
+
+async def scheduled(account_id: int, refs: list[str]) -> list[dict]:
+    """Posts waiting in Telegram's scheduled queue of each channel."""
+    client = await pool.get(account_id)
+    out = []
+    for ref in refs:
+        chat = await call(lambda: client.get_input_entity(_name(ref)))
+        res = await call(lambda: client(functions.messages.GetScheduledHistoryRequest(peer=chat, hash=0)))
+        out.append({"ref": ref, "posts": sorted(
+            ({"id": m.id, "date": m.date.isoformat(), "text": (m.message or "")[:60]} for m in res.messages),
+            key=lambda p: p["date"])})
+        await asyncio.sleep(1)
+    return out
